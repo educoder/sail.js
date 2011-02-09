@@ -76,7 +76,7 @@ S3.Rollcall.prototype = {
             success: function(data) {
                 if (data.error) {
                     console.log(data)
-                    throw "Error response from Rollcall at " + rollcall.url
+                    throw data.error.data + " (from " + rollcall.url + ")"
                 } else {
                     callback(data)
                 }
