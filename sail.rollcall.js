@@ -1,22 +1,13 @@
 // uses jquery.url.js --> https://github.com/allmarkedup/jQuery-URL-Parser
 
-var S3 = window.S3 || {}
+var Sail = window.Sail || {}
 
-S3.Rollcall = function(url) {
+Sail.Rollcall = function(url) {
     this.url = url
 }
 
-S3.Rollcall.prototype = {
-    /**
-     * Get the current authentication token (from the current URL, i.e. from "?token=123xyz")
-     *
-     * In the future we may also wan to check for a 'token' cookie.
-     */
-    getCurrentToken: function() {
-        // $.url is from jquery.url.js and refers to the current url 
-        // (i.e. the url of the page we are currently on)
-        return $.url.param('token')
-    },
+Sail.Rollcall.prototype = {
+     
     
     /**
      * Fetch session data for the given token.
