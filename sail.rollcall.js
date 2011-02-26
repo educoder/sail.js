@@ -7,7 +7,16 @@ Sail.Rollcall = function(url) {
 }
 
 Sail.Rollcall.prototype = {
-     
+     /**
+      * Get the current authentication token (from the current URL, i.e. from "?token=123xyz")
+      *
+      * In the future we may also wan to check for a 'token' cookie.
+      */
+     getCurrentToken: function() {
+         // $.url is from jquery.url.js and refers to the current url 
+         // (i.e. the url of the page we are currently on)
+         return $.url.param('token')
+     },
     
     /**
      * Fetch session data for the given token.
