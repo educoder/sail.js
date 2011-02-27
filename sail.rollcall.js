@@ -2,11 +2,15 @@
 
 var Sail = window.Sail || {}
 
-Sail.Rollcall = function(url) {
+Sail.Rollcall = {
+    
+}
+
+Sail.Rollcall.Client = function(url) {
     this.url = url
 }
 
-Sail.Rollcall.prototype = {
+Sail.Rollcall.Client.prototype = {
      /**
       * Get the current authentication token (from the current URL, i.e. from "?token=123xyz")
       *
