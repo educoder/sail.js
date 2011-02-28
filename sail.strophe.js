@@ -39,6 +39,7 @@ Sail.Strophe = {
               setTimeout(function() {
                 Sail.Strophe.connect()
                 Sail.Strophe.joinGroupchat(room)
+                return true
               }, 1000)
               
             return true
