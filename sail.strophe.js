@@ -20,8 +20,8 @@ Sail.Strophe = {
             console.log("OUT:", $(data).children()[0])
         }
         
-        this.conn.addHandler(function(msg){Sail.Strophe.onGroupchatMessage(msg);return true},
-          null, "message", "groupchat")
+        this.conn.addHandler(function(msg){console.log("FUCKING PRES");return true},
+          null, "presence")
         
         console.log('CONNECTING TO '+this.bosh_url+'WITH: '+this.jid+'/'+this.password)
         this.conn.connect(this.jid, this.password, this.onConnect)
