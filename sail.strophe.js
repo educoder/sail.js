@@ -32,11 +32,12 @@ Sail.Strophe = {
         this.conn.send(pres.tree(), success, failure)
         
         this.conn.addHandler(function(){
-            pres = $pres({to: room+"/"+Sail.Strophe.jid, type: 'available'}).c('x', {xmlns: 'http://jabber.org/protocol/muc'}).c('status', {code: 100})
-            Sail.Strophe.conn.send(pres.tree(), success, failure)
-            // console.log("REJOINING "+room)
-            //             Sail.Strophe.connect()
-            //             Sail.Strophe.joinGroupchat(room)
+            // pres = $pres({to: room+"/"+Sail.Strophe.jid, type: 'available'}).c('x', {xmlns: 'http://jabber.org/protocol/muc'}).c('status', {code: 100})
+            //             Sail.Strophe.conn.send(pres.tree(), success, failure)
+            console.log("REJOINING "+room)
+            Sail.Strophe.disconnect()
+              Sail.Strophe.connect()
+          Sail.Strophe.joinGroupchat(room)
             return true
           }, null, "presence", "unavailable")
         
