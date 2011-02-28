@@ -20,9 +20,6 @@ Sail.Strophe = {
             console.log("OUT:", $(data).children()[0])
         }
         
-        this.conn.addHandler(function(msg){console.log("FUCKING PRES");return true},
-          null, "presence")
-        
         console.log('CONNECTING TO '+this.bosh_url+'WITH: '+this.jid+'/'+this.password)
         this.conn.connect(this.jid, this.password, this.onConnect)
     },
@@ -33,6 +30,8 @@ Sail.Strophe = {
         
         pres = $pres({to: room+"/"+this.jid}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
         this.conn.send(pres.tree(), success, failure)
+        
+        this.conn.addHandler(function(msg){Sail.Strophe.joinGroupchat(room), null, "presence")
         
         return new Sail.Strophe.Groupchat(this.conn, room)
     },
