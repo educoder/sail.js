@@ -31,7 +31,10 @@ Sail.Strophe = {
         pres = $pres({to: room+"/"+this.jid}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
         this.conn.send(pres.tree(), success, failure)
         
-        this.conn.addHandler(function(){console.log("REJOINING "+room); Sail.Strophe.joinGroupchat(room)}, null, "presence", "unavailable")
+        this.conn.addHandler(function(){
+            console.log("REJOINING "+room)
+            Sail.Strophe.joinGroupchat(room)
+          }, null, "presence", "unavailable")
         
         return new Sail.Strophe.Groupchat(this.conn, room)
     },
