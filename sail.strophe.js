@@ -35,9 +35,12 @@ Sail.Strophe = {
             // pres = $pres({to: room+"/"+Sail.Strophe.jid, type: 'available'}).c('x', {xmlns: 'http://jabber.org/protocol/muc'}).c('status', {code: 100})
             //             Sail.Strophe.conn.send(pres.tree(), success, failure)
             console.log("REJOINING "+room)
-            Sail.Strophe.disconnect()
-              Sail.Strophe.connect()
-          Sail.Strophe.joinGroupchat(room)
+              Sail.Strophe.disconnect()
+              setTimeout(function() {
+                Sail.Strophe.connect()
+                Sail.Strophe.joinGroupchat(room)
+              }, 1000)
+              
             return true
           }, null, "presence", "unavailable")
         
