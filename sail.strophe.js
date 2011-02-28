@@ -32,7 +32,7 @@ Sail.Strophe = {
         this.conn.send(pres.tree(), success, failure)
         
         this.conn.addHandler(function(){
-            pres = $pres({to: room+"/"+this.jid}).c('x', {xmlns: 'http://jabber.org/protocol/muc'}).c('status', {code: 100})
+            pres = $pres({to: room+"/"+Sail.Strophe.jid}).c('x', {xmlns: 'http://jabber.org/protocol/muc'}).c('status', {code: 100})
             Sail.Strophe.conn.send(pres.tree(), success, failure)
             // console.log("REJOINING "+room)
             //             Sail.Strophe.connect()
