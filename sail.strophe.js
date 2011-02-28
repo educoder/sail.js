@@ -33,6 +33,7 @@ Sail.Strophe = {
         
         this.conn.addHandler(function(){
             console.log("REJOINING "+room)
+            Sail.Strophe.connect()
             Sail.Strophe.joinGroupchat(room)
           }, null, "presence", "unavailable")
         
