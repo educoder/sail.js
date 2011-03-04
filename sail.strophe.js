@@ -31,20 +31,6 @@ Sail.Strophe = {
         pres = $pres({to: room+"/"+this.jid}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
         this.conn.send(pres.tree(), success, failure)
         
-        this.conn.addHandler(function(){
-            // pres = $pres({to: room+"/"+Sail.Strophe.jid, type: 'available'}).c('x', {xmlns: 'http://jabber.org/protocol/muc'}).c('status', {code: 100})
-            //             Sail.Strophe.conn.send(pres.tree(), success, failure)
-            console.log("REJOINING "+room)
-              Sail.Strophe.conn.disconnect()
-              setTimeout(function() {
-                Sail.Strophe.connect()
-                Sail.Strophe.joinGroupchat(room)
-                return true
-              }, 1000)
-              
-            return true
-          }, null, "presence", "unavailable")
-        
         return new Sail.Strophe.Groupchat(this.conn, room)
     },
     
@@ -53,12 +39,23 @@ Sail.Strophe = {
         Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, type, id, from)
     },
     
+    // pings the server periodically to keep the connection open
+    pinger: function(interval) {
+      if (!interval) interval = 10 * 1000 // default is 10 seconds
+      setInterval(function() {
+        console.log("Sending ping")
+        pres = $pres()
+        Sail.Strophe.conn.send(pres.tree(), function(msg){console.log("sent PING", msg)}, function(err){console.log("PING failed!", err)})
+      }, interval)
+    },
+    
     /** Event Handlers -- override these as required **/
     
     onConnect: function (status) {
         if (status === Strophe.Status.CONNECTED) {
             console.log('CONNECTED to '+Sail.Strophe.bosh_url)
             Sail.Strophe.onConnectSuccess()
+            Sail.Strophe.pinger() // start the periodic pinger to prevent the connection from closing
         } else if (status === Strophe.Status.DISCONNECTED) {
             console.log('DISCONNECTED from '+Sail.Strophe.bosh_url)
         } else if (status === Strophe.Status.CONNECTING) {
