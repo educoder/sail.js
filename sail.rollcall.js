@@ -3,7 +3,7 @@
 var Sail = window.Sail || {}
 
 Sail.Rollcall = {
-    
+
 }
 
 Sail.Rollcall.Client = function(url) {
@@ -11,17 +11,25 @@ Sail.Rollcall.Client = function(url) {
 }
 
 Sail.Rollcall.Client.prototype = {
-     /**
-      * Get the current authentication token (from the current URL, i.e. from "?token=123xyz")
-      *
-      * In the future we may also wan to check for a 'token' cookie.
-      */
-     getCurrentToken: function() {
-         // $.url is from jquery.url.js and refers to the current url 
-         // (i.e. the url of the page we are currently on)
-         return $.url.param('token')
-     },
-    
+    /**
+     * Get the current authentication token (from the current URL, i.e. from "?token=123xyz")
+     *
+     * In the future we may also wan to check for a 'token' cookie.
+     */
+    getCurrentToken: function() {
+        // $.url is from jquery.url.js and refers to the current url 
+        // (i.e. the url of the page we are currently on)
+        return $.url.param('token')
+    },
+     
+    /**
+     * Redirect the user to the Rollcall login page for authentication.
+     */
+    redirectToLogin: function() {        
+        window.location.replace(this.url+'/login?destination='+escape(window.location.href))
+    },
+
+
     /**
      * Fetch session data for the given token.
      * If the session data is retrieved successfully, then given
@@ -33,14 +41,13 @@ Sail.Rollcall.Client.prototype = {
      */
     fetchSessionForToken: function(token, callback) {
         currentUrl = $.url.attr('source')
-        
+    
         $.url.setUrl(this.url)
         rollcallHost = $.url.attr('host')
         rollcallPort = $.url.attr('port')
         rollcallProtocol = $.url.attr('protocol')
-        
         $.url.setUrl(currentUrl)
-        
+    
         // determine whether we can talk to rollcall over REST
         // or whetehr we have to use JSONP
         if (rollcallHost == $.url.attr('host') 

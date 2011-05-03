@@ -5,6 +5,7 @@ Sail.Strophe = {
     bosh_url: null,
     jid: null,
     password: null,
+    dataMode: 'xml', // 'xml' || 'json'
     
     connect: function() {
         if (!this.bosh_url) throw "No bosh_url set!"
@@ -94,28 +95,28 @@ Sail.Strophe.Groupchat = function(conn, room) {
 }
 
 Sail.Strophe.Groupchat.prototype = {
-    sendXML: function(xml, success, failure) {
-        if (!success) success = this.onSuccess
-        if (!failure) failure = this.onFailure
-
-        msg = $msg({to: this.room, type: 'groupchat'}).c('body').c(xml)
-        this.conn.send(msg.tree(), success, failure)
+    sendEvent: function(event) {
+        if (Sail.Strophe.dataMode == 'xml')
+            this.sendXML(event.toXML())
+        else if (Sail.Strophe.dataMode == 'json')
+            this.sendJSON(event.toJSON)
+        else // FIXME: this isn't really right...
+            this.sendText(event)
     },
     
-    sendText: function(text, success, failure) {
-        if (!success) success = this.onSuccess
-        if (!failure) failure = this.onFailure
-
+    sendXML: function(xml) {
+        msg = $msg({to: this.room, type: 'groupchat'}).c('body').cnode($(xml)[0])
+        this.conn.send(msg.tree())
+    },
+    
+    sendText: function(text) {
         msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(text)
-        this.conn.send(msg.tree(), success, failure)
+        this.conn.send(msg.tree())
     },
     
-    sendJSON: function(data, success, failure) {
-        if (!success) success = this.onSuccess
-        if (!failure) failure = this.onFailure
-
+    sendJSON: function(data) {
         msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(JSON.stringify(data))
-        this.conn.send(msg.tree(), success, failure)
+        this.conn.send(msg.tree())
     },
     
     addHandler: function(handler, ns, name, id, from) {
@@ -127,14 +128,4 @@ Sail.Strophe.Groupchat.prototype = {
       console.log("GROUPCHAT: ", msg)
       return true
     },
-    
-    onSuccess: function(msg) {
-        console.log("SUCCESS: ", msg)
-        return true
-    },
-    
-    onFailure: function(msg) {
-        console.log("FAILURE: ", msg)
-        return true
-    }
 }
