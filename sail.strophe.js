@@ -1,11 +1,13 @@
 
 var Sail = window.Sail || {}
 
+Strophe.TIMEOUT = 0.3 // lower the TIMEOUT multiplier a bit..
+
 Sail.Strophe = {
     bosh_url: null,
     jid: null,
     password: null,
-    dataMode: 'xml', // 'xml' || 'json'
+    dataMode: 'json', // 'xml' || 'json'
     
     connect: function() {
         if (!this.bosh_url) throw "No bosh_url set!"
@@ -14,12 +16,12 @@ Sail.Strophe = {
         
         this.conn = new Strophe.Connection(this.bosh_url)
         
-        this.conn.xmlInput = function(data) {
-            console.log("IN:", $(data).children()[0])
-        }
-        this.conn.xmlOutput = function(data) {
-            console.log("OUT:", $(data).children()[0])
-        }
+        // this.conn.xmlInput = function(data) {
+        //     console.log("IN:", $(data).children()[0])
+        // }
+        // this.conn.xmlOutput = function(data) {
+        //     console.log("OUT:", $(data).children()[0])
+        // }
         
         console.log('CONNECTING TO '+this.bosh_url+'WITH: '+this.jid+'/'+this.password)
         this.conn.connect(this.jid, this.password, this.onConnect)
@@ -47,6 +49,7 @@ Sail.Strophe = {
         console.log("Sending ping")
         pres = $pres()
         Sail.Strophe.conn.send(pres.tree(), function(msg){console.log("sent PING", msg)}, function(err){console.log("PING failed!", err)})
+        Sail.Strophe.conn.flush()
       }, interval)
     },
     
@@ -95,11 +98,15 @@ Sail.Strophe.Groupchat = function(conn, room) {
 }
 
 Sail.Strophe.Groupchat.prototype = {
+    jid: function() {
+        return this.room + "/" + Sail.Strophe.jid
+    },
+    
     sendEvent: function(event) {
-        if (Sail.Strophe.dataMode == 'xml')
+        /*if (Sail.Strophe.dataMode == 'xml')
             this.sendXML(event.toXML())
-        else if (Sail.Strophe.dataMode == 'json')
-            this.sendJSON(event.toJSON)
+        else*/ if (Sail.Strophe.dataMode == 'json')
+            this.sendJSON(event.toJSON())
         else // FIXME: this isn't really right...
             this.sendText(event)
     },
@@ -114,8 +121,13 @@ Sail.Strophe.Groupchat.prototype = {
         this.conn.send(msg.tree())
     },
     
-    sendJSON: function(data) {
-        msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(JSON.stringify(data))
+    sendJSON: function(json) {
+        if (typeof json == "string")
+            json_string = json
+        else
+            json_string = JSON.stringify(json)
+        
+        msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(json_string)
         this.conn.send(msg.tree())
     },
     

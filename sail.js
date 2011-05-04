@@ -26,23 +26,24 @@ Sail.load = function() {
             'js/sail.js/sail.ui.js')
 }
 
-Sail.Event = function(type, content) {
-    this.type = type
-    this.content = content
+Sail.Event = function(type, data) {
+    this.payload = data
+    this.payload.type = type
 }
 
 Sail.Event.prototype = {
-    toXML: function() {
-        // hack using jQuery to build the XML
-        xml = $("<xml />")
-        ev = $('<event />')
-        ev.attr('type', this.type)
-        ev.text(this.content)
-        xml.append(ev)
-        return xml.html() // html() returns only the inner contents of the <xml> tag!
-    },
+    // FIXME: this needs to be reworked
+    // toXML: function() {
+    //     // hack using jQuery to build the XML
+    //     xml = $("<xml />")
+    //     ev = $('<event />')
+    //     ev.attr('type', this.type)
+    //     ev.text(this.content)
+    //     xml.append(ev)
+    //     return xml.html() // html() returns only the inner contents of the <xml> tag!
+    // },
     
     toJSON: function() {
-        return {type: this.type, content: this.content}
+        return JSON.stringify(this.payload)
     }
 }
