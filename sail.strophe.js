@@ -1,13 +1,13 @@
 
 var Sail = window.Sail || {}
 
-Strophe.TIMEOUT = 0.3 // lower the TIMEOUT multiplier a bit..
 
 Sail.Strophe = {
     bosh_url: null,
     jid: null,
     password: null,
     dataMode: 'json', // 'xml' || 'json'
+    logLevel: Strophe.LogLevel.INFO,
     
     connect: function() {
         if (!this.bosh_url) throw "No bosh_url set!"
@@ -44,11 +44,13 @@ Sail.Strophe = {
     
     // pings the server periodically to keep the connection open
     pinger: function(interval) {
-      if (!interval) interval = 10 * 1000 // default is 10 seconds
+      if (!interval) interval = 14 * 1000 // default is 14 seconds
       setInterval(function() {
         console.log("Sending ping")
         pres = $pres()
         Sail.Strophe.conn.send(pres.tree(), function(msg){console.log("sent PING", msg)}, function(err){console.log("PING failed!", err)})
+        //Sail.Strophe.conn.send(msg.tree(), function(msg){console.log("sent PING", msg)}, function(err){console.log("PING failed!", err)})
+        
         Sail.Strophe.conn.flush()
       }, interval)
     },
@@ -58,6 +60,7 @@ Sail.Strophe = {
     onConnect: function (status) {
         if (status === Strophe.Status.CONNECTED) {
             console.log('CONNECTED to '+Sail.Strophe.bosh_url)
+            Sail.Strophe.addDefaultHandlers()
             Sail.Strophe.onConnectSuccess()
             Sail.Strophe.pinger() // start the periodic pinger to prevent the connection from closing
         } else if (status === Strophe.Status.DISCONNECTED) {
@@ -89,6 +92,49 @@ Sail.Strophe = {
     onFailure: function(msg) {
         console.log("FAILURE: "+msg)
         return true
+    },
+    
+    addDefaultHandlers: function() {
+        Sail.Strophe.conn.addHandler(Sail.Strophe.errorHandler, null, null, 'error')
+    },
+    
+    errorHandler: function(stanza) {
+        err = $(stanza).children('error')
+        errMsg = err.children('text').text()
+        alert("XMPP ERROR: "+errMsg)
+        return true
+    },
+    
+    log: function(level, message) {
+        switch(level) {
+            case Strophe.LogLevel.DEBUG:
+                logFunc = 'debug'
+                logMsg = "DEBUG: "+message
+                break
+            case Strophe.LogLevel.INFO:
+                logFunc = 'info'
+                logMsg = "INFO: "+message
+                break
+            case Strophe.LogLevel.WARN:
+                logFunc = 'warn'
+                logMsg = "WARN: "+message
+                break
+            case Strophe.LogLevel.ERROR:
+                logFunc = 'error'
+                logMsg = "ERROR: "+message
+                break
+            case StropheLogLevel.FATAL:
+                logFunc = 'error'
+                logMsg = "FATAL: "+message
+                break
+            default:
+                logFunc = 'log'
+                logMsg = message
+                break
+        }
+        
+        if (Sail.Strophe.logLevel <= level)
+            console[logFunc](logMsg)
     }
 }
 
@@ -141,3 +187,6 @@ Sail.Strophe.Groupchat.prototype = {
       return true
     },
 }
+
+
+Strophe.log = Sail.Strophe.log
