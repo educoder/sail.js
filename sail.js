@@ -47,3 +47,25 @@ Sail.Event.prototype = {
         return JSON.stringify(this.payload)
     }
 }
+
+Sail.autobindEvents = function (obj, options) {
+    options = options || {}
+    
+    for (var meth in obj) {
+        if (obj.hasOwnProperty(meth) && typeof obj[meth] == 'function' && meth.match(/^on/)) {
+            event = meth.replace(/^on/,'')
+            event = event.charAt(0).toLowerCase() + event.slice(1)
+            console.debug("Sail: auto-binding event '"+event+"' to "+meth)
+            try {
+                if (options.pre)
+                  $(obj).bind(event, options.pre)
+                $(obj).bind(event, obj[meth])
+                if (options.post)
+                  $(obj).bind(event, options.post)
+            } catch(e) {
+                alert("Sail: failed to auto-bind event! '"+event+"' may be a reserved word.")
+                throw e
+            }
+        }
+    }
+} 
