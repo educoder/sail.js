@@ -11,13 +11,23 @@ Sail.UI = {
     },
     
     showDialog: function(jq) {
+        dialogId = 'sail-dialog-'+Math.floor(Math.random()*10e10).toString(16)
+        console.debug("Sail.UI: showing dialog "+dialogId)
         mask = $('<div class="mask"></div>')
-        mask.insertAfter(jq)
+        mask.addClass(dialogId)
+        mask.insertBefore(jq)
+        mask.css('z-index', 999)
+        $(jq).css('z-index', 1000)
+        $(jq).data('sail-dialog-id', dialogId)
         $(jq).show()
     },
     
     dismissDialog: function(jq) {
-        $(jq).next('.mask').remove()
+        if ($(jq).length == 0)
+            return // don't attempt to dismiss if dialog doesn't exist
+        dialogId = $(jq).data('sail-dialog-id')
+        console.debug("Sail.UI: dismissing dialog "+dialogId)
+        $('.mask.'+dialogId).remove()
         $(jq).fadeOut('fast')
     }
 }
