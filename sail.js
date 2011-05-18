@@ -48,18 +48,18 @@ Sail.Event.prototype = {
     }
 }
 
-Sail.autobindEvents = function (obj, options) {
+Sail.autobindEvents = function(obj, options) {
     options = options || {}
     
-    for (var meth in obj) {
-        if (obj.hasOwnProperty(meth) && typeof obj[meth] == 'function' && meth.match(/^on/)) {
+    for (var meth in obj.event) {
+        if (obj.event.hasOwnProperty(meth) && typeof obj.event[meth] == 'function' && meth.match(/^on/)) {
             event = meth.replace(/^on/,'')
             event = event.charAt(0).toLowerCase() + event.slice(1)
             console.debug("Sail: auto-binding event '"+event+"' to "+meth)
             try {
                 if (options.pre)
                   $(obj).bind(event, options.pre)
-                $(obj).bind(event, obj[meth])
+                $(obj).bind(event, obj.event[meth])
                 if (options.post)
                   $(obj).bind(event, options.post)
             } catch(e) {
@@ -68,4 +68,35 @@ Sail.autobindEvents = function (obj, options) {
             }
         }
     }
-} 
+}
+
+Sail.generateSailEventHandler = function(obj) {
+    return function(stanza) {
+        msg = $(stanza)
+
+        body = $(msg).children('body').text()
+        sev = null
+        try {
+            sev = JSON.parse(body)
+        } catch(err) {
+            console.log("couldn't parse message, ignoring: "+err)
+            return
+        }
+
+        if (msg.attr('from') == Jabberdy.groupchat.jid() && sev.type != 'guess') {
+            console.log("got message from myself... ignoring", msg)
+            return
+        }
+
+        sev.from = msg.attr('from')
+        sev.to = msg.attr('to')
+        sev.stanza = stanza
+    
+        if (obj.event.sail[sev.type])
+            $(obj).trigger(obj.event.sail[sev.type], sev)
+        else
+            console.log("UNHANDLED EVENT "+sev.type, sev)
+
+        return true
+    }
+}
