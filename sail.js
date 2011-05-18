@@ -83,7 +83,7 @@ Sail.generateSailEventHandler = function(obj) {
             return
         }
 
-        if (msg.attr('from') == Jabberdy.groupchat.jid() && sev.type != 'guess') {
+        if (msg.attr('from') == obj.groupchat.jid() && sev.type != 'guess') {
             console.log("got message from myself... ignoring", msg)
             return
         }
