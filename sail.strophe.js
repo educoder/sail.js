@@ -69,6 +69,8 @@ Sail.Strophe = {
             console.log('CONNECTING to '+Sail.Strophe.bosh_url)
         } else if (status === Strophe.Status.AUTHENTICATING) {
             console.log('AUTHENTICATING')
+        } else if (status === Strophe.Status.AUTHFAIL) {
+            console.error("AUTHENTICATION FAILED")
         } else {
             console.log('UNKNOWN CONNECTION STATUS: '+status)
         }
@@ -123,7 +125,7 @@ Sail.Strophe = {
                 logFunc = 'error'
                 logMsg = "ERROR: "+message
                 break
-            case StropheLogLevel.FATAL:
+            case Strophe.LogLevel.FATAL:
                 logFunc = 'error'
                 logMsg = "FATAL: "+message
                 break
