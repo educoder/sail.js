@@ -51,15 +51,15 @@ Sail.Event.prototype = {
 Sail.autobindEvents = function(obj, options) {
     options = options || {}
     
-    for (var meth in obj.event) {
-        if (obj.event.hasOwnProperty(meth) && typeof obj.event[meth] == 'function' && meth.match(/^on/)) {
+    for (var meth in obj.events) {
+        if (obj.events.hasOwnProperty(meth) && typeof obj.events[meth] == 'function' && meth.match(/^on/)) {
             event = meth.replace(/^on/,'')
             event = event.charAt(0).toLowerCase() + event.slice(1)
             console.debug("Sail: auto-binding event '"+event+"' to "+meth)
             try {
                 if (options.pre)
                   $(obj).bind(event, options.pre)
-                $(obj).bind(event, obj.event[meth])
+                $(obj).bind(event, obj.events[meth])
                 if (options.post)
                   $(obj).bind(event, options.post)
             } catch(e) {
@@ -92,8 +92,8 @@ Sail.generateSailEventHandler = function(obj) {
         sev.to = msg.attr('to')
         sev.stanza = stanza
     
-        if (obj.event.sail[sev.type])
-            $(obj).trigger(obj.event.sail[sev.type], sev)
+        if (obj.events.sail[sev.type])
+            $(obj).trigger(obj.events.sail[sev.type], sev)
         else
             console.log("UNHANDLED EVENT "+sev.type, sev)
 
