@@ -23,8 +23,14 @@ Sail.Strophe = {
         //     console.log("OUT:", $(data).children()[0])
         // }
         
-        console.log('CONNECTING TO '+this.bosh_url+'WITH: '+this.jid+'/'+this.password)
         this.conn.connect(this.jid, this.password, this.onConnect)
+    },
+    
+    disconnect: function() {
+        console.log("sending disconnect request...")
+        Sail.Strophe.conn.sync = true
+        Sail.Strophe.conn.flush()
+        Sail.Strophe.conn.disconnect()
     },
     
     joinGroupchat: function(room, success, failure) {
@@ -58,26 +64,54 @@ Sail.Strophe = {
     /** Event Handlers -- override these as required **/
     
     onConnect: function (status) {
-        if (status === Strophe.Status.CONNECTED) {
-            console.log('CONNECTED to '+Sail.Strophe.bosh_url)
-            Sail.Strophe.addDefaultHandlers()
-            Sail.Strophe.onConnectSuccess()
-            Sail.Strophe.pinger() // start the periodic pinger to prevent the connection from closing
-        } else if (status === Strophe.Status.DISCONNECTED) {
-            console.log('DISCONNECTED from '+Sail.Strophe.bosh_url)
-        } else if (status === Strophe.Status.CONNECTING) {
-            console.log('CONNECTING to '+Sail.Strophe.bosh_url)
-        } else if (status === Strophe.Status.AUTHENTICATING) {
-            console.log('AUTHENTICATING')
-        } else if (status === Strophe.Status.AUTHFAIL) {
-            console.error("AUTHENTICATION FAILED")
-        } else {
-            console.log('UNKNOWN CONNECTION STATUS: '+status)
+        switch (status) {
+            case Strophe.Status.ERROR:
+                console.log('CONNECTION ERROR!')
+                break
+            case Strophe.Status.CONNECTING:
+                console.log('CONNECTING to '+Sail.Strophe.bosh_url+' WITH '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
+                break
+            case Strophe.Status.CONNFAIL:
+                console.error('CONNECTION to '+Sail.Strophe.bosh_url+' FAILED!')
+                break
+            case Strophe.Status.AUTHENTICATING:
+                console.log('AUTHENTICATING')
+                break
+            case Strophe.Status.AUTHFAIL:
+                console.error("AUTHENTICATION FAILED")
+                break
+            case Strophe.Status.CONNECTED:
+                console.log('CONNECTED to '+Sail.Strophe.bosh_url)
+
+                // store connection data to allow for .attach() on reload
+                $(window).unload(Sail.Strophe.disconnect)
+
+                Sail.Strophe.addDefaultHandlers()
+                Sail.Strophe.onConnectSuccess()
+                Sail.Strophe.pinger() // start the periodic pinger to prevent the connection from closing
+                break
+            case Strophe.Status.DISCONNECTED:
+                // ConnInfo (for .attach()) is currently unused, but if it were
+                // used it should be cleared here
+                Sail.Strophe.clearConnInfo()
+                
+                console.log('DISCONNECTED!')
+                break
+            case Strophe.Status.DISCONNECTING:
+                console.log('DISCONNECTING...')
+                break
+            case Strophe.Status.ATTACHED:
+                // this would happen in response to a conn.attach()
+                // but currently this is not implemented
+                console.log('AUTHENTICATING')
+                break
+            default:
+                console.warn('UNKNOWN CONNECTION STATUS: '+status)
         }
     },
     
     onConnectSuccess: function() {
-        console.log("CONECTED SUCCESSFULLY")
+        console.log("CONNECTED SUCCESSFULLY (in default onConnectSuccess)")
         return true  
     },
     
