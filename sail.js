@@ -85,11 +85,6 @@ Sail.generateSailEventHandler = function(obj) {
             return
         }
 
-        if (msg.attr('from') == Jabberdy.groupchat.jid() && sev.type != 'guess') {
-            console.log("got message from myself... ignoring", msg)
-            return
-        }
-
         sev.from = msg.attr('from')
         sev.to = msg.attr('to')
         sev.stanza = stanza
