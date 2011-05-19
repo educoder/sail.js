@@ -20,7 +20,8 @@ Sail.load = function() {
             'js/sail.js/deps/base64.js')
     .then('js/sail.js/deps/strophe.js',
             'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js',
-            'js/sail.js/deps/jquery.url.js')
+            'js/sail.js/deps/jquery.url.js',
+            'js/sail.js/deps/jquery.cookie.js')
     .then('js/sail.js/sail.rollcall.js',
             'js/sail.js/sail.strophe.js',
             'js/sail.js/sail.ui.js')
