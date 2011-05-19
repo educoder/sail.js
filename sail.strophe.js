@@ -171,7 +171,48 @@ Sail.Strophe = {
         
         if (Sail.Strophe.logLevel <= level)
             console[logFunc](logMsg)
-    }
+    },
+    
+    
+    // The following methods could potentially be used
+    // to implement conn.attach() behaviour. Currently
+    // they are unused.
+    
+    storeConnInfo: function() {
+        $.cookie('Sail.jid', Sail.Strophe.conn.jid)
+        $.cookie('Sail.sid', Sail.Strophe.conn.sid)
+        $.cookie('Sail.rid', Sail.Strophe.conn.rid)
+    },
+    
+    retrieveConnInfo: function() {
+        return {
+            jid: $.cookie('Sail.jid'),
+            sid: $.cookie('Sail.sid'),
+            rid: $.cookie('Sail.rid')
+        }
+    },
+    
+    clearConnInfo: function() {
+        $.cookie('Sail.jid', null)
+        $.cookie('Sail.sid', null)
+        $.cookie('Sail.rid', null)
+    },
+    
+    hasExistingConnInfo: function() {
+        info = Sail.Strophe.retrieveConnInfo()
+        return info.jid && info.rid && info.sid
+    },
+    
+    reconnect: function() {
+        if (!this.bosh_url) throw "No bosh_url set!"
+        
+        info = Sail.Strophe.retrieveConnInfo()
+        
+        this.conn = new Strophe.Connection(this.bosh_url)
+        
+        console.log('REATTACHING TO '+this.bosh_url+'WITH: ', info)
+        this.conn.attach(info.jid, info.sid, info.rid + 1)
+    },
 }
 
 Sail.Strophe.Groupchat = function(conn, room) {
