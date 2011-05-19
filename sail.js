@@ -27,9 +27,10 @@ Sail.load = function() {
             'js/sail.js/sail.ui.js')
 }
 
-Sail.Event = function(type, data) {
-    this.payload = data
-    this.payload.type = type
+Sail.Event = function(type, payload) {
+    this.data = {}
+    this.data.eventType = type
+    this.data.payload = payload
 }
 
 Sail.Event.prototype = {
@@ -45,7 +46,7 @@ Sail.Event.prototype = {
     // },
     
     toJSON: function() {
-        return JSON.stringify(this.payload)
+        return JSON.stringify(this.data)
     }
 }
 
@@ -93,10 +94,10 @@ Sail.generateSailEventHandler = function(obj) {
         sev.to = msg.attr('to')
         sev.stanza = stanza
     
-        if (obj.events.sail[sev.type])
-            $(obj).trigger(obj.events.sail[sev.type], sev)
+        if (obj.events.sail[sev.eventType])
+            $(obj).trigger(obj.events.sail[sev.eventType], sev)
         else
-            console.log("UNHANDLED EVENT "+sev.type, sev)
+            console.log("UNHANDLED EVENT "+sev.eventType, sev)
 
         return true
     }
