@@ -11,6 +11,11 @@ var httpStatic = require('node-static')
 var url = require('url')
 var util = require('util')
 
+if (boshServer == undefined)
+    var boshServer = 'proto.encorelab.org'
+if (boshPort == undefined)
+    var boshPort = 5280
+
 var proxy = new httpProxy.HttpProxy()
 var file = new(httpStatic.Server)('.', {cache: false})
 
@@ -18,8 +23,8 @@ var server = http.createServer(function (req, res) {
     if (url.parse(req.url).pathname.match(/^\/http-bind/)) {
         console.log("PROXY "+req.url)
         proxy.proxyRequest(req, res, {
-            host: 'proto.encorelab.org',
-            port: 5280
+            host: boshServer,
+            port: boshPort
         })
     }
     
