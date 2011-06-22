@@ -31,6 +31,12 @@ var server = http.createServer(function (req, res) {
     })
 })
 
+server.start = function(port) {
+    this.listen(port, function() {
+        console.log("Starting... Sail server will listen on " + port + "...")
+    })
+}
+
 exports.server = server
 
 // Create a 'server.js' file at the root of your Sail app,
