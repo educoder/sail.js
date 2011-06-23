@@ -16,12 +16,12 @@ Sail.Strophe = {
         
         this.conn = new Strophe.Connection(this.bosh_url)
         
-        // this.conn.xmlInput = function(data) {
-        //     console.log("IN:", $(data).children()[0])
-        // }
-        // this.conn.xmlOutput = function(data) {
-        //     console.log("OUT:", $(data).children()[0])
-        // }
+        this.conn.xmlInput = function(data) {
+            console.log("IN:", $(data).children()[0])
+        }
+        this.conn.xmlOutput = function(data) {
+            console.log("OUT:", $(data).children()[0])
+        }
         
         this.conn.connect(this.jid, this.password, this.onConnect)
     },
@@ -31,16 +31,6 @@ Sail.Strophe = {
         Sail.Strophe.conn.sync = true
         Sail.Strophe.conn.flush()
         Sail.Strophe.conn.disconnect()
-    },
-    
-    joinGroupchat: function(room, success, failure) {
-        if (!success) success = this.onSuccess
-        if (!failure) failure = this.onFailure
-        
-        pres = $pres({to: room+"/"+this.jid}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
-        this.conn.send(pres.tree(), success, failure)
-        
-        return new Sail.Strophe.Groupchat(this.conn, room)
     },
     
     addHandler: function(handler, ns, name, type, id, from) {
@@ -215,12 +205,25 @@ Sail.Strophe = {
     },
 }
 
-Sail.Strophe.Groupchat = function(conn, room) {
-    this.conn = conn
+Sail.Strophe.Groupchat = function(room, conn) {
     this.room = room
+    this.conn = conn || Sail.Strophe.conn
+    
+    if (!this.conn)
+        throw "No connection given for Groupchat!"
 }
 
 Sail.Strophe.Groupchat.prototype = {
+    
+    participants: [],
+    
+    join: function() {
+        pres = $pres({to: this.jid()}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
+        this.conn.send(pres.tree())
+        
+        this.addDefaultPresenceHandlers();
+    },
+    
     jid: function() {
         return this.room + "/" + Sail.Strophe.jid
     },
@@ -255,14 +258,54 @@ Sail.Strophe.Groupchat.prototype = {
     },
     
     addHandler: function(handler, ns, name, id, from) {
-        if (!Sail.Strophe.conn) throw "Must connect before you can add handlers"
-        Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, "groupchat", id, from)
+        if (!this.conn) throw "Must connect before you can add handlers"
+        this.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, "groupchat", id, from)
     },
     
-    onMessage: function(msg) {
-      console.log("GROUPCHAT: ", msg)
-      return true
+    addDefaultPresenceHandlers: function() {
+        var chat = this
+        
+        this.conn.addHandler(function(stanza){
+                if ($(stanza).attr('type') != null)
+                    return true // doesn't seem to be a way to do this at addHandler's filter level
+                who = $(stanza).attr('from')
+                chat.participants.push(who)
+                chat.onParticipantJoin(who, stanza)
+                return true
+            }, null, "presence", null, null, chat.room, {matchBare: true})
+        this.conn.addHandler(function(stanza){
+                who = $(stanza).attr('from')
+                chat.participants.push(who)
+                chat.onParticipantLeave(who, stanza)
+            }, null, "presence", "unavailable", null, chat.room, {matchBare: true})
+    
+        this.conn.addHandler(function(stanza){
+                if ($(stanza).attr('type') != null)
+                    return true // doesn't seem to be a way to do this at addHandler's filter level
+                chat.onSelfJoin(stanza)
+                return true
+            }, null, "presence", null, null, chat.jid())
+        this.conn.addHandler(function(stanza){
+                chat.onSelfLeave(stanza)
+                return true
+            }, null, "presence", "unavailable", null, chat.jid())
     },
+    
+    onParticipantJoin: function(who, pres) {
+        console.log(who+" JOINED "+this.room)
+    },
+    
+    onParticipantLeave: function(pres) {
+        console.log(who+" LEFT "+this.room)
+    },
+    
+    onSelfJoin: function(pres) {
+        console.log("JOINED "+this.room)
+    },
+    
+    onSelfLeave: function(pres) {
+        console.log("LEFT "+this.room)
+    }
 }
 
 
