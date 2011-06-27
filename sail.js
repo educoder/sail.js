@@ -96,7 +96,7 @@ Sail.generateSailEventHandler = function(obj) {
                 mapping = obj.events.sail[sev.eventType]
             
             if (mapping == null)
-                $(obj).trigger(sev.eventType)
+                $(obj).trigger(sev.eventType, sev)
             else if (typeof(mapping) == 'string')
                 $(obj).trigger(obj.events.sail[sev.eventType], sev)
             else if (typeof(mapping) == 'function')
