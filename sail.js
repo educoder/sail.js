@@ -89,10 +89,17 @@ Sail.generateSailEventHandler = function(obj) {
         sev.to = msg.attr('to')
         sev.stanza = stanza
     
-        if (obj.events.sail[sev.eventType])
-            $(obj).trigger(obj.events.sail[sev.eventType], sev)
-        else
+        if (obj.events.sail[sev.eventType]) {
+            mapping = obj.events.sail[sev.eventType]
+            if (typeof(mapping) == 'string')
+                $(obj).trigger(obj.events.sail[sev.eventType], sev)
+            else if (typeof(mapping) == 'function')
+                mapping(sev)
+            else
+                throw "Invalid mapping '"+mapping+"' for Sail event '"+sev.eventType+"'!"
+        } else {
             console.log("UNHANDLED EVENT "+sev.eventType, sev)
+        }
 
         return true
     }
