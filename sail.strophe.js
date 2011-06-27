@@ -277,6 +277,7 @@ Sail.Strophe.Groupchat.prototype = {
                 who = $(stanza).attr('from')
                 chat.participants.push(who)
                 chat.onParticipantLeave(who, stanza)
+                return true
             }, null, "presence", "unavailable", null, chat.room, {matchBare: true})
     
         this.conn.addHandler(function(stanza){
