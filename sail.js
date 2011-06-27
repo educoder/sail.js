@@ -90,8 +90,14 @@ Sail.generateSailEventHandler = function(obj) {
         sev.stanza = stanza
     
         if (obj.events.sail[sev.eventType]) {
-            mapping = obj.events.sail[sev.eventType]
-            if (typeof(mapping) == 'string')
+            if (!obj.events || !object.events.sail)
+                mapping = null
+            else
+                mapping = obj.events.sail[sev.eventType]
+            
+            if (mapping == null)
+                $(obj).trigger(sev.eventType)
+            else if (typeof(mapping) == 'string')
                 $(obj).trigger(obj.events.sail[sev.eventType], sev)
             else if (typeof(mapping) == 'function')
                 mapping(sev)
