@@ -3,7 +3,7 @@ var Sail = window.Sail || {}
 Sail.UI = {
     init: function() {
         $(document).ready(function() {
-            $('button, input[type=submit]').button()
+            $('button, input[type=submit], input[type=reset], input[type=button]').button()
             $('.dialog button').click(function(){
                 Sail.UI.dismissDialog($(this).parents('.dialog'))
             })
