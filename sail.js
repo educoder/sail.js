@@ -28,9 +28,8 @@ Sail.load = function() {
 }
 
 Sail.Event = function(type, payload) {
-    this.data = {}
-    this.data.eventType = type
-    this.data.payload = payload
+    this.eventType = type
+    this.payload = payload
 }
 
 Sail.Event.prototype = {
@@ -46,7 +45,26 @@ Sail.Event.prototype = {
     // },
     
     toJSON: function() {
-        return JSON.stringify(this.data)
+        return JSON.stringify({
+            eventType: this.eventType,
+            payload: this.payload
+        })
+    },
+    
+    // intelligently extract and return the login name
+    // from the .from property
+    fromLogin: function() {
+        from = this.from
+        if (!from || from.length == 0)
+            return null
+        
+        jidRegExp = /(.*?)@([a-zA-Z0-9\.\-]*)(?:\/(.*))?/
+        
+        fromParts = from.split("/")
+        if (fromParts[1] && fromParts[1].match(jidRegExp))
+            return fromParts[1].match(jidRegExp)[1]
+        else
+            return from.match(jidRegExp)[3] || from.match(jidRegExp)[1]
     }
 }
 
@@ -79,12 +97,13 @@ Sail.generateSailEventHandler = function(obj) {
         body = $(msg).children('body').text()
         sev = null
         try {
-            sev = JSON.parse(body)
+            data = JSON.parse(body)
         } catch(err) {
             console.log("couldn't parse message, ignoring: "+err)
             return
         }
 
+        sev = new Sail.Event(data.eventType, data.payload)
         sev.from = msg.attr('from')
         sev.to = msg.attr('to')
         sev.stanza = stanza
