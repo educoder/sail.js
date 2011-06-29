@@ -208,7 +208,7 @@ Sail.Strophe = {
 Sail.Strophe.Groupchat = function(room, resource, conn) {
     this.room = room
     this.conn = conn || Sail.Strophe.conn
-    this.resource = resource || Sail.Strophe.jid()
+    this.resource = resource || Sail.Strophe.jid
     
     if (!this.conn)
         throw "No connection given for Groupchat!"
