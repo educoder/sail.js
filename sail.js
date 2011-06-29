@@ -15,11 +15,11 @@ if (!window.console) {
 var Sail = window.Sail || {}
 
 Sail.load = function() {
-    return load('https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js',
+    return load('js/sail.js/deps/jquery.js',
             'js/sail.js/deps/md5.js',
             'js/sail.js/deps/base64.js')
     .then('js/sail.js/deps/strophe.js',
-            'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js',
+            'js/sail.js/deps/jquery-ui.js',
             'js/sail.js/deps/jquery.url.js',
             'js/sail.js/deps/jquery.cookie.js')
     .then('js/sail.js/sail.rollcall.js',
