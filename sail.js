@@ -22,6 +22,7 @@ Sail.load = function() {
             'js/sail.js/deps/jquery-ui.js',
             'js/sail.js/deps/jquery.url.js',
             'js/sail.js/deps/jquery.cookie.js')
+    .then('js/sail.js/deps/strophe.ping.js')
     .then('js/sail.js/sail.rollcall.js',
             'js/sail.js/sail.strophe.js',
             'js/sail.js/sail.ui.js')

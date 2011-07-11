@@ -38,18 +38,22 @@ Sail.Strophe = {
         Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, type, id, from)
     },
     
-    // pings the server periodically to keep the connection open
-    pinger: function(interval) {
-      if (!interval) interval = 14 * 1000 // default is 14 seconds
-      setInterval(function() {
-        console.log("Sending ping")
-        pres = $pres()
-        Sail.Strophe.conn.send(pres.tree(), function(msg){console.log("sent PING", msg)}, function(err){console.log("PING failed!", err)})
-        //Sail.Strophe.conn.send(msg.tree(), function(msg){console.log("sent PING", msg)}, function(err){console.log("PING failed!", err)})
+    pinger: function() {
+        this.conn.ping.addPingHandler(function(ping) {
+            console.log("GOT PING! sending pong...")
+            Sail.Strophe.conn.ping.pong(ping)
+        })
         
-        Sail.Strophe.conn.flush()
-      }, interval)
+        // set up a pinger to keep the connection alive
+        
+        pingInterval = 14 * 1000 // default is 14 seconds
+        this.conn.addTimedHandler(pingInterval, function() {
+            console.log("SEDNING PING!")
+            Sail.Strophe.conn.ping.ping(Strophe.getDomainFromJid(Sail.Strophe.conn.jid))
+            return true
+        })
     },
+    
     
     /** Event Handlers -- override these as required **/
     
@@ -73,12 +77,10 @@ Sail.Strophe = {
             case Strophe.Status.CONNECTED:
                 console.log('CONNECTED to '+Sail.Strophe.bosh_url)
 
-                // store connection data to allow for .attach() on reload
                 $(window).unload(Sail.Strophe.disconnect)
 
                 Sail.Strophe.addDefaultHandlers()
                 Sail.Strophe.onConnectSuccess()
-                Sail.Strophe.pinger() // start the periodic pinger to prevent the connection from closing
                 break
             case Strophe.Status.DISCONNECTED:
                 // ConnInfo (for .attach()) is currently unused, but if it were
@@ -122,6 +124,7 @@ Sail.Strophe = {
     
     addDefaultHandlers: function() {
         Sail.Strophe.conn.addHandler(Sail.Strophe.errorHandler, null, null, 'error')
+        Sail.Strophe.pinger()
     },
     
     errorHandler: function(stanza) {
@@ -265,6 +268,8 @@ Sail.Strophe.Groupchat.prototype = {
     
     addDefaultPresenceHandlers: function() {
         var chat = this
+        
+        // joining and leaving groupchat
         
         this.conn.addHandler(function(stanza){
                 if ($(stanza).attr('type') != null)
