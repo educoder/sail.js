@@ -78,6 +78,7 @@ Sail.Strophe = {
                 console.log('CONNECTED to '+Sail.Strophe.bosh_url)
 
                 $(window).unload(Sail.Strophe.disconnect)
+                $(window).bind('beforeunload', Sail.Strophe.disconnect)
 
                 Sail.Strophe.addDefaultHandlers()
                 Sail.Strophe.onConnectSuccess()
