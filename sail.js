@@ -26,6 +26,9 @@ Sail.load = function() {
     .then('js/sail.js/sail.rollcall.js',
             'js/sail.js/sail.strophe.js',
             'js/sail.js/sail.ui.js')
+    // TODO: mobile stuff should be optional 
+    // (in fact we should probably modularize things in general)
+    .then('js/sail.js/deps/phonegap.0.9.6.js')
 }
 
 Sail.Event = function(type, payload) {
