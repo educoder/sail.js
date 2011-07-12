@@ -28,6 +28,40 @@ Sail.load = function() {
             'js/sail.js/sail.ui.js')
 }
 
+Sail.enable = function(app, module, opts) {
+    Sail.modules[module](app, opts)
+}
+
+Sail.modules = {
+    'simple-auth': function(app, opts) {
+        app.events.onAuthenticated = function(ev) {
+            session = app.session
+            console.log("Authenticated as: ", session.account.login, session.account.password)
+
+            Sail.Strophe.bosh_url = '/http-bind/'
+         	Sail.Strophe.jid = session.account.login + '@' + app.xmppDomain
+          	Sail.Strophe.password = session.account.password
+
+          	Sail.Strophe.onConnectSuccess = function() {
+          	    sailHandler = Sail.generateSailEventHandler(app)
+          	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat')
+
+          	    app.groupchat = new Sail.Strophe.Groupchat(app.groupchatRoom)
+                app.groupchat.addHandler(sailHandler)
+                
+                app.groupchat.onSelfJoin = function(pres) {
+                    $(app).trigger('selfJoined')
+                }
+
+          	    $(app).trigger('connected')
+          	    app.groupchat.join()
+          	}
+
+      	    Sail.Strophe.connect()
+        }
+    }
+}
+
 Sail.Event = function(type, payload) {
     this.eventType = type
     this.payload = payload
