@@ -62,9 +62,9 @@ Sail.Rollcall.Client.prototype = {
         url = this.url + '/sessions/validate_token.json'
         
         if (this.canUseREST()) {
-            this.fetchDataUsingREST(url, {token: token}, callback)
+            this.getUsingREST(url, {token: token}, callback)
         } else {
-            this.fetchDataUsingJSONP(url, {token: token}, callback)
+            this.getUsingJSONP(url, {token: token}, callback)
         }
     },
     
@@ -75,13 +75,13 @@ Sail.Rollcall.Client.prototype = {
         url = this.url + '/users.json'
         
         if (this.canUseREST()) {
-            this.fetchDataUsingREST(url, {}, callback)
+            this.getUsingREST(url, {}, callback)
         } else {
-            this.fetchDataUsingJSONP(url, {}, callback)
+            this.getUsingJSONP(url, {}, callback)
         }
     },
      
-    fetchDataUsingREST: function(url, params, callback) {
+    getUsingREST: function(url, params, callback) {
         rollcall = this
         
         $.ajax({
@@ -96,7 +96,7 @@ Sail.Rollcall.Client.prototype = {
         })
     },
     
-    fetchDataUsingJSONP: function(url, params, callback) {
+    getUsingJSONP: function(url, params, callback) {
         rollcall = this
         
         params['_method'] = params['_method'] || 'GET'
