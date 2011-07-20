@@ -1,7 +1,6 @@
 
 var Sail = window.Sail || {}
 
-
 Sail.Strophe = {
     bosh_url: null,
     jid: null,
@@ -131,6 +130,7 @@ Sail.Strophe = {
     errorHandler: function(stanza) {
         err = $(stanza).children('error')
         errMsg = err.children('text').text()
+        console.error("XMPP ERROR: ", errMsg, stanza)
         alert("XMPP ERROR: "+errMsg)
         return true
     },

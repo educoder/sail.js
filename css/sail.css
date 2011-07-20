@@ -39,6 +39,22 @@ header h1 {
   box-shadow: rgba(0,0,128,0.25) 3px 3px 4px;
 }
 
+.widget-box  h1,
+.widget-box > h2,
+.widget-box > h3,
+.widget-box > h4,
+.widget-box > h5,
+.widget-box > h6 {
+  margin-top: 0;
+  background-color: #666;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.widget-box h1 {
+  font-size: 16pt;
+}
+
 .dialog {
   position: absolute;
   top: 30%;

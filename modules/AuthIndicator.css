@@ -1,0 +1,15 @@
+#auth-indicator {
+  position: absolute;
+  right: 8px;
+  top: 5px;
+  text-align: right;
+  font-size: 14px;
+}
+
+#logout-button {
+  font-size: 12px;
+}
+
+#logout-button a {
+  color: #aaa;
+}

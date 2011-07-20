@@ -1,16 +1,12 @@
 // uses jquery.url.js --> https://github.com/allmarkedup/jQuery-URL-Parser
 
-var Sail = window.Sail || {}
+var Rollcall = window.Rollcall || {}
 
-Sail.Rollcall = {
-
-}
-
-Sail.Rollcall.Client = function(url) {
+Rollcall.Client = function(url) {
     this.url = url
 }
 
-Sail.Rollcall.Client.prototype = {
+Rollcall.Client.prototype = {
     /**
      * Get the current authentication token (from the current URL, i.e. from "?token=123xyz")
      *
@@ -19,8 +15,21 @@ Sail.Rollcall.Client.prototype = {
     getCurrentToken: function() {
         // $.url is from jquery.url.js and refers to the current url 
         // (i.e. the url of the page we are currently on)
-        return $.url.param('token')
+        return this.token || $.url.param('token') || $.cookie('token')
     },
+    
+    setToken: function(token) {
+        this.token = token
+        $.url.param('token', token)
+        $.cookie('token', token)
+    },
+    
+    unsetToken: function() {
+        this.token = null
+        $.url.param('token', '')
+        $.cookie('token', null)
+    },
+    
      
     /**
      * Redirect the user to the Rollcall login page for authentication.
@@ -51,6 +60,42 @@ Sail.Rollcall.Client.prototype = {
                 && rollcallPort == $.url.attr('port')
                 && rollcallProtocol == $.url.attr('protocol')
     },
+    
+    
+    createSession: function(login, password, callback) {
+        url = this.url + '/sessions.json'
+        
+        data = {
+            session: {
+                login: login,
+                password: password
+            }
+        }
+        
+        callbackWrapper = function(data) {
+            session = data['session']
+            callback(session)
+        }
+        
+        if (this.canUseREST()) {
+            this.requestUsingREST(url, 'POST', data, callbackWrapper)
+        } else {
+            this.requestUsingJSONP(url, 'POST', data, callbackWrapper)
+        }
+    },
+    
+    
+    destroySessionForToken: function(token, callback) {
+        rollcall = this
+        
+        url = rollcall.url + '/sessions/invalidate_token.json'
+        
+        if (rollcall.canUseREST()) {
+            rollcall.requestUsingREST(url, 'DELETE', {token: token}, callback)
+        } else {
+            rollcall.requestUsingJSONP(url, 'DELETE', {token: token}, callback)
+        }
+    },
 
 
     /**
@@ -62,9 +107,9 @@ Sail.Rollcall.Client.prototype = {
         url = this.url + '/sessions/validate_token.json'
         
         if (this.canUseREST()) {
-            this.getUsingREST(url, {token: token}, callback)
+            this.requestUsingREST(url, 'GET', {token: token}, callback)
         } else {
-            this.getUsingJSONP(url, {token: token}, callback)
+            this.requestUsingJSONP(url, 'GET', {token: token}, callback)
         }
     },
     
@@ -75,44 +120,47 @@ Sail.Rollcall.Client.prototype = {
         url = this.url + '/users.json'
         
         if (this.canUseREST()) {
-            this.getUsingREST(url, {}, callback)
+            this.requestUsingREST(url, 'GET',{ }, callback)
         } else {
-            this.getUsingJSONP(url, {}, callback)
+            this.requestUsingJSONP(url, 'GET', {}, callback)
         }
     },
-     
-    getUsingREST: function(url, params, callback) {
+    
+    requestUsingREST: function(url, method, params, callback) {
         rollcall = this
         
         $.ajax({
             url: url,
+            type: method,
             dataType: 'json',
             data: params,
             success: callback,
             failure: function(error) {
-                console.log(error)
+                console.error(error)
                 throw "Error response from Rollcall at " + rollcall.url
             }
         })
     },
     
-    getUsingJSONP: function(url, params, callback) {
+    requestUsingJSONP: function(url, method, params, callback) {
         rollcall = this
         
-        params['_method'] = params['_method'] || 'GET'
+        params['_method'] = method
+        
+        wrappedCallback = function(data) {
+            if (data.error) {
+                console.error(data.error.data)
+                throw data.error.data + " (from " + rollcall.url + ")"
+            } else {
+                callback(data)
+            }
+        }
         
         return $.ajax({
             url: url,
             dataType: 'jsonp',
             data: params,
-            success: function(data) {
-                if (data.error) {
-                    console.log(data)
-                    throw data.error.data + " (from " + rollcall.url + ")"
-                } else {
-                    callback(data)
-                }
-            }
+            success: wrappedCallback
         })
     }
 }

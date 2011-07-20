@@ -15,54 +15,79 @@ if (!window.console) {
 var Sail = window.Sail || {}
 
 Sail.load = function() {
-    return load('js/sail.js/deps/jquery-1.6.2.js',
-            'js/sail.js/deps/md5.js',
-            'js/sail.js/deps/base64.js')
-    .then('js/sail.js/deps/strophe.js',
-            'js/sail.js/deps/jquery-ui-1.8.14.js',
-            'js/sail.js/deps/jquery.url.js',
-            'js/sail.js/deps/jquery.cookie.js')
-    .then('js/sail.js/deps/strophe.ping.js')
-    .then('js/sail.js/sail.rollcall.js',
-            'js/sail.js/sail.strophe.js',
-            'js/sail.js/sail.ui.js')
-    // TODO: mobile stuff should be optional 
-    // (in fact we should probably modularize things in general)
-    .then('js/sail.js/deps/phonegap.0.9.6.js')
-}
-
-Sail.enable = function(app, module, opts) {
-    Sail.modules[module](app, opts)
-}
-
-Sail.modules = {
-    'simple-auth': function(app, opts) {
-        app.events.onAuthenticated = function(ev) {
-            session = app.session
-            console.log("Authenticated as: ", session.account.login, session.account.password)
-
-            Sail.Strophe.bosh_url = '/http-bind/'
-         	Sail.Strophe.jid = session.account.login + '@' + app.xmppDomain
-          	Sail.Strophe.password = session.account.password
-
-          	Sail.Strophe.onConnectSuccess = function() {
-          	    sailHandler = Sail.generateSailEventHandler(app)
-          	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat')
-
-          	    app.groupchat = new Sail.Strophe.Groupchat(app.groupchatRoom)
-                app.groupchat.addHandler(sailHandler)
+    Sail.loader = 
+        load('js/sail.js/deps/jquery-1.6.2.js',
+                'js/sail.js/deps/md5.js',
+                'js/sail.js/deps/base64.js')
+        .then('js/sail.js/deps/strophe.js',
+                'js/sail.js/deps/jquery-ui-1.8.14.js',
+                'js/sail.js/deps/jquery.url.js',
+                'js/sail.js/deps/jquery.cookie.js')
+        .then('js/sail.js/deps/strophe.ping.js')
+        .then('js/sail.js/sail.strophe.js',
+                'js/sail.js/sail.ui.js')
                 
-                app.groupchat.onSelfJoin = function(pres) {
-                    $(app).trigger('selfJoined')
-                }
+    return Sail.loader
+}
 
-          	    $(app).trigger('connected')
-          	    app.groupchat.join()
-          	}
+Sail.init = function(app, opts) {
+    Sail.app = app
+    Sail.loader
+        .thenRun(function() {
+            Sail.app.init()
+            return true
+        }).thenRun(function() {
+            Sail.UI.init()
+            return true
+        }).thenRun(function () {
+            console.log("Initialized.")
+            $(Sail.app).trigger('initialized')
+            return true
+        })
+    
+    return true
+}
 
-      	    Sail.Strophe.connect()
-        }
+Sail.modules = Sail.modules || {}
+
+Sail.modules.defaultPath = '/js/sail.js/modules/'
+
+Sail.modules.load = function(module, url) {
+    defaultModulesPath = Sail.app.defaultModulesPath || Sail.modules.defaultPath
+    
+    if (url) {
+        if (url.indexOf('/') < 0)
+            url = defaultModulesPath + url
+    } else {
+        url = defaultModulesPath + module + '.js'
     }
+    
+    Sail.loader.load(url).thenRun(function() {
+        m = eval(module)
+        
+        console.log("Loaded module "+module+" from "+url, m)
+        
+        for (event in m.events) {
+            $(Sail.app).bind(event+"."+module, m.events[event])
+            console.debug("Bound event "+event+"."+module)
+        }
+        
+        Sail.modules[module] = m
+        return true
+    })
+    
+    return Sail.modules
+}
+
+Sail.modules.thenRun = function(callback) {
+    Sail.loader.thenRun(callback)
+    return Sail.modules
+}
+
+Sail.loadCSS = function(url) {
+    link = $('<link rel="stylesheet" type="text/css" />')
+    link.attr('href', url)
+    $('head').append(link)
 }
 
 Sail.Event = function(type, payload) {
@@ -109,15 +134,13 @@ Sail.Event.prototype = {
 Sail.autobindEvents = function(obj, options) {
     options = options || {}
     
-    for (var meth in obj.events) {
-        if (obj.events.hasOwnProperty(meth) && typeof obj.events[meth] == 'function' && meth.match(/^on/)) {
-            event = meth.replace(/^on/,'')
-            event = event.charAt(0).toLowerCase() + event.slice(1)
-            console.debug("Sail: auto-binding event '"+event+"' to "+meth)
+    for (var event in obj.events) {
+        if (obj.events.hasOwnProperty(event) && typeof obj.events[event] == 'function') {
+            console.debug("Sail: auto-binding event '"+event+"'")
             try {
                 if (options.pre)
                   $(obj).bind(event, options.pre)
-                $(obj).bind(event, obj.events[meth])
+                $(obj).bind(event, obj.events[event])
                 if (options.post)
                   $(obj).bind(event, options.post)
             } catch(e) {
