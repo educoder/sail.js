@@ -232,7 +232,7 @@ Sail.Strophe.Groupchat = function(room, resource, conn) {
 
 Sail.Strophe.Groupchat.prototype = {
     
-    participants: [],
+    participants: {},
     
     join: function() {
         pres = $pres({to: this.jid()}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
@@ -276,56 +276,64 @@ Sail.Strophe.Groupchat.prototype = {
     
     addHandler: function(handler, ns, name, id, from) {
         if (!this.conn) throw "Must connect before you can add handlers"
-        this.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, "groupchat", id, from)
+        return this.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, "groupchat", id, from)
+    },
+    
+    addParticipantJoinedHandler: function(handler) {
+        return this.conn.addHandler(function(stanza){
+                if ($(stanza).attr('type') != null)
+                    return true // doesn't seem to be a way to do this at addHandler's filter level
+                who = $(stanza).attr('from')
+                handler(who, stanza)
+                return true
+            }, null, "presence", null, null, this.room, {matchBare: true})
+    },
+    
+    addParticipantLeftHandler: function(handler) {
+        return this.conn.addHandler(function(stanza){
+                who = $(stanza).attr('from')
+                handler(who, stanza)
+                return true
+            }, null, "presence", "unavailable", null, this.room, {matchBare: true})
+    },
+    
+    addSelfJoinedHandler: function(handler) {
+        return this.conn.addHandler(function(stanza){
+                if ($(stanza).attr('type') != null)
+                    return true // doesn't seem to be a way to do this at addHandler's filter level
+                handler(stanza)
+                return true
+            }, null, "presence", null, null, this.jid())
+    },
+    
+    addSelfLeftHandler: function(handler) {
+        return this.conn.addHandler(function(stanza){
+                handler(stanza)
+                return true
+            }, null, "presence", "unavailable", null, this.jid())
     },
     
     addDefaultPresenceHandlers: function() {
         var chat = this
         
-        // joining and leaving groupchat
+        this.addParticipantJoinedHandler(function(who, stanza) {
+            chat.participants[who] = who
+            console.log(who+" JOINED "+this.room)
+        })
         
-        this.conn.addHandler(function(stanza){
-                if ($(stanza).attr('type') != null)
-                    return true // doesn't seem to be a way to do this at addHandler's filter level
-                who = $(stanza).attr('from')
-                chat.participants.push(who)
-                chat.onParticipantJoin(who, stanza)
-                return true
-            }, null, "presence", null, null, chat.room, {matchBare: true})
-        this.conn.addHandler(function(stanza){
-                who = $(stanza).attr('from')
-                chat.participants.push(who)
-                chat.onParticipantLeave(who, stanza)
-                return true
-            }, null, "presence", "unavailable", null, chat.room, {matchBare: true})
-    
-        this.conn.addHandler(function(stanza){
-                if ($(stanza).attr('type') != null)
-                    return true // doesn't seem to be a way to do this at addHandler's filter level
-                chat.onSelfJoin(stanza)
-                return true
-            }, null, "presence", null, null, chat.jid())
-        this.conn.addHandler(function(stanza){
-                chat.onSelfLeave(stanza)
-                return true
-            }, null, "presence", "unavailable", null, chat.jid())
+        this.addParticipantLeftHandler(function(who, stanza) {
+            delete chat.participants[who]
+            console.log(who+" LEFT "+this.room)
+        })
+        
+        this.addSelfJoinedHandler(function(who, stanza) {
+            console.log("JOINED "+this.room)
+        })
+        
+        this.addSelfLeftHandler(function(who, stanza) {
+            console.log("LEFT "+this.room)
+        })
     },
-    
-    onParticipantJoin: function(who, pres) {
-        console.log(who+" JOINED "+this.room)
-    },
-    
-    onParticipantLeave: function(pres) {
-        console.log(who+" LEFT "+this.room)
-    },
-    
-    onSelfJoin: function(pres) {
-        console.log("JOINED "+this.room)
-    },
-    
-    onSelfLeave: function(pres) {
-        console.log("LEFT "+this.room)
-    }
 }
 
 
