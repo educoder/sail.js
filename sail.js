@@ -52,8 +52,13 @@ Sail.modules = Sail.modules || {}
 
 Sail.modules.defaultPath = '/js/sail.js/modules/'
 
-Sail.modules.load = function(module, url) {
+Sail.modules.load = function(module, options, url) {
     defaultModulesPath = Sail.app.defaultModulesPath || Sail.modules.defaultPath
+    
+    if (typeof options == 'string') {
+        url = options
+        delete options
+    }
     
     if (url) {
         if (url.indexOf('/') < 0)
@@ -64,6 +69,9 @@ Sail.modules.load = function(module, url) {
     
     Sail.loader.load(url).thenRun(function() {
         m = eval(module)
+        
+        if (options)
+            m.options = options
         
         console.log("Loaded module "+module+" from "+url, m)
         
