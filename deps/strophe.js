@@ -736,10 +736,11 @@ Strophe = {
      *
      *  Parameters:
      *    (String) msg - The log message.
+     *    (Exception) err - [optional] Raised exception that caused the error.
      */
-    error: function (msg)
+    error: function (msg, err)
     {
-        this.log(this.LogLevel.ERROR, msg);
+        this.log(this.LogLevel.ERROR, msg, err);
     },
 
     /** Function: fatal
@@ -2032,7 +2033,7 @@ Strophe.Connection.prototype = {
                 this.connect_callback(status, condition);
             } catch (e) {
                 Strophe.error("User connection callback caused an " +
-                              "exception: " + e);
+                              "exception: " + e, e);
             }
         }
     },
