@@ -1,7 +1,7 @@
-AuthIndicator = {
+AuthStatusWidget = {
     events: {
         initialized: function(ev) {
-            Sail.loadCSS(Sail.modules.defaultPath + 'AuthIndicator.css')
+            Sail.loadCSS(Sail.modules.defaultPath + 'AuthStatusWidget.css')
         },
         
         authenticated: function(ev) {
