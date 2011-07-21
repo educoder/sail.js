@@ -37,6 +37,21 @@ Sail.Strophe = {
         Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, type, id, from)
     },
     
+    addErrorHandler: function(handler, type, condition) {
+        Sail.Strophe.conn.addHandler(function(stanza, text){
+            error = $(stanza).children('error').eq(0)
+            
+            if (type && $(error).attr('type') != type)
+                return true // this error isn't of the desired type, so bail out
+            
+            if (condition && $(error).children(condition).length == 0)
+                return true // this error doesn't contain the desired condition, so bail out
+            
+            text = error.children('text').text()
+            handler(error, text)
+        }, null, null, 'error')
+    },
+    
     pinger: function() {
         this.conn.ping.addPingHandler(function(ping) {
             console.log("GOT PING! sending pong...")
@@ -123,19 +138,16 @@ Sail.Strophe = {
     },
     
     addDefaultHandlers: function() {
-        Sail.Strophe.conn.addHandler(Sail.Strophe.errorHandler, null, null, 'error')
+        Sail.Strophe.addErrorHandler(Sail.Strophe.defaultErrorHandler)
         Sail.Strophe.pinger()
     },
     
-    errorHandler: function(stanza) {
-        err = $(stanza).children('error')
-        errMsg = err.children('text').text()
-        console.error("XMPP ERROR: ", errMsg, stanza)
-        alert("XMPP ERROR: "+errMsg)
+    defaultErrorHandler: function(error, text) {
+        console.error("XMPP ERROR: ", text, error)
         return true
     },
     
-    log: function(level, message) {
+    log: function(level, message, data) {
         switch(level) {
             case Strophe.LogLevel.DEBUG:
                 logFunc = 'debug'
@@ -164,7 +176,7 @@ Sail.Strophe = {
         }
         
         if (Sail.Strophe.logLevel <= level)
-            console[logFunc](logMsg)
+            console[logFunc](logMsg, data)
     },
     
     
