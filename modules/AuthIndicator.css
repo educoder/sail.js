@@ -4,6 +4,7 @@
   top: 5px;
   text-align: right;
   font-size: 14px;
+  z-index: 9999;
 }
 
 #logout-button {
