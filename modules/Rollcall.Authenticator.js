@@ -13,6 +13,10 @@ Rollcall.Authenticator = {
                 Rollcall.Authenticator.requestLogin()
             }, 'cancel', 'conflict')
         },
+        
+        logout: function(ev) {
+            Rollcall.Authentiactor.unauthenticate()
+        }
     },
     
     unauthenticate: function() {
