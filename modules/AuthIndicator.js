@@ -14,12 +14,14 @@ AuthIndicator = {
     },
     
     showIndicator: function(inContainer) {
+        $('#auth-indicator').remove()
+        
         indicator = $('<div id="auth-indicator"></div>')
         indicator.append('<div id="auth-as">'+Sail.app.session.account.login+'</div>')
         indicator.append('<div id="logout-button">[<a href="#">Logout</a>]</div>')
         
         indicator.select('a').click(function() {
-            Sail.app.unauthenticate()
+            $(Sail.app).trigger('logout')
         })
         
         $(inContainer || 'body').append(indicator)
