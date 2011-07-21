@@ -16,10 +16,10 @@ Strophe.AutoConnector = {
           	    Sail.app.groupchat = new Sail.Strophe.Groupchat(Sail.app.groupchatRoom)
                 Sail.app.groupchat.addHandler(sailHandler)
 
-                Sail.app.groupchat.onSelfJoin = function(pres) {
+                Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
                     $(Sail.app).trigger('selfJoined')
-                }
-
+                })
+                
           	    $(Sail.app).trigger('connected')
           	    Sail.app.groupchat.join()
           	}
