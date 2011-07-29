@@ -5,7 +5,7 @@ AuthStatusWidget = {
         },
         
         authenticated: function(ev) {
-            AuthIndicator.showIndicator('header')
+            AuthStatusWidget.showIndicator('header')
         },
         
         unauthenticated: function(ev) {
