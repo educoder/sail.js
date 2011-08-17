@@ -35,6 +35,13 @@ Sail.init = function(app, opts) {
     Sail.loader
         .thenRun(function() {
             Sail.app.init()
+            
+            if (Sail.app.phonegap) {
+                // NOTE: need to use addEventListener() here instead of jQuery's bind()
+                //       ... not sure why bind() doesn't work -- probably a phonegap quirk
+                document.addEventListener('deviceready', PhonegapDemo.phonegap, false)
+            }
+            
             return true
         }).thenRun(function() {
             Sail.UI.init()
