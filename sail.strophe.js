@@ -15,12 +15,12 @@ Sail.Strophe = {
         
         this.conn = new Strophe.Connection(this.bosh_url)
         
-        this.conn.xmlInput = function(data) {
-            console.log("IN:", $(data).children()[0])
-        }
-        this.conn.xmlOutput = function(data) {
-            console.log("OUT:", $(data).children()[0])
-        }
+        // this.conn.xmlInput = function(data) {
+        //     console.log("IN:", $(data).children()[0])
+        // }
+        // this.conn.xmlOutput = function(data) {
+        //     console.log("OUT:", $(data).children()[0])
+        // }
         
         this.conn.connect(this.jid, this.password, this.onConnect)
     },
