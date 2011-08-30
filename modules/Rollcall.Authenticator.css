@@ -1,4 +1,4 @@
-#login-picker {
+#account-picker {
   padding-left: 20px;
   padding-right: 20px;
   position: absolute;
@@ -8,11 +8,11 @@
   padding: 10px;
 }
 
-#login-picker-instructions {
+#account-picker-instructions {
 
 }
 
-#login-picker ul {
+#account-picker ul {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -22,7 +22,7 @@
   column-count: 4;
 }
 
-#login-picker li {
+#account-picker li {
   padding: 5px;
   margin: 0;
   background-color: #9d6;
@@ -36,7 +36,7 @@
   text-align: center;
 }
 
-#login-picker li:hover {
+#account-picker li:hover {
   background-color: #dd6;
   cursor: pointer;
 }
