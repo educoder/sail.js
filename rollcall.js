@@ -56,9 +56,11 @@ Rollcall.Client.prototype = {
         rollcallProtocol = $.url.attr('protocol')
         $.url.setUrl(currentUrl)
         
-        return rollcallHost == $.url.attr('host') 
-                && rollcallPort == $.url.attr('port')
-                && rollcallProtocol == $.url.attr('protocol')
+        return rollcallHost == null || (
+                    rollcallHost == $.url.attr('host') 
+                    && rollcallPort == $.url.attr('port')
+                    && rollcallProtocol == $.url.attr('protocol')
+                )
     },
     
     
@@ -121,6 +123,19 @@ Rollcall.Client.prototype = {
         
         if (this.canUseREST()) {
             this.requestUsingREST(url, 'GET',{ }, callback)
+        } else {
+            this.requestUsingJSONP(url, 'GET', {}, callback)
+        }
+    },
+    
+    /**
+     * Fetch run data for a run id or name.
+     */
+    fetchRun: function(id, callback) {
+        url = this.url + '/runs/'+id+'.json'
+        
+        if (this.canUseREST()) {
+            this.requestUsingREST(url, 'GET', {}, callback)
         } else {
             this.requestUsingJSONP(url, 'GET', {}, callback)
         }
