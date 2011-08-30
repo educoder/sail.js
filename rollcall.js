@@ -128,6 +128,19 @@ Rollcall.Client.prototype = {
         }
     },
     
+    /**
+     * Fetch run data for a run id or name.
+     */
+    fetchRun: function(id, callback) {
+        url = this.url + '/runs/'+id+'.json'
+        
+        if (this.canUseREST()) {
+            this.requestUsingREST(url, 'GET', {}, callback)
+        } else {
+            this.requestUsingJSONP(url, 'GET', {}, callback)
+        }
+    },
+    
     requestUsingREST: function(url, method, params, callback) {
         rollcall = this
         
