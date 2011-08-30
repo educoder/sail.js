@@ -56,9 +56,11 @@ Rollcall.Client.prototype = {
         rollcallProtocol = $.url.attr('protocol')
         $.url.setUrl(currentUrl)
         
-        return rollcallHost == $.url.attr('host') 
-                && rollcallPort == $.url.attr('port')
-                && rollcallProtocol == $.url.attr('protocol')
+        return rollcallHost == null || (
+                    rollcallHost == $.url.attr('host') 
+                    && rollcallPort == $.url.attr('port')
+                    && rollcallProtocol == $.url.attr('protocol')
+                )
     },
     
     
