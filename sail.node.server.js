@@ -20,6 +20,11 @@ if (global.rollcallServer == undefined)
     global.rollcallServer = 'rollcall.proto.encorelab.org'
 if (global.rollcallPort == undefined)
     global.rollcallPort = 80
+    
+if (global.mongooseServer == undefined)
+    global.mongooseServer = 'proto.encorelab.org'
+if (global.mongoosePort == undefined)
+    global.mongoosePort = 27080   
 
 var proxy = new httpProxy.HttpProxy()
 var file = new(httpStatic.Server)('.', {cache: false})
@@ -38,6 +43,14 @@ var server = http.createServer(function (req, res) {
         proxy.proxyRequest(req, res, {
             host: global.rollcallServer,
             port: global.rollcallPort
+        })
+    } else if (url.parse(req.url).pathname.match(/^\/mongoose/)) {
+        req.url = req.url.replace(/\/mongoose/,'')
+        console.log("PROXY "+req.url+" ==> "+global.mongooseServer+":"+global.mongoosePort)
+        req.headers['host'] = global.mongooseServer
+        proxy.proxyRequest(req, res, {
+            host: global.mongooseServer,
+            port: global.mongoosePort
         })
     } else {
         req.addListener('end', function(){ 
