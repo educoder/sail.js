@@ -1,9 +1,13 @@
-// Super-simple stand-alone HTTP server with built-in reverse
-// proxy for XMPP-BOSH.
+// Simple stand-alone HTTP server with built-in reverse proxy for XMPP-BOSH.
 //
 // This uses node.js with the http-proxy and node-static modules.
 //
-// 
+// Can be configured using the following global keys:
+//
+//   global.bosh     --> server and port number for XMPP BOSH service
+//   global.rollcall --> server and port number for Rollcall authentication service
+//   global.mongoose --> server and port number for Sleepy Mongoose MongoDB REST service
+//
 
 var http = require('http')
 var httpProxy = require('http-proxy')
@@ -11,20 +15,17 @@ var httpStatic = require('node-static')
 var url = require('url')
 var util = require('util')
 
-if (global.boshServer == undefined)
-    global.boshServer = 'proto.encorelab.org'
-if (global.boshPort == undefined)
-    global.boshPort = 5280
-    
-if (global.rollcallServer == undefined)
-    global.rollcallServer = 'rollcall.proto.encorelab.org'
-if (global.rollcallPort == undefined)
-    global.rollcallPort = 80
-    
-if (global.mongooseServer == undefined)
-    global.mongooseServer = 'proto.encorelab.org'
-if (global.mongoosePort == undefined)
-    global.mongoosePort = 27080   
+global.bosh        = global.bosh || {}
+global.bosh.server = global.bosh.server || 'proto.encorelab.org'
+global.bosh.port   = global.bosh.port   || 5280
+
+global.rollcall        = global.rollcall || {}
+global.rollcall.server = global.rollcall.server || 'rollcall.proto.encorelab.org'
+global.rollcall.port   = global.rollcall.port   || 80
+
+global.mongoose        = global.mongoose || {}
+global.mongoose.server = global.mongoose.server || 'proto.encorelab.org'
+global.mongoose.port   = global.mongoose.port   || 27080
 
 var proxy = new httpProxy.HttpProxy()
 var file = new(httpStatic.Server)('.', {cache: false})
