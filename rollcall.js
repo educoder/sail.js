@@ -64,7 +64,9 @@ Rollcall.Client.prototype = {
     },
     
     
-    createSession: function(login, password, callback) {
+    createSession: function(account, callback) {
+        login = account.login
+        password = account.password
         url = this.url + '/sessions.json'
         
         data = {
@@ -72,6 +74,28 @@ Rollcall.Client.prototype = {
                 login: login,
                 password: password
             }
+        }
+        
+        callbackWrapper = function(data) {
+            session = data['session']
+            callback(session)
+        }
+        
+        if (this.canUseREST()) {
+            this.requestUsingREST(url, 'POST', data, callbackWrapper)
+        } else {
+            this.requestUsingJSONP(url, 'POST', data, callbackWrapper)
+        }
+    },
+    
+    // Creates a session for a group composed of the given members.
+    // If the group doesn't yet exist, it is created automatically.
+    createGroupSession: function(accounts, callback) {
+        url = this.url + '/sessions/group.json'
+        
+        data = {
+            logins: accounts,
+            run_id: Sail.app.run.id
         }
         
         callbackWrapper = function(data) {
@@ -133,6 +157,16 @@ Rollcall.Client.prototype = {
      */
     fetchRun: function(id, callback) {
         url = this.url + '/runs/'+id+'.json'
+        
+        if (this.canUseREST()) {
+            this.requestUsingREST(url, 'GET', {}, callback)
+        } else {
+            this.requestUsingJSONP(url, 'GET', {}, callback)
+        }
+    },
+    
+    fetchGroup: function(login, callback) {
+        url = this.url + '/groups/'+login+'.json'
         
         if (this.canUseREST()) {
             this.requestUsingREST(url, 'GET', {}, callback)
