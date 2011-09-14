@@ -20,7 +20,7 @@ AuthStatusWidget = {
         indicator.append('<div id="auth-as">'+Sail.app.session.account.login+'</div>')
         indicator.append('<div id="logout-button">[<a href="#">Logout</a>]</div>')
         
-        indicator.select('a').click(function() {
+        indicator.find('a').click(function() {
             $(Sail.app).trigger('logout')
         })
         
