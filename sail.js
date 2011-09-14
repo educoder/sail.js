@@ -108,6 +108,8 @@ Sail.loadCSS = function(url) {
 Sail.Event = function(type, payload) {
     this.eventType = type
     this.payload = payload
+    if (Sail.app.session && Sail.app.session.account && Sail.app.session.account.login)
+        this.origin = Sail.app.session.account.login
 }
 
 Sail.Event.prototype = {
@@ -125,7 +127,8 @@ Sail.Event.prototype = {
     toJSON: function() {
         return JSON.stringify({
             eventType: this.eventType,
-            payload: this.payload
+            payload: this.payload,
+            origin: this.origin
         })
     },
     
