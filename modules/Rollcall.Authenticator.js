@@ -114,7 +114,7 @@ Rollcall.Authenticator = {
             if (accounts.length > 1) {
                 Sail.app.rollcall.createGroupSession(accounts, Rollcall.Authenticator.loginFromSession)
             } else {
-                Sail.app.rollcall.createSession(account, Rollcall.Authenticator.loginFromSession)
+                Sail.app.rollcall.createSession({login: accounts[0]}, Rollcall.Authenticator.loginFromSession)
             }
         }
     },
