@@ -30,20 +30,17 @@ Rollcall.Authenticator = {
         // TODO: implement other modes (e.g. login)
         switch (Rollcall.Authenticator.options.mode) {
             case 'picker':
-                Rollcall.Authenticator.showAccountPicker()
-                break
             case 'multi-picker':
-                Rollcall.Authenticator.showAccountPicker({multiPick: true})
+                Rollcall.Authenticator.showAccountPicker()
                 break
             default:
                 Rollcall.Authenticator.showAccountPicker()
         }
     },
     
-    showAccountPicker: function(options) {
-        options = options || {}
-        inContainer = options.inContainer || 'body'
-        multiPick = options.multiPick || false
+    showAccountPicker: function() {
+        inContainer = 'body'
+        multi = Rollcall.Authenticator.options.mode == 'multi-picker' || false
         
         picker = $("<div id='account-picker' class='widget-box'></div>")
         picker.append("<h1 id='account-picker-instructions'>Log in as:</h1>")
@@ -52,6 +49,10 @@ Rollcall.Authenticator = {
         Sail.app.rollcall.fetchAllUsers(function(data) {
             $(data).each(function() {
                 u = this['user']
+                if (!u.account.allow_passwordless_login || 
+                        (Rollcall.Authenticator.options.mode == 'picker' && Rollcall.Authenticator.options.mode == 'mulit-picker'))
+                    return // only use passwordless login accounts for picker
+                
                 li = $("<li id='user-"+u.account.login+"'>"+u.account.login+"</li> ")
                 li.data('account', u.account)
                 li.click(Rollcall.Authenticator.pickLogin)
@@ -63,7 +64,7 @@ Rollcall.Authenticator = {
             Sail.UI.showDialog(picker)
         })
         
-        if (multiPick) {
+        if (multi) {
             picker.addClass('multi-picker')
             
             loginButtonContainer = $("<div><div>")
