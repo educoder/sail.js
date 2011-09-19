@@ -1,6 +1,9 @@
 Strophe.AutoConnector = {
     events: {
         authenticated: function() {
+            if (Sail.app.run)
+                Sail.app.groupchatRoom = Sail.app.run.name+'@conference.'+Sail.app.xmppDomain
+            
             session = Sail.app.session
             
             console.log("Authenticated as: ", session.account.login, session.account.encrypted_password)

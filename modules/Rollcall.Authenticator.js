@@ -4,6 +4,7 @@ Rollcall.Authenticator = {
     events: {
         initialized: function(ev) {
             Sail.loadCSS(Sail.modules.defaultPath + 'Rollcall.Authenticator.css')
+            Sail.app.run = JSON.parse($.cookie('run'))
         },
         
         connected: function(ev) {
@@ -22,6 +23,7 @@ Rollcall.Authenticator = {
     unauthenticate: function() {
         Sail.app.rollcall.destroySessionForToken(Sail.app.rollcall.getCurrentToken(), function() {
             Sail.app.rollcall.unsetToken()
+            Sail.app.run = null
             $(Sail.app).trigger('unauthenticated')
         })
     },
