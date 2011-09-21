@@ -64,7 +64,7 @@ Rollcall.Client.prototype = {
     },
     
     
-    createSession: function(account, callback) {
+    createSession: function(account, successCallback, errorCallback) {
         login = account.login
         password = account.password
         url = this.url + '/sessions.json'
@@ -76,16 +76,16 @@ Rollcall.Client.prototype = {
             }
         }
         
-        callbackWrapper = function(data) {
-            callback(data['session'])
+        successCallbackWrapper = function(data) {
+            successCallback(data['session'])
         }
         
-        this.request(url, 'POST', data, callbackWrapper)
+        this.request(url, 'POST', data, successCallbackWrapper, errorCallback)
     },
     
     // Creates a session for a group composed of the given members.
     // If the group doesn't yet exist, it is created automatically.
-    createGroupSession: function(accounts, callback) {
+    createGroupSession: function(accounts, successCallback, errorCallback) {
         url = this.url + '/sessions/group.json'
         
         data = {
@@ -93,84 +93,84 @@ Rollcall.Client.prototype = {
             run_id: Sail.app.run.id
         }
         
-        callbackWrapper = function(data) {
-            callback(data['session'])
+        successCallbackWrapper = function(data) {
+            successCallback(data['session'])
         }
         
-        this.request(url, 'POST', data, callbackWrapper)
+        this.request(url, 'POST', data, successCallbackWrapper, errorCallback)
     },
     
     
-    destroySessionForToken: function(token, callback) {
+    destroySessionForToken: function(token, successCallback, errorCallback) {
         rollcall = this
         
         url = rollcall.url + '/sessions/invalidate_token.json'
         
-        this.request(url, 'DELETE', {token: token}, callback)
+        this.request(url, 'DELETE', {token: token}, successCallback, errorCallback)
     },
 
 
     /**
      * Fetch session data for the given token.
      * If the session data is retrieved successfully, then given
-     * callback is executed with the session data.
+     * callbacks are executed with the session data.
      */
-    fetchSessionForToken: function(token, callback, errorCallback) {
+    fetchSessionForToken: function(token, successCallback, errorCallback) {
         url = this.url + '/sessions/validate_token.json'
         
-        this.request(url, 'GET', {token: token}, callback, errorCallback)
+        this.request(url, 'GET', {token: token}, successCallback, errorCallback)
     },
     
     /**
      * Fetch the list of users.
      */
-    fetchUsers: function(options, callback) {
+    fetchUsers: function(options, successCallback, errorCallback) {
         url = this.url + '/users.json'
         
-        this.request(url, 'GET', options, callback)
+        this.request(url, 'GET', options, successCallback, errorCallback)
     },
     
     /**
      * Fetch the list of runs.
      */
-    fetchRuns: function(options, callback) {
+    fetchRuns: function(options, successCallback, errorCallback) {
         if (options.curnit) {
             url = this.url + '/curnits/'+options.curnit+'/runs.json'
         } else {
             url = this.url + '/runs.json'
         }
         
-        this.request(url, 'GET', options, callback)
+        this.request(url, 'GET', options, successCallback, errorCallback)
     },
     
     /**
      * Fetch run data for a run id or name.
      */
-    fetchRun: function(id, callback) {
+    fetchRun: function(id, successCallback, errorCallback) {
         url = this.url + '/runs/'+id+'.json'
         
-        this.request(url, 'GET', {}, callback)
+        this.request(url, 'GET', {}, successCallback, errorCallback)
     },
     
-    fetchGroup: function(login, callback) {
+    fetchGroup: function(login, successCallback, errorCallback) {
         url = this.url + '/groups/'+login+'.json'
         
-        this.request(url, 'GET', {}, callback)
+        this.request(url, 'GET', {}, successCallback, errorCallback)
     },
     
     error: function(error) {
         alert(error.responseText)
     },
     
-    request: function(url, method, params, callback, errorCallback) {
+    request: function(url, method, params, successCallback, errorCallback) {
         if (this.canUseREST()) {
-            this.requestUsingREST(url, method, params, callback, errorCallback)
+            this.requestUsingREST(url, method, params, successCallback, errorCallback)
         } else {
-            this.requestUsingJSONP(url, method, params, callback, errorCallback)
+            this.requestUsingJSONP(url, method, params, successCallback, errorCallback)
         }
     },
     
-    requestUsingREST: function(url, method, params, callback, errorCallback) {
+    requestUsingREST: function(url, method, params, successCallback, errorCallback) {
         rollcall = this
         
         $.ajax({
@@ -178,7 +178,7 @@ Rollcall.Client.prototype = {
             type: method,
             dataType: 'json',
             data: params,
-            success: callback,
+            success: successCallback,
             error: function(error) {
                 console.error("Error response from Rollcall at " + rollcall.url + ":", error)
                 if (errorCallback)
@@ -189,7 +189,7 @@ Rollcall.Client.prototype = {
         })
     },
     
-    requestUsingJSONP: function(url, method, params, callback, errorCallback) {
+    requestUsingJSONP: function(url, method, params, successCallback, errorCallback) {
         rollcall = this
         
         params['_method'] = method
@@ -202,7 +202,7 @@ Rollcall.Client.prototype = {
                 else
                     rollcall.error(data.error.data)
             } else {
-                callback(data)
+                successCallback(data)
             }
         }
         
