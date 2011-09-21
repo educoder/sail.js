@@ -115,10 +115,10 @@ Rollcall.Client.prototype = {
      * If the session data is retrieved successfully, then given
      * callback is executed with the session data.
      */
-    fetchSessionForToken: function(token, callback) {
+    fetchSessionForToken: function(token, callback, errorCallback) {
         url = this.url + '/sessions/validate_token.json'
         
-        this.request(url, 'GET', {token: token}, callback)
+        this.request(url, 'GET', {token: token}, callback, errorCallback)
     },
     
     /**
@@ -158,15 +158,19 @@ Rollcall.Client.prototype = {
         this.request(url, 'GET', {}, callback)
     },
     
-    request: function(url, method, params, callback) {
+    error: function(error) {
+        alert(error.responseText)
+    },
+    
+    request: function(url, method, params, callback, errorCallback) {
         if (this.canUseREST()) {
-            this.requestUsingREST(url, method, params, callback)
+            this.requestUsingREST(url, method, params, callback, errorCallback)
         } else {
-            this.requestUsingJSONP(url, method, params, callback)
+            this.requestUsingJSONP(url, method, params, callback, errorCallback)
         }
     },
     
-    requestUsingREST: function(url, method, params, callback) {
+    requestUsingREST: function(url, method, params, callback, errorCallback) {
         rollcall = this
         
         $.ajax({
@@ -175,22 +179,28 @@ Rollcall.Client.prototype = {
             dataType: 'json',
             data: params,
             success: callback,
-            failure: function(error) {
-                console.error(error)
-                throw "Error response from Rollcall at " + rollcall.url
+            error: function(error) {
+                console.error("Error response from Rollcall at " + rollcall.url + ":", error)
+                if (errorCallback)
+                    errorCallback(error)
+                else
+                    rollcall.error(error)
             }
         })
     },
     
-    requestUsingJSONP: function(url, method, params, callback) {
+    requestUsingJSONP: function(url, method, params, callback, errorCallback) {
         rollcall = this
         
         params['_method'] = method
         
         wrappedCallback = function(data) {
             if (data.error) {
-                console.error(data.error.data)
-                throw data.error.data + " (from " + rollcall.url + ")"
+                console.error("Error response from Rollcall at " + rollcall.url + ":", data.error.data)
+                if (errorCallback)
+                    errorCallback(data.error.data)
+                else
+                    rollcall.error(data.error.data)
             } else {
                 callback(data)
             }
