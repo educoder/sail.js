@@ -32,6 +32,8 @@ Strophe.AutoConnector = {
                     Strophe.AutoConnector.hideConnecting()
               	    $(Sail.app).trigger('connected')
                 })
+                
+                Sail.app.groupchat.join()
           	}
 
       	    Sail.Strophe.connect()
