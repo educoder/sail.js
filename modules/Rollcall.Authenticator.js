@@ -24,7 +24,7 @@ Rollcall.Authenticator = {
         
         logout: function(ev) {
             Rollcall.Authenticator.unauthenticate()
-        },
+        }
     },
     
     unauthenticate: function() {
