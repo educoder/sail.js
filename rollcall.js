@@ -77,15 +77,10 @@ Rollcall.Client.prototype = {
         }
         
         callbackWrapper = function(data) {
-            session = data['session']
-            callback(session)
+            callback(data['session'])
         }
         
-        if (this.canUseREST()) {
-            this.requestUsingREST(url, 'POST', data, callbackWrapper)
-        } else {
-            this.requestUsingJSONP(url, 'POST', data, callbackWrapper)
-        }
+        this.request(url, 'POST', data, callbackWrapper)
     },
     
     // Creates a session for a group composed of the given members.
@@ -99,15 +94,10 @@ Rollcall.Client.prototype = {
         }
         
         callbackWrapper = function(data) {
-            session = data['session']
-            callback(session)
+            callback(data['session'])
         }
         
-        if (this.canUseREST()) {
-            this.requestUsingREST(url, 'POST', data, callbackWrapper)
-        } else {
-            this.requestUsingJSONP(url, 'POST', data, callbackWrapper)
-        }
+        this.request(url, 'POST', data, callbackWrapper)
     },
     
     
@@ -116,11 +106,7 @@ Rollcall.Client.prototype = {
         
         url = rollcall.url + '/sessions/invalidate_token.json'
         
-        if (rollcall.canUseREST()) {
-            rollcall.requestUsingREST(url, 'DELETE', {token: token}, callback)
-        } else {
-            rollcall.requestUsingJSONP(url, 'DELETE', {token: token}, callback)
-        }
+        this.request(url, 'DELETE', {token: token}, callback)
     },
 
 
@@ -132,24 +118,29 @@ Rollcall.Client.prototype = {
     fetchSessionForToken: function(token, callback) {
         url = this.url + '/sessions/validate_token.json'
         
-        if (this.canUseREST()) {
-            this.requestUsingREST(url, 'GET', {token: token}, callback)
-        } else {
-            this.requestUsingJSONP(url, 'GET', {token: token}, callback)
-        }
+        this.request(url, 'GET', {token: token}, callback)
     },
     
     /**
-     * Fetch the list of all users registered on Rollcall.
+     * Fetch the list of users.
      */
-    fetchAllUsers: function(callback) {
+    fetchUsers: function(options, callback) {
         url = this.url + '/users.json'
         
-        if (this.canUseREST()) {
-            this.requestUsingREST(url, 'GET',{ }, callback)
+        this.request(url, 'GET', options, callback)
+    },
+    
+    /**
+     * Fetch the list of runs.
+     */
+    fetchRuns: function(options, callback) {
+        if (options.curnit) {
+            url = this.url + '/curnits/'+options.curnit+'/runs.json'
         } else {
-            this.requestUsingJSONP(url, 'GET', {}, callback)
+            url = this.url + '/runs.json'
         }
+        
+        this.request(url, 'GET', options, callback)
     },
     
     /**
@@ -158,20 +149,20 @@ Rollcall.Client.prototype = {
     fetchRun: function(id, callback) {
         url = this.url + '/runs/'+id+'.json'
         
-        if (this.canUseREST()) {
-            this.requestUsingREST(url, 'GET', {}, callback)
-        } else {
-            this.requestUsingJSONP(url, 'GET', {}, callback)
-        }
+        this.request(url, 'GET', {}, callback)
     },
     
     fetchGroup: function(login, callback) {
         url = this.url + '/groups/'+login+'.json'
         
+        this.request(url, 'GET', {}, callback)
+    },
+    
+    request: function(url, method, params, callback) {
         if (this.canUseREST()) {
-            this.requestUsingREST(url, 'GET', {}, callback)
+            this.requestUsingREST(url, method, params, callback)
         } else {
-            this.requestUsingJSONP(url, 'GET', {}, callback)
+            this.requestUsingJSONP(url, method, params, callback)
         }
     },
     

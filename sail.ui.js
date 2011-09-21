@@ -28,6 +28,6 @@ Sail.UI = {
         dialogId = $(jq).data('sail-dialog-id')
         console.debug("Sail.UI: dismissing dialog "+dialogId)
         $('.mask.'+dialogId).remove()
-        $(jq).fadeOut('fast')
+        $(jq).fadeOut('fast', function() {$(this).remove()})
     }
 }

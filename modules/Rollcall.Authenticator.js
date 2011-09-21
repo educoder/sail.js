@@ -1,10 +1,17 @@
 Rollcall.Authenticator = {
-    options: {mode: 'picker'},
+    options: {
+        mode: 'picker',
+        askForRun: false, // TODO: implement me!
+        curnit: null
+    },
     
     events: {
         initialized: function(ev) {
             Sail.loadCSS(Sail.modules.defaultPath + 'Rollcall.Authenticator.css')
-            Sail.app.run = JSON.parse($.cookie('run'))
+            
+            if (Rollcall.Authenticator.options.askForRun && !Sail.app.run) {
+                Rollcall.Authenticator.requestRun()
+            }
         },
         
         connected: function(ev) {
@@ -24,8 +31,13 @@ Rollcall.Authenticator = {
         Sail.app.rollcall.destroySessionForToken(Sail.app.rollcall.getCurrentToken(), function() {
             Sail.app.rollcall.unsetToken()
             Sail.app.run = null
+            $.cookie('run', null)
             $(Sail.app).trigger('unauthenticated')
         })
+    },
+    
+    requestRun: function() {
+        Rollcall.Authenticator.showRunPicker()
     },
     
     requestLogin: function() {
@@ -40,15 +52,42 @@ Rollcall.Authenticator = {
         }
     },
     
+    showRunPicker: function() {
+        inContainer = 'body'
+        picker = $("<div id='run-picker' class='auth-picker widget-box'></div>")
+        picker.append("<h1 id='run-picker-instructions'>Select your class:</h1>")
+        picker.append("<ul class='runs'></ul>")
+        
+        curnit = Rollcall.Authenticator.options.curnit
+        if (!curnit) {
+            console.warn("No curnit set for Rollcall.Authenticator! Runs from all curnits will be shown...")
+        }
+        
+        Sail.app.rollcall.fetchRuns({curnit: curnit}, function(data) {
+            $(data).each(function() {
+                r = this['run']
+                
+                li = $("<li id='run-"+r.id+"'>"+r.name+"</li> ")
+                li.data('run', r)
+                li.click(Rollcall.Authenticator.pickRun)
+                picker.children(".runs").append(li)
+            })
+            
+            $(inContainer).append(picker)
+            
+            Sail.UI.showDialog(picker)
+        })
+    },
+    
     showAccountPicker: function() {
         inContainer = 'body'
         multi = Rollcall.Authenticator.options.mode == 'multi-picker' || false
         
-        picker = $("<div id='account-picker' class='widget-box'></div>")
+        picker = $("<div id='account-picker' class='auth-picker widget-box'></div>")
         picker.append("<h1 id='account-picker-instructions'>Log in as:</h1>")
         picker.append("<ul class='users'></ul>")
         
-        Sail.app.rollcall.fetchAllUsers(function(data) {
+        Sail.app.rollcall.fetchUsers({}, function(data) {
             $(data).each(function() {
                 u = this['user']
                 if (!u.account.allow_passwordless_login || 
@@ -88,6 +127,13 @@ Rollcall.Authenticator = {
         }
     },
     
+    pickRun: function() {
+        Sail.app.run = $(this).data('run')
+        $.cookie('run', JSON.stringify(Sail.app.run))
+        Sail.UI.dismissDialog('#run-picker')
+        Rollcall.Authenticator.requestLogin()
+    },
+    
     pickLogin: function() {
         if (Rollcall.Authenticator.options.mode == 'multi-picker') {
             $(this).toggleClass('selected')
@@ -95,7 +141,6 @@ Rollcall.Authenticator = {
             account = $(this).data('account')
             login = account.login
             password = account.password
-            
             
             Sail.app.rollcall.createSession(account, Rollcall.Authenticator.loginFromSession)
         }
@@ -124,7 +169,7 @@ Rollcall.Authenticator = {
     
     loginFromSession: function(session) {
         Sail.app.rollcall.setToken(session.token)
-        Sail.UI.dismissDialog(picker)
+        Sail.UI.dismissDialog('#account-picker')
     
         Sail.app.session = session
     

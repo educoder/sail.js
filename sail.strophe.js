@@ -98,11 +98,10 @@ Sail.Strophe = {
                 Sail.Strophe.onConnectSuccess()
                 break
             case Strophe.Status.DISCONNECTED:
+                Sail.Strophe.onDisconnect()
                 // ConnInfo (for .attach()) is currently unused, but if it were
                 // used it should be cleared here
                 Sail.Strophe.clearConnInfo()
-                
-                console.log('DISCONNECTED!')
                 break
             case Strophe.Status.DISCONNECTING:
                 console.log('DISCONNECTING...')
@@ -120,6 +119,11 @@ Sail.Strophe = {
     onConnectSuccess: function() {
         console.log("CONNECTED SUCCESSFULLY (in default onConnectSuccess)")
         return true  
+    },
+    
+    onDisconnect: function() {
+        console.log("DISCONNECTED! (in default onDisconnect)")
+        return true
     },
     
     onGroupchatMessage: function(msg) {
@@ -318,20 +322,20 @@ Sail.Strophe.Groupchat.prototype = {
         
         this.addParticipantJoinedHandler(function(who, stanza) {
             chat.participants[who] = who
-            console.log(who+" JOINED "+this.room)
+            console.log(who+" JOINED "+chat.room)
         })
         
         this.addParticipantLeftHandler(function(who, stanza) {
             delete chat.participants[who]
-            console.log(who+" LEFT "+this.room)
+            console.log(who+" LEFT "+chat.room)
         })
         
         this.addSelfJoinedHandler(function(who, stanza) {
-            console.log("JOINED "+this.room)
+            console.log("JOINED "+chat.room)
         })
         
         this.addSelfLeftHandler(function(who, stanza) {
-            console.log("LEFT "+this.room)
+            console.log("LEFT "+chat.room)
         })
     },
 }
