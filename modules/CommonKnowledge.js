@@ -21,14 +21,8 @@ CommonKnowledge = {
         
         button.click(function() {
             if ($(button).is('.active')) {
-                $(button).removeClass('active')
-                src = $(button).find('img').attr('src')
-                $(button).find('img').attr('src', src.replace('-active.png','.png'))
                 CommonKnowledge.hideDiscussion()
             } else {
-                $(button).addClass('active')
-                src = $(button).find('img').attr('src')
-                $(button).find('img').attr('src', src.replace('.png','-active.png'))
                 CommonKnowledge.showDiscussion()
             }
         })
@@ -37,6 +31,10 @@ CommonKnowledge = {
     },
     
     showDiscussion: function() {
+        $(button).addClass('active')
+        src = $(button).find('img').attr('src')
+        $(button).find('img').attr('src', src.replace('.png','-active.png'))
+        
         if (!this.panel) {
             //mask = $('<div id="discussion-mask" class="mask" />')
             //$(CommonKnowledge.options.discussionContainer).append(mask)
@@ -63,6 +61,10 @@ CommonKnowledge = {
     },
     
     hideDiscussion: function() {
+        $(button).removeClass('active')
+        src = $(button).find('img').attr('src')
+        $(button).find('img').attr('src', src.replace('-active.png','.png'))
+        
         this.panel.hide()
     }
 }
