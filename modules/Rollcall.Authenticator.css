@@ -16,22 +16,23 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  overflow: auto;
 }
 
 #account-picker ul {
-  -webkit-column-count: 4;
-  -moz-column-count: 4;
-  column-count: 4;
+  
 }
 
 #run-picker ul {
-  -webkit-column-count: 2;
-  -moz-column-count: 2;
-  column-count: 2;
+  
 }
 
 .auth-picker li {
   padding: 5px;
+  padding-left: 40px;
+  padding-right: 40px;
+  float: left;
+  width: 10%;
   margin: 0;
   color: #333;
   border-radius: 5px;
