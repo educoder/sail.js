@@ -17,7 +17,7 @@ CommonKnowledge = {
     showDiscussButton: function() {
         $('#discuss-button').remove()
         
-        button = $('<a id="discuss-button" href="#"><span class="label">discuss</span><img id="discuss-button" src="images/discuss.png" /></a>')
+        button = $('<a id="discuss-button" class="ck" href="#"><span class="label">discuss</span><img id="discuss-button" src="images/discuss.png" /></a>')
         
         button.click(function() {
             if ($(button).is('.active')) {
@@ -39,9 +39,9 @@ CommonKnowledge = {
             //mask = $('<div id="discussion-mask" class="mask" />')
             //$(CommonKnowledge.options.discussionContainer).append(mask)
             
-            this.panel = $('<div id="discussion-panel" class="widget-box"></div>')
+            this.panel = $('<div id="discussion-panel" class="ck widget-box"></div>')
             
-            closeButton = $('<a id="discussion-panel-close-button" href="#">close</a>')
+            closeButton = $('<a id="discussion-panel-close-button" class="ck" href="#">close</a>')
             
             closeButtonIcon = $('<span />')
             closeButtonIcon.addClass('ui-icon')
@@ -53,7 +53,17 @@ CommonKnowledge = {
 
             closeButton.append(closeButtonIcon)
             
+            newNoteButton = $('<button id="new-note-button" class="ck">add note</button>')
+            newNoteButton.button()
+            
+            newNoteButton.click(funciton() {
+                
+            })
+            
             this.panel.append(closeButton)
+            this.panel.append(newNoteButton)
+            this.panel.append(CommonKnowledge.newNoteInput())
+            
             $(CommonKnowledge.options.discussionContainer).append(this.panel)
         } else {
             this.panel.show()
@@ -66,5 +76,21 @@ CommonKnowledge = {
         $(button).find('img').attr('src', src.replace('-active.png','.png'))
         
         this.panel.hide()
+    },
+    
+    newNoteInput: function() {
+        noteForm = $('<form class="ck note-input" />')
+        
+        noteFieldset = $('<fieldset />')
+        noteFieldset.append('<legend>New Note</legend>')
+        noteForm.append(noteFieldset)
+        
+        noteTextarea = $('<textarea name="ck[note]"></textarea>')
+        noteHeadline = $('<input type="text" name="ck[headline]" />')
+        
+        noteFieldset.append(noteTextarea)
+        noteFieldset.append(noteHeadline)
+        
+        return noteForm
     }
 }
