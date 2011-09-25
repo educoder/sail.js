@@ -1,11 +1,11 @@
-#discuss-button {
+.ck#discuss-button {
   display: block;
   position: absolute;
   top: 5px;
   right: 8px;
 }
 
-#discuss-button span.label {
+.ck#discuss-button span.label {
   position: absolute; 
   right: 55px; 
   font-weight: bold; 
@@ -13,11 +13,11 @@
   top: 10px;
 }
 
-#discuss-button.active span.label {
+.ck#discuss-button.active span.label {
   color: #b1e73a;
 }
 
-#discussion-panel {
+.ck#discussion-panel {
   position: absolute;
   bottom: 10px;
   left: 20px;
@@ -27,11 +27,11 @@
   opacity: 0.9;
 }
 
-#discussion-mask {
+.ck#discussion-mask {
   top: 60px;
 }
 
-#discussion-panel-close-button {
+.ck#discussion-panel-close-button {
   position: absolute;
   right: 6px;
   top: 6px;
@@ -40,6 +40,10 @@
   text-decoration: none;
 }
 
-#discussion-panel-close-button span {
+.ck#discussion-panel-close-button span {
   float: right;
+}
+
+.ck.note-input {
+  
 }
