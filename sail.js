@@ -145,9 +145,12 @@ Sail.Event.prototype = {
         
         fromParts = from.split("/")
         if (fromParts[1] && fromParts[1].match(jidRegExp))
-            return fromParts[1].match(jidRegExp)[1]
+            login = fromParts[1].match(jidRegExp)[1]
         else
-            return from.match(jidRegExp)[3] || from.match(jidRegExp)[1]
+            login = from.match(jidRegExp)[3] || from.match(jidRegExp)[1]
+            
+        // need to remove the random "~abcde" suffix sail.strophe.js automatically adds in case of nickname clash
+        return login.replace(/~.+/,'')
     }
 }
 
