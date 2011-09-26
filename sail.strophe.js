@@ -326,14 +326,16 @@ Sail.Strophe.Groupchat.prototype = {
             
             // we're looking for errors of type 'cancel' with a 'conflict' element
             if ($(error).attr('type') != 'cancel' || $(error).children('conflict').length == 0)
-                return true // not what we're looking for, ignore itt
+                return true // not what we're looking for, ignore it
             
-            newNick = chat.resource+'-'+(Math.random()*1e10).toString(32)
+            newNick = chat.resource+'~'+(Math.random()*1e7).toString(25)
             
             console.warn("Nickname '"+chat.resource+"' is already taken in '"+chat.room+"'. Will try to join as '"+newNick+"'.")
             
             chat.resource = newNick
             chat.join()
+            
+            return true
         }, null, null, 'error')
     },
     
