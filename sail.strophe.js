@@ -239,6 +239,8 @@ Sail.Strophe.Groupchat.prototype = {
     participants: {},
     
     join: function() {
+        console.log("Joining "+this.room+" as "+this.jid())
+        
         pres = $pres({to: this.jid()}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
         this.conn.send(pres.tree())
         
