@@ -107,10 +107,15 @@ Sail.loadCSS = function(url) {
     $('head').append(link)
 }
 
-Sail.Event = function(type, payload) {
+Sail.Event = function(type, payload, origin, timestamp) {
     this.eventType = type
     this.payload = payload
-    if (Sail.app.session && Sail.app.session.account && Sail.app.session.account.login)
+    
+    this.timestamp = timestamp || new Date()
+    
+    if (origin)
+        this.origin = origin
+    else if (origin == undefined && Sail.app.session && Sail.app.session.account && Sail.app.session.account.login)
         this.origin = Sail.app.session.account.login
 }
 
@@ -130,12 +135,13 @@ Sail.Event.prototype = {
         return JSON.stringify({
             eventType: this.eventType,
             payload: this.payload,
-            origin: this.origin
+            origin: this.origin,
+            timestamp: this.timestamp
         })
     },
     
-    // intelligently extract and return the login name
-    // from the .from property
+    // intelligently extract and return the login name of the sender
+    // based on the the stanza's .from property
     fromLogin: function() {
         from = this.from
         if (!from || from.length == 0)
@@ -187,7 +193,7 @@ Sail.generateSailEventHandler = function(obj) {
             return
         }
 
-        sev = new Sail.Event(data.eventType, data.payload)
+        sev = new Sail.Event(data.eventType, data.payload, data.origin || null, data.timestamp)
         sev.from = msg.attr('from')
         sev.to = msg.attr('to')
         sev.stanza = stanza
