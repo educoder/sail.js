@@ -320,9 +320,8 @@ Sail.Strophe.Groupchat.prototype = {
     
     addDefaultNicknameConflictHandler: function() {
         chat = this
-        debugger
-        Sail.Strophe.conn.addHandler(function(stanza, text){
-            debugger
+        
+        chat.conn.addHandler(function(stanza, text) {
             error = $(stanza).children('error').eq(0)
             
             // we're looking for errors of type 'cancel' with a 'conflict' element
