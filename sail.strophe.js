@@ -242,7 +242,8 @@ Sail.Strophe.Groupchat.prototype = {
         pres = $pres({to: this.jid()}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
         this.conn.send(pres.tree())
         
-        this.addDefaultPresenceHandlers();
+        this.addDefaultNicknameConflictHandler()
+        this.addDefaultPresenceHandlers()
     },
     
     jid: function() {
@@ -317,8 +318,28 @@ Sail.Strophe.Groupchat.prototype = {
             }, null, "presence", "unavailable", null, this.jid())
     },
     
+    addDefaultNicknameConflictHandler: function() {
+        chat = this
+        debugger
+        Sail.Strophe.conn.addHandler(function(stanza, text){
+            debugger
+            error = $(stanza).children('error').eq(0)
+            
+            // we're looking for errors of type 'cancel' with a 'conflict' element
+            if ($(error).attr('type') != 'cancel' || $(error).children('conflict').length == 0)
+                return true // not what we're looking for, ignore itt
+            
+            newNick = chat.resource+'-'+(Math.random()*1e10).toString(32)
+            
+            console.warn("Nickname '"+chat.resource+"' is already taken in '"+chat.room+"'. Will try to join as '"+newNick+"'.")
+            
+            chat.resource = newNick
+            chat.join()
+        }, null, null, 'error')
+    },
+    
     addDefaultPresenceHandlers: function() {
-        var chat = this
+        chat = this
         
         this.addParticipantJoinedHandler(function(who, stanza) {
             chat.participants[who] = who
