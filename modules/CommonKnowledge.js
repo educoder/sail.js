@@ -17,7 +17,7 @@ CommonKnowledge = {
     showDiscussButton: function() {
         $('#discuss-button').remove()
         
-        button = $('<a id="discuss-button" class="ck" href="#"><span class="label">discuss</span><img id="discuss-button" src="images/discuss.png" /></a>')
+        button = $('<a id="ck-discuss-button" class="ck" href="#"><span class="label">discuss</span><img src="images/discuss.png" /></a>')
         
         button.click(function() {
             if ($(button).is('.active')) {
@@ -36,12 +36,12 @@ CommonKnowledge = {
         $(button).find('img').attr('src', src.replace('.png','-active.png'))
         
         if (!this.panel) {
-            //mask = $('<div id="discussion-mask" class="mask" />')
+            //mask = $('<div id="ck-discussion-mask" class="mask" />')
             //$(CommonKnowledge.options.discussionContainer).append(mask)
             
-            this.panel = $('<div id="discussion-panel" class="ck widget-box"></div>')
+            this.panel = $('<div id="ck-discussion-panel" class="ck widget-box"></div>')
             
-            closeButton = $('<a id="discussion-panel-close-button" class="ck" href="#">close</a>')
+            closeButton = $('<a id="ck-discussion-panel-close-button" class="ck" href="#">close</a>')
             
             closeButtonIcon = $('<span />')
             closeButtonIcon.addClass('ui-icon')

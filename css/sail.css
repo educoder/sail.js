@@ -39,6 +39,20 @@ header h1 {
   box-shadow: rgba(0,0,128,0.25) 3px 3px 4px;
 }
 
+fieldset {
+  border: 3px dashed #aaa;
+  border-radius: 5px;
+  margin: 8px;
+}
+
+legend {
+  color: #888;
+  margin-left: 4px;
+  margin-right: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
 .widget-box  h1,
 .widget-box > h2,
 .widget-box > h3,
@@ -77,3 +91,8 @@ header h1 {
   bottom: 0px;
 }
 
+textarea,
+input[type=text] {
+  border: 3px solid #ccc;
+  border-radius: 5px;
+}

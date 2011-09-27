@@ -1,11 +1,18 @@
-.ck#discuss-button {
+#ck-discuss-button {
   display: block;
   position: absolute;
   top: 5px;
   right: 8px;
 }
 
-.ck#discuss-button span.label {
+#ck-discuss-button img {
+  display: block;
+  position: absolute;
+  top: 5px;
+  right: 8px;
+}
+
+#ck-discuss-button span.label {
   position: absolute; 
   right: 55px; 
   font-weight: bold; 
@@ -13,25 +20,36 @@
   top: 10px;
 }
 
-.ck#discuss-button.active span.label {
+#ck-discuss-button.active span.label {
   color: #b1e73a;
 }
 
-.ck#discussion-panel {
+#ck-discussion-panel {
   position: absolute;
-  bottom: 10px;
-  left: 20px;
-  right: 20px;
-  top: 120px;
-  background: white;
-  opacity: 0.9;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  top: 110px;
+  background: rgba(255, 255, 255, 0.9);
+  color: black;
 }
 
-.ck#discussion-mask {
+#ck-discussion-panel fieldset {
+  background-color: #ddd;
+  border-style: solid;
+  margin: 4px;
+  margin-bottom: 1px;
+}
+
+#ck-discussion-panel label {
+  color: #888;
+}
+
+#ck-discussion-mask {
   top: 60px;
 }
 
-.ck#discussion-panel-close-button {
+#ck-discussion-panel-close-button {
   position: absolute;
   right: 6px;
   top: 6px;
@@ -40,10 +58,33 @@
   text-decoration: none;
 }
 
-.ck#discussion-panel-close-button span {
+#ck-discussion-panel-close-button span {
   float: right;
 }
 
-.ck.note-input {
-  
+form.ck.note #ck-add-note-button {
+  text-align: right;
+  margin-top: 8px;
+  float: right;
+}
+
+form.ck.note {
+  position: absolute;
+  width: 100%;
+  bottom: 4px;
+}
+
+form.ck.note textarea,
+form.ck.note input[type=text] {
+  width: 99%;
+}
+
+form.ck.note textarea.writeup {
+  height: 5em;
+  display: block;
+  font-size: 1.5em;
+}
+
+form.ck.note input[type=text].headline {
+  font-size: 2em;
 }

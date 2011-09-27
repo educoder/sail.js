@@ -79,7 +79,8 @@ Sail.modules.load = function(module, options, url) {
         
         if (options) {
             m.options = m.options || {}
-            $.extend(m.options, options)
+            
+            //$.extend(m.options, options)
         }
         
         console.log("Loaded module "+module+" from "+url, m)
@@ -89,7 +90,14 @@ Sail.modules.load = function(module, options, url) {
             console.debug("Bound event "+event+"."+module)
         }
         
-        Sail.modules[module] = m
+        // module's Sail events (events.sail) are bound in the Strophe.AutoConnector
+        
+        if (!Sail.modules.loaded)
+            Sail.modules.loaded = []
+        
+        m.name = module
+        Sail.modules.loaded.push(m)
+        
         return true
     })
     
