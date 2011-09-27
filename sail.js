@@ -79,8 +79,7 @@ Sail.modules.load = function(module, options, url) {
         
         if (options) {
             m.options = m.options || {}
-            
-            //$.extend(m.options, options)
+            $.extend(m.options, options)
         }
         
         console.log("Loaded module "+module+" from "+url, m)
