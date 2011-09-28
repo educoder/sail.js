@@ -53,19 +53,19 @@ legend {
   font-weight: bold;
 }
 
-.widget-box  h1,
-.widget-box > h2,
-.widget-box > h3,
-.widget-box > h4,
-.widget-box > h5,
-.widget-box > h6 {
+.widget-box  h1.titlebar,
+.widget-box  h2.titlebar,
+.widget-box  h3.titlebar,
+.widget-box  h4.titlebar,
+.widget-box  h5.titlebar,
+.widget-box  h6.titlebar {
   margin-top: 0;
   background-color: #666;
   border-radius: 5px;
   padding: 10px;
 }
 
-.widget-box h1 {
+.widget-box h1.titlebar {
   font-size: 16pt;
 }
 
