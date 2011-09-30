@@ -164,7 +164,7 @@ CommonKnowledge = {
     
     createNotesIndex: function() {
         table = $('<table id="ck-notes-index"></table>')
-        table.append('<thead><tr><th>Headline</th><th>Author</th><th>Keywords</th><th>Date</th></tr></thead>')
+        table.append('<thead><tr><th>Headline</th><th>Author(s)</th><th>Keywords</th><th>Date</th></tr></thead>')
         table.dataTable({
             "oLanguage": {
                 "sEmptyTable": "There aren't any notes in this discussion yet."
