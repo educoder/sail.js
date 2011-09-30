@@ -3,6 +3,7 @@
   position: absolute;
   top: 5px;
   right: 8px;
+  text-decoration: none;
 }
 
 #ck-discuss-button img {
@@ -21,7 +22,9 @@
 }
 
 #ck-discuss-button.active span.label {
-  color: #b1e73a;
+  /*color: #b1e73a;*/
+  /*color: #FFEEB0;*/
+  color: #ffd567;
 }
 
 #ck-discussion-panel {
@@ -29,20 +32,33 @@
   bottom: 5px;
   left: 5px;
   right: 5px;
-  top: 110px;
-  background: rgba(255, 255, 255, 0.9);
+  top: 115px;
+  /*background: rgba(245, 245, 245, 0.85);*/
+  background: #FFEEB0;
   color: black;
 }
 
+#ck-discussion-panel legend {
+  color: #555;
+}
+
 #ck-discussion-panel fieldset {
-  background-color: #ddd;
+  background: #ffd567;
   border-style: solid;
+  border-color: #888;
   margin: 4px;
   margin-bottom: 1px;
+  box-shadow: rgba(0,0,128,0.25) 3px 3px 4px;
 }
 
 #ck-discussion-panel label {
-  color: #888;
+  color: #555;
+}
+
+#ck-discussion-panel h1 {
+  font-size: 16px;
+  margin: 6px;
+  color: #555;
 }
 
 #ck-discussion-mask {
@@ -53,7 +69,7 @@
   position: absolute;
   right: 6px;
   top: 6px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   text-decoration: none;
 }
@@ -62,10 +78,57 @@
   float: right;
 }
 
-form.ck.note #ck-add-note-button {
+#ck-notes-index {
+  width: 100%;
+}
+
+#ck-notes-index td,
+#ck-notes-index th {
+  font-size: 22px;
+}
+
+#ck-notes-index tbody tr:hover {
+  cursor: pointer;
+}
+
+#ck-notes-index tbody tr td {
+  padding-bottom: 3px;
+  padding-top: 3px;
+  background-color: #ffffd0;
+}
+
+#ck-notes-index tbody tr td.sorting_1 {
+  background-color: #D9DDB2 !important;
+}
+
+#ck-notes-index tbody tr.selected td {
+  background-color: #F5DC78;
+  border-top: dotted #888 3px;
+  border-bottom: dotted #888 3px;
+  padding-bottom: 0px;
+  padding-top: 0px;
+}
+
+#ck-notes-index tbody tr.selected td.sorting_1 {
+  background-color: #D1CE85
+}
+
+#ck-new-note-button {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+}
+
+#ck-add-note-button {
   text-align: right;
   margin-top: 8px;
   float: right;
+}
+
+#ck-cancel-note-button {
+  text-align: right;
+  margin-top: 8px;
+  float: left;
 }
 
 form.ck.note {
@@ -77,6 +140,7 @@ form.ck.note {
 form.ck.note textarea,
 form.ck.note input[type=text] {
   width: 99%;
+  border-color: #aaa;
 }
 
 form.ck.note textarea.writeup {
