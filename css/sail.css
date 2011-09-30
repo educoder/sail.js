@@ -96,3 +96,8 @@ input[type=text] {
   border: 3px solid #ccc;
   border-radius: 5px;
 }
+
+button[disabled],
+input[type=button][disabled] {
+  opacity: 0.5;
+}
