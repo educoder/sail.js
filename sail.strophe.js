@@ -32,12 +32,12 @@ Sail.Strophe = {
         Sail.Strophe.conn.disconnect()
     },
     
-    addHandler: function(handler, ns, name, type, id, from) {
+    addStanzaHandler: function(handler, ns, name, type, id, from) {
         if (!Sail.Strophe.conn) throw "Must connect before you can add handlers"
         Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, type, id, from)
     },
     
-    addErrorHandler: function(handler, type, condition) {
+    addErrorStanzaHandler: function(handler, type, condition) {
         Sail.Strophe.conn.addHandler(function(stanza, text){
             error = $(stanza).children('error').eq(0)
             
@@ -71,82 +71,66 @@ Sail.Strophe = {
     
     /** Event Handlers -- override these as required **/
     
-    onConnect: function (status) {
+    onConnect: function (status, error) {
         switch (status) {
             case Strophe.Status.ERROR:
-                console.log('CONNECTION ERROR!')
+                console.error('CONNECTION ERROR: '+error)
+                $(Sail.Strophe).trigger('connect_error', error)
                 break
             case Strophe.Status.CONNECTING:
-                console.log('CONNECTING to '+Sail.Strophe.bosh_url+' WITH '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
+                console.log('CONNECTING to '+Sail.Strophe.bosh_url+' as '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
+                $(Sail.Strophe).trigger('connect_connecting')
                 break
             case Strophe.Status.CONNFAIL:
-                console.error('CONNECTION to '+Sail.Strophe.bosh_url+' FAILED!')
+                msg = 'CONNECTING as '+Sail.Strophe.jid+' FAILED BECAUSE: '
+                console.error(msg, error)
+                $(Sail.Strophe).trigger('connect_connfail', error)
                 break
             case Strophe.Status.AUTHENTICATING:
                 console.log('AUTHENTICATING')
+                $(Sail.Strophe).trigger('connect_authenticating', error)
                 break
             case Strophe.Status.AUTHFAIL:
-                console.error("AUTHENTICATION FAILED")
+                console.error("AUTHENTICATION as "+Sail.Strophe.jid+" FAILED: ", error)
+                $(Sail.Strophe).trigger('connect_authfail', error)
                 break
             case Strophe.Status.CONNECTED:
-                console.log('CONNECTED to '+Sail.Strophe.bosh_url)
+                console.log('CONNECTED to '+Sail.Strophe.bosh_url+' as '+Sail.Strophe.jid)
 
                 $(window).unload(Sail.Strophe.disconnect)
                 $(window).bind('beforeunload', Sail.Strophe.disconnect)
 
-                Sail.Strophe.addDefaultHandlers()
-                Sail.Strophe.onConnectSuccess()
+                Sail.Strophe.addDefaultXmppHandlers()
+                $(Sail.Strophe).trigger('connect_connected', error)
                 break
             case Strophe.Status.DISCONNECTED:
-                Sail.Strophe.onDisconnect()
+                $(Sail.Strophe).trigger('connect_disconnected')
                 // ConnInfo (for .attach()) is currently unused, but if it were
                 // used it should be cleared here
                 Sail.Strophe.clearConnInfo()
                 break
             case Strophe.Status.DISCONNECTING:
+                $(Sail.Strophe).trigger('connect_disconnecting')
                 console.log('DISCONNECTING...')
                 break
             case Strophe.Status.ATTACHED:
                 // this would happen in response to a conn.attach()
                 // but currently this is not implemented
-                console.log('AUTHENTICATING')
+                console.log('AUTHENTICATING as '+Sail.Strophe.jid)
+                $(Sail.Strophe).trigger('connect_attached')
                 break
             default:
-                console.warn('UNKNOWN CONNECTION STATUS: '+status)
+                console.warn('UNKNOWN CONNECTION STATUS: '+status+', ERROR: '+error)
+                $(Sail.Strophe).trigger('connect_unknown')
         }
     },
     
-    onConnectSuccess: function() {
-        console.log("CONNECTED SUCCESSFULLY (in default onConnectSuccess)")
-        return true  
-    },
-    
-    onDisconnect: function() {
-        console.log("DISCONNECTED! (in default onDisconnect)")
-        return true
-    },
-    
-    onGroupchatMessage: function(msg) {
-        console.log($(msg).find('body').text())
-        return true
-    },
-    
-    onSuccess: function(msg) {
-        console.log("SUCCESS: "+msg)
-        return true
-    },
-    
-    onFailure: function(msg) {
-        console.log("FAILURE: "+msg)
-        return true
-    },
-    
-    addDefaultHandlers: function() {
-        Sail.Strophe.addErrorHandler(Sail.Strophe.defaultErrorHandler)
+    addDefaultXmppHandlers: function() {
+        Sail.Strophe.addErrorStanzaHandler(Sail.Strophe.defaultErrorStanzaHandler)
         Sail.Strophe.pinger()
     },
     
-    defaultErrorHandler: function(error, text) {
+    defaultErrorStanzaHandler: function(error, text) {
         console.error("XMPP ERROR: ", text, error)
         return true
     },
@@ -281,7 +265,7 @@ Sail.Strophe.Groupchat.prototype = {
         this.conn.send(msg.tree())
     },
     
-    addHandler: function(handler, ns, name, id, from) {
+    addGroupchatStanzaHandler: function(handler, ns, name, id, from) {
         if (!this.conn) throw "Must connect before you can add handlers"
         return this.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, "groupchat", id, from)
     },

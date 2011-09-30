@@ -3,6 +3,16 @@ Strophe.AutoConnector = {
         initialized: function() {
             Sail.loadCSS(Sail.modules.defaultPath + 'Strophe.AutoConnector.css')
             
+            // 
+            $(Sail.Strophe).bind({
+                connect_error:      Strophe.AutoConnector.connectFailure,
+                connect_connfail:   Strophe.AutoConnector.connectFailure,
+                connect_authfail:   Strophe.AutoConnector.connectFailure,
+                connect_unknown:    Strophe.AutoConnector.connectFailure,
+                connect_disconnected: Strophe.AutoConnector.connectDisconnected,
+                connect_connected:  Strophe.AutoConnector.connectSuccess
+            })
+            
             Strophe.AutoConnector.showConnecting()
         },
         
@@ -17,29 +27,6 @@ Strophe.AutoConnector = {
             Sail.Strophe.bosh_url = '/http-bind/'
          	Sail.Strophe.jid = session.account.login + '@' + Sail.app.xmppDomain
           	Sail.Strophe.password = session.account.encrypted_password
-
-          	Sail.Strophe.onConnectSuccess = function() {
-          	    sailHandler = Sail.generateSailEventHandler(Sail.app)
-          	    Sail.Strophe.addHandler(sailHandler, null, null, 'chat')
-          	    
-          	    for (mod in Sail.modules.loaded) {
-          	        sailHandler = Sail.generateSailEventHandler(Sail.modules.loaded[mod])
-                    Sail.Strophe.addHandler(sailHandler, null, null, 'chat')
-          	    }
-          	    
-                groupchatRoom = Sail.app.groupchatRoom || Sail.app.run.name + '@conference.' + Sail.app.xmppDomain
-          	    Sail.app.groupchat = new Sail.Strophe.Groupchat(groupchatRoom)
-                Sail.app.groupchat.addHandler(sailHandler)
-
-                Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
-                    $(Sail.app).trigger('selfJoined')
-                    
-                    Strophe.AutoConnector.hideConnecting()
-              	    $(Sail.app).trigger('connected')
-                })
-                
-                Sail.app.groupchat.join()
-          	}
 
       	    Sail.Strophe.connect()
         },
@@ -59,5 +46,37 @@ Strophe.AutoConnector = {
     
     hideConnecting: function() {
         $('#connecting').remove()
+    },
+    
+    connectSuccess: function(ev) {
+        sailHandler = Sail.generateSailEventHandler(Sail.app)
+  	    Sail.Strophe.addStanzaHandler(sailHandler, null, null, 'chat')
+  	    
+  	    for (mod in Sail.modules.loaded) {
+  	        sailHandler = Sail.generateSailEventHandler(Sail.modules.loaded[mod])
+            Sail.Strophe.addStanzaHandler(sailHandler, null, null, 'chat')
+  	    }
+  	    
+        groupchatRoom = Sail.app.groupchatRoom || Sail.app.run.name + '@conference.' + Sail.app.xmppDomain
+  	    Sail.app.groupchat = new Sail.Strophe.Groupchat(groupchatRoom)
+        Sail.app.groupchat.addGroupchatStanzaHandler(sailHandler)
+
+        Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
+            $(Sail.app).trigger('selfJoined')
+            
+            Strophe.AutoConnector.hideConnecting()
+      	    $(Sail.app).trigger('connected')
+        })
+        
+        Sail.app.groupchat.join()
+    },
+    
+    connectFailure: function(ev, error) {
+        $('#connecting p').text("Connection Failure!")
+        alert("FAILED TO CONNECT TO XMPP SERVER AS "+Sail.Strophe.jid+" BECAUSE: "+error+" ("+ev.type+")")
+    },
+    
+    connectDisconnected: function(ev) {
+        // do nothing for now
     }
 }

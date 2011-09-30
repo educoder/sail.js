@@ -15,7 +15,7 @@ Rollcall.Authenticator = {
         },
         
         connected: function(ev) {
-            Sail.Strophe.addErrorHandler(function(error, text) {
+            Sail.Strophe.addErrorStanzaHandler(function(error, text) {
                 alert("The account '"+Sail.app.session.account.login+"' is already logged in.")
                 
                 Rollcall.Authenticator.requestLogin()
