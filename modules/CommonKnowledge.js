@@ -73,6 +73,8 @@ CommonKnowledge = {
         panel.append(CommonKnowledge.createNotesIndex())
         panel.append(CommonKnowledge.createNewNoteForm())
         
+        CommonKnowledge.fetchExistingNotes()
+        
         return panel
     },
     
@@ -112,8 +114,8 @@ CommonKnowledge = {
         addNoteButton.button({icons: {primary: 'ui-icon-plusthick'}})
     
         addNoteButton.click(function(ev) {
-            ev.stopPropagation() // prevent page from reloading
-            payload = { run: Sail.app.run }
+            ev.preventDefault() // prevent page from reloading
+            payload = {}
             noteForm = $('#ck-new-note')
             $('form.ck.note textarea, form.ck.note input').each(function() {
                 payload[$(this).attr('name')] = $(this).val()
@@ -130,7 +132,7 @@ CommonKnowledge = {
         cancelNoteButton.button({icons: {primary: 'ui-icon-closethick'}})
     
         cancelNoteButton.click(function(ev) {
-            ev.stopPropagation() // prevent page from reloading
+            ev.preventDefault() // prevent page from reloading
             noteForm = $('#ck-new-note')
             noteForm[0].reset()
             noteForm.slideUp('fast')
@@ -180,6 +182,20 @@ CommonKnowledge = {
             }
         })
         return table
+    },
+    
+    fetchExistingNotes: function() {
+        $.ajax({
+            url: (Sail.app.mongooseURL || '/mongoose') + '/common-knowledge/notes/_find',
+            data: {criteria: JSON.stringify({'run.name':'wallcology-julia-fall2011'})},
+            success: function(data) {
+                debugger
+            },
+            error: function(xhr, error, ex) {
+                console.error("Failed to load existing discussions: ", error, ex)
+                alert("Failed to load existing discussions: "+error)
+            }
+        })
     },
     
     createNoteDetailPanel: function() {
