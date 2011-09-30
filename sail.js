@@ -114,16 +114,23 @@ Sail.loadCSS = function(url) {
     $('head').append(link)
 }
 
-Sail.Event = function(type, payload, origin, timestamp) {
+Sail.Event = function(type, payload, meta) {
+    meta = meta || {}
+    
     this.eventType = type
     this.payload = payload
     
-    this.timestamp = timestamp || new Date()
+    this.timestamp = meta.timestamp || new Date()
     
-    if (origin)
-        this.origin = origin
-    else if (origin == undefined && Sail.app.session && Sail.app.session.account && Sail.app.session.account.login)
+    if (meta.origin)
+        this.origin = meta.origin
+    else if (meta.origin == undefined && Sail.app.session && Sail.app.session.account && Sail.app.session.account.login)
         this.origin = Sail.app.session.account.login
+        
+    if (meta.run)
+        this.run = meta.run
+    else if (meta.run == undefined && Sail.app.run)
+        this.run = Sail.app.run
 }
 
 Sail.Event.prototype = {
@@ -200,7 +207,11 @@ Sail.generateSailEventHandler = function(obj) {
             return
         }
 
-        sev = new Sail.Event(data.eventType, data.payload, data.origin || null, data.timestamp)
+        sev = new Sail.Event(data.eventType, data.payload, {
+            origin: data.origin || null,
+            timestamp: data.timestamp || null,
+            run: data.run || null
+        })
         sev.from = msg.attr('from')
         sev.to = msg.attr('to')
         sev.stanza = stanza
