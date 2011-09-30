@@ -119,7 +119,7 @@ CommonKnowledge = {
                 payload[$(this).attr('name')] = $(this).val()
             })
             payload.keywords = ['foo', 'bar', 'test', 'blah'] // TODO: just testing for now...
-            payload._id = CommonKnowledge.generateNoteId()
+            payload.id = CommonKnowledge.generateNoteId()
             sev = new Sail.Event('ck_new_note', payload)
         	Sail.app.groupchat.sendEvent(sev)
         	noteForm[0].reset()
