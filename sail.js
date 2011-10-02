@@ -73,6 +73,9 @@ Sail.init = function(app, opts) {
         .thenRun(function() {
             Sail.app.init()
             
+            if (Sail.app.allowRunlessEvents === undefined)
+                Sail.app.allowRunlessEvents = true 
+            
             if (Sail.app.phonegap) {
                 // NOTE: need to use addEventListener() here instead of jQuery's bind()
                 //       ... not sure why bind() doesn't work -- probably a phonegap quirk
@@ -237,6 +240,12 @@ Sail.Event = function(type, payload, meta) {
         this.run = meta.run
     else if (meta.run === undefined && Sail.app.run)
         this.run = Sail.app.run
+        
+    if (Sail.app.allowRunlessEvents === false && !this.run) {
+        err = "Cannot create a Sail.Event without a run because this Sail app does not allow runless events!"
+        console.error(err)
+        throw err
+    }
 }
 
 Sail.Event.prototype = {
@@ -259,7 +268,8 @@ Sail.Event.prototype = {
             eventType: this.eventType,
             payload: this.payload,
             origin: this.origin,
-            timestamp: this.timestamp
+            timestamp: this.timestamp,
+            run: this.run
         })
     },
     
