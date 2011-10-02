@@ -1,6 +1,11 @@
+/**
+    @fileOverview
+    Wrapper around strophe.js that adds some convenience and Sail-specific functionality.
+*/
 
 var Sail = window.Sail || {}
 
+/** @namespace */
 Sail.Strophe = {
     bosh_url: null,
     jid: null,
@@ -8,6 +13,15 @@ Sail.Strophe = {
     dataMode: 'json', // 'xml' || 'json'
     logLevel: Strophe.LogLevel.INFO,
     
+    /**
+        Connect to the XMPP service using current Sail.Strophe settings.
+        
+        Sail.Stroph#onConnect is used as the strophe callback function.
+        
+        @see bosh_url
+        @see jid
+        @see password
+    */
     connect: function() {
         if (!this.bosh_url) throw "No bosh_url set!"
         if (!this.jid) throw "No jid set!"
@@ -25,6 +39,15 @@ Sail.Strophe = {
         this.conn.connect(this.jid, this.password, this.onConnect)
     },
     
+    /**
+        Disconnect from the XMPP service.
+        
+        The connection is set to synchronous mode and any outstanding data is flushed
+        before the disconnect is sent.
+        
+        Be careful when using this in 'onUnload' -- in WebKit-based browser the disconnect
+        request doesn't always complete before the page is unloaded.
+    */
     disconnect: function() {
         console.log("sending disconnect request...")
         Sail.Strophe.conn.sync = true
@@ -68,30 +91,64 @@ Sail.Strophe = {
         })
     },
     
-    
-    /** Event Handlers -- override these as required **/
-    
+    /**
+        Called by strophe.js at different stages in connecting to the XMPP service.
+        @private
+    */
     onConnect: function (status, error) {
         switch (status) {
             case Strophe.Status.ERROR:
                 console.error('CONNECTION ERROR: '+error)
+                /**
+                    Some general error occurred while trying to connect.
+                    @event
+                    @name Sail.Strophe#connect_error
+                    @params {string} error - Foo
+                    @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                 */
                 $(Sail.Strophe).trigger('connect_error', error)
                 break
             case Strophe.Status.CONNECTING:
                 console.log('CONNECTING to '+Sail.Strophe.bosh_url+' as '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
+                /**
+                     The connection is currently being established.
+                     @event
+                     @name Sail.Strophe#connect_connecting
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                  */
                 $(Sail.Strophe).trigger('connect_connecting')
                 break
             case Strophe.Status.CONNFAIL:
                 msg = 'CONNECTING as '+Sail.Strophe.jid+' FAILED BECAUSE: '
                 console.error(msg, error)
+                /**
+                     The connection attempt failed, for example because the server rejected it.
+                     @event
+                     @name Sail.Strophe#connect_connfail
+                     @param {string} error - Foo
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                  */
                 $(Sail.Strophe).trigger('connect_connfail', error)
                 break
             case Strophe.Status.AUTHENTICATING:
                 console.log('AUTHENTICATING')
+                /**
+                     Connection credentials are being authenticated.
+                     @event
+                     @name Sail.Strophe#connect_authenticating
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                  */
                 $(Sail.Strophe).trigger('connect_authenticating', error)
                 break
             case Strophe.Status.AUTHFAIL:
                 console.error("AUTHENTICATION as "+Sail.Strophe.jid+" FAILED: ", error)
+                /**
+                     Authentication with the XMPP server failed.
+                     @event
+                     @name Sail.Strophe#connect_authfail
+                     @param {string} error - Foo
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                  */
                 $(Sail.Strophe).trigger('connect_authfail', error)
                 break
             case Strophe.Status.CONNECTED:
@@ -101,40 +158,86 @@ Sail.Strophe = {
                 $(window).bind('beforeunload', Sail.Strophe.disconnect)
 
                 Sail.Strophe.addDefaultXmppHandlers()
+                /**
+                     The connection has been successfully established.
+                     @event
+                     @name Sail.Strophe#connect_connected
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                  */
                 $(Sail.Strophe).trigger('connect_connected', error)
                 break
             case Strophe.Status.DISCONNECTED:
+                /**
+                     The connection has been terminated.
+                     @event
+                     @name Sail.Strophe#connect_disconnected
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                 */
                 $(Sail.Strophe).trigger('connect_disconnected')
                 // ConnInfo (for .attach()) is currently unused, but if it were
                 // used it should be cleared here
                 Sail.Strophe.clearConnInfo()
                 break
             case Strophe.Status.DISCONNECTING:
+                /**
+                     The connection is currently being terminated.
+                     @event
+                     @name Sail.Strophe#connect_disconnecting
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                 */
                 $(Sail.Strophe).trigger('connect_disconnecting')
                 console.log('DISCONNECTING...')
                 break
             case Strophe.Status.ATTACHED:
-                // this would happen in response to a conn.attach()
-                // but currently this is not implemented
+                /**
+                     The connection has been attached.
+                     This would normally happen in response to a conn.attach() call, but Sail.Strophe
+                     doesn't currently support re-attaching to an existing BOSH session.
+                     @event
+                     @name Sail.Strophe#connect_attached
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                 */
                 console.log('AUTHENTICATING as '+Sail.Strophe.jid)
                 $(Sail.Strophe).trigger('connect_attached')
                 break
             default:
+                /**
+                     The connection process has entered an unrecognized state.
+                     This should never really happen.
+                     @event
+                     @name Sail.Strophe#connect_unknown
+                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
+                 */
                 console.warn('UNKNOWN CONNECTION STATUS: '+status+', ERROR: '+error)
                 $(Sail.Strophe).trigger('connect_unknown')
         }
     },
     
+    /**
+        Adds default handlers/behaviour to the current strophe connection,
+        such as a default error stanza handler and a timed pinger.
+    */
     addDefaultXmppHandlers: function() {
         Sail.Strophe.addErrorStanzaHandler(Sail.Strophe.defaultErrorStanzaHandler)
         Sail.Strophe.pinger()
     },
     
+    /**
+        The default error stanza handler. Prints out the error text and object to the console.
+     */
     defaultErrorStanzaHandler: function(error, text) {
         console.error("XMPP ERROR: ", text, error)
         return true
     },
     
+    /**
+        Log some text messsage at the given level (DEBUG, INFO, WARN, ERROR, FATAL) optionally with some additional data.
+        @param {string} level - The level/importance of this message. Should be a Strophe.LogLevel constant.
+        @param {string} message - The message to log.
+        @param [data] - Some additional data to log with the message. Can be a complex type like an object.
+        
+        @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Log_Level_Constants
+    */
     log: function(level, message, data) {
         switch(level) {
             case Strophe.LogLevel.DEBUG:

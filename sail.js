@@ -185,7 +185,7 @@ Sail.loadCSS = function(url) {
 
 /**
     @class 
-    An event ocurring in the Sail space.
+    An event ocurring in the Sail space. Not to be confused with regular (local) JavaScript events.
 
     @desc
     Note that variables containing Sail.Events are usually named `sev` (for Sail Event) to 
