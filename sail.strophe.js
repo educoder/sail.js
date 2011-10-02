@@ -7,20 +7,29 @@ var Sail = window.Sail || {}
 
 /** @namespace */
 Sail.Strophe = {
+    /** URL of the BOSH service we'll be connecting to. */
     bosh_url: null,
+    /** JID to connect as (e.g. "somebody@somewhere.com"). */
     jid: null,
+    /** Password to use during authentication with the XMPP server. */
     password: null,
+    /** Data mode to use for serializing Sail events. Currently on 'json' is supported. */ 
     dataMode: 'json', // 'xml' || 'json'
+    /**
+        Log messages at a level lower than this will be ignored.
+        @see Sail.Strophe.log
+    */
     logLevel: Strophe.LogLevel.INFO,
     
     /**
         Connect to the XMPP service using current Sail.Strophe settings.
         
-        Sail.Stroph#onConnect is used as the strophe callback function.
+        `Sail.Strophe.onConnect` is used as the strophe callback function.
         
-        @see bosh_url
-        @see jid
-        @see password
+        @see Sail.Strophe.bosh_url
+        @see Sail.Strophe.jid
+        @see Sail.Strophe.password
+        @see Sail.Strophe.onConnect
     */
     connect: function() {
         if (!this.bosh_url) throw "No bosh_url set!"
@@ -102,7 +111,7 @@ Sail.Strophe = {
                 /**
                     Some general error occurred while trying to connect.
                     @event
-                    @name Sail.Strophe#connect_error
+                    @name Sail.Strophe.connect_error
                     @params {string} error - Foo
                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
@@ -113,7 +122,7 @@ Sail.Strophe = {
                 /**
                      The connection is currently being established.
                      @event
-                     @name Sail.Strophe#connect_connecting
+                     @name Sail.Strophe.connect_connecting
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
                 $(Sail.Strophe).trigger('connect_connecting')
@@ -124,7 +133,7 @@ Sail.Strophe = {
                 /**
                      The connection attempt failed, for example because the server rejected it.
                      @event
-                     @name Sail.Strophe#connect_connfail
+                     @name Sail.Strophe.connect_connfail
                      @param {string} error - Foo
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
@@ -135,7 +144,7 @@ Sail.Strophe = {
                 /**
                      Connection credentials are being authenticated.
                      @event
-                     @name Sail.Strophe#connect_authenticating
+                     @name Sail.Strophe.connect_authenticating
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
                 $(Sail.Strophe).trigger('connect_authenticating', error)
@@ -145,7 +154,7 @@ Sail.Strophe = {
                 /**
                      Authentication with the XMPP server failed.
                      @event
-                     @name Sail.Strophe#connect_authfail
+                     @name Sail.Strophe.connect_authfail
                      @param {string} error - Foo
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
@@ -161,7 +170,7 @@ Sail.Strophe = {
                 /**
                      The connection has been successfully established.
                      @event
-                     @name Sail.Strophe#connect_connected
+                     @name Sail.Strophe.connect_connected
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
                 $(Sail.Strophe).trigger('connect_connected', error)
@@ -170,7 +179,7 @@ Sail.Strophe = {
                 /**
                      The connection has been terminated.
                      @event
-                     @name Sail.Strophe#connect_disconnected
+                     @name Sail.Strophe.connect_disconnected
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
                 $(Sail.Strophe).trigger('connect_disconnected')
@@ -182,7 +191,7 @@ Sail.Strophe = {
                 /**
                      The connection is currently being terminated.
                      @event
-                     @name Sail.Strophe#connect_disconnecting
+                     @name Sail.Strophe.connect_disconnecting
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
                 $(Sail.Strophe).trigger('connect_disconnecting')
@@ -194,7 +203,7 @@ Sail.Strophe = {
                      This would normally happen in response to a conn.attach() call, but Sail.Strophe
                      doesn't currently support re-attaching to an existing BOSH session.
                      @event
-                     @name Sail.Strophe#connect_attached
+                     @name Sail.Strophe.connect_attached
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
                 console.log('AUTHENTICATING as '+Sail.Strophe.jid)
@@ -205,7 +214,7 @@ Sail.Strophe = {
                      The connection process has entered an unrecognized state.
                      This should never really happen.
                      @event
-                     @name Sail.Strophe#connect_unknown
+                     @name Sail.Strophe.connect_unknown
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
                 console.warn('UNKNOWN CONNECTION STATUS: '+status+', ERROR: '+error)
