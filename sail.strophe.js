@@ -102,6 +102,7 @@ Sail.Strophe = {
     
     /**
         Called by strophe.js at different stages in connecting to the XMPP service.
+        Triggers the various `connect_` events.
         @private
     */
     onConnect: function (status, error) {
