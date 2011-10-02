@@ -46,11 +46,6 @@ Sail.load = function() {
 /**
     Initializes the given object as a sail.js app.
     
-    The initialization process takes care of (at least) the following:
-    
-    1. The given object is made available under `Sail.app`.
-    2. 
-    
     @param {object} app - The object that will be treated as the sail.js app.
                           A global reference to this object will be created under `Sail.app`.
     @param {object} [opts] - Options for initialization. Currently unused.
@@ -58,18 +53,19 @@ Sail.load = function() {
     @see Sail.UI.init()
     
     @example
-        MyApp = {
-            events: {
-                sail: {
-                
-                }
+    // create your app as an object
+    MyApp = {
+        events: {
+            sail: {
+            
             }
         }
-    
-        Sail.init(MyApp)
-        // MyApp is now accessible as Sail.app and its `init()` function is called.
-        // `Sail.UI.init()` is also called.
-        // The 
+    }
+
+    Sail.init(MyApp)
+    // MyApp is now accessible as Sail.app and its `init()` function is called.
+    // `Sail.UI.init()` is also called.
+    // The 
 */
 Sail.init = function(app, opts) {
     Sail.app = app
@@ -218,10 +214,11 @@ Sail.loadCSS = function(url) {
     @param {string} [meta.timestamp=new Date()] The datetime when the event was generated.
     @param {string} [meta.run=Sail.app.run] An object identifying the Sail "run" that this event is part of.
 
-    @example Sending a Sail Event with some custom metadata:
+    @example 
+    // Send a Sail Event with some custom metadata:
 
-        sev = new Sail.Event('something_happened', {foo: "bar"}, {origin: "some-agent"})
-        Sail.app.groupchat.sendEvent(sev)
+    sev = new Sail.Event('something_happened', {foo: "bar"}, {origin: "some-agent"})
+    Sail.app.groupchat.sendEvent(sev)
  */
 Sail.Event = function(type, payload, meta) {
     meta = meta || {}
