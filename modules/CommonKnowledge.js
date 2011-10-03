@@ -6,7 +6,7 @@ CommonKnowledge = {
     
     context: {
         selectableTags: [],
-        hiddenTags: []
+        autoTags: []
     },
     
     events: {
@@ -215,7 +215,7 @@ CommonKnowledge = {
     createAutoTags: function() {
         tags = $('<div class="ck-tag-collection ck-auto-tags"></div>')
         
-        _.each(CommonKnowledge.context.hiddenTags, function(t) {
+        _.each(CommonKnowledge.context.autoTags, function(t) {
             tag = $('<span class="ck-input-tag"></span>')
             tag.text(t)
             this.append(tag)
