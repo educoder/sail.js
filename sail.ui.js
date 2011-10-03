@@ -1,6 +1,11 @@
 Sail.UI = {
     init: function() {
         $(document).ready(function() {
+            // We need to turn off animation effect for Xoom tablets since they can't really handle it
+            // FIXME: ugly way to check if we're on a Xoom tablet
+            if (navigator.userAgent.match('Android'))
+                jQuery.fx.off = true
+            
             $('button, input[type=submit], input[type=reset], input[type=button]').button()
             $('.dialog button').click(function(){
                 Sail.UI.dismissDialog($(this).parents('.dialog'))
