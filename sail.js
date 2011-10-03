@@ -366,8 +366,8 @@ Sail.autobindEvents = function(obj, options) {
         // incoming Sail events of type 'someone_did_something' will now
         // trigger the alert specified in MyApp.events.sail.someone_did_something
  */
-Sail.generateSailEventHandler = function(obj) {
-    return function(stanza) {
+Sail.generateSailEventHandler = function(sailApp) {
+    handler = function(stanza) {
         msg = $(stanza)
 
         body = $(msg).children('body').text()
@@ -388,20 +388,20 @@ Sail.generateSailEventHandler = function(obj) {
         sev.to = msg.attr('to')
         sev.stanza = stanza
     
-        if (!obj.events || !obj.events.sail)
+        if (!sailApp.events || !sailApp.events.sail)
             mapping = null
         else
-            mapping = obj.events.sail[sev.eventType]
+            mapping = sailApp.events.sail[sev.eventType]
         
         if (mapping == null || typeof(mapping) == 'string') {
             if (mapping == null)
                 eventName = sev.eventType
             else
-                eventName = obj.events.sail[sev.eventType]
+                eventName = sailApp.events.sail[sev.eventType]
             
-            events = $(obj).data('events')
+            events = $(sailApp).data('events')
             if (events && events[eventName]) // hacky way to check if a handler was bound for this event
-                $(obj).trigger(eventName, sev)
+                $(sailApp).trigger(eventName, sev)
             else
                 console.log("UNHANDLED EVENT "+eventName, sev)
                 
@@ -413,4 +413,7 @@ Sail.generateSailEventHandler = function(obj) {
 
         return true
     }
+    
+    return handler
+    //return $.proxy(handler, obj)
 }
