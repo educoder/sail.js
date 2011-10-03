@@ -36,10 +36,17 @@
   /*background: rgba(245, 245, 245, 0.85);*/
   background: #FFEEB0;
   color: black;
+  overflow: hidden; /* auto */
 }
 
 #ck-discussion-panel legend {
-  color: #555;
+  font-size: 16px;
+  background-color: #888;
+  border-radius: 5px;
+  color: white;
+  padding: 2px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 #ck-discussion-panel fieldset {
@@ -82,26 +89,30 @@
   width: 100%;
 }
 
-#ck-notes-index td,
-#ck-notes-index th {
+#ck-notes-index table {
+  width: 100%;
+}
+
+#ck-notes-index table td,
+#ck-notes-index table th {
   font-size: 22px;
 }
 
-#ck-notes-index tbody tr:hover {
+#ck-notes-index table tbody tr:hover {
   cursor: pointer;
 }
 
-#ck-notes-index tbody tr td {
+#ck-notes-index table tbody tr td {
   padding-bottom: 3px;
   padding-top: 3px;
   background-color: #ffffd0;
 }
 
-#ck-notes-index tbody tr td.sorting_1 {
+#ck-notes-index table tbody tr td.sorting_1 {
   background-color: #D9DDB2 !important;
 }
 
-#ck-notes-index tbody tr.selected td {
+#ck-notes-index table tbody tr.selected td {
   background-color: #F5DC78;
   border-top: dotted #888 3px;
   border-bottom: dotted #888 3px;
@@ -109,8 +120,12 @@
   padding-top: 0px;
 }
 
-#ck-notes-index tbody tr.selected td.sorting_1 {
+#ck-notes-index table tbody tr.selected td.sorting_1 {
   background-color: #D1CE85
+}
+
+#ck-notes-index tr td.note-id {
+  display: none;
 }
 
 #ck-new-note-button {
@@ -151,4 +166,68 @@ form.ck.note textarea.writeup {
 
 form.ck.note input[type=text].headline {
   font-size: 2em;
+}
+
+#ck-note-detail {
+  position: fixed;
+  bottom: 12px;
+  left: 8px;
+  right: 8px;
+}
+
+#ck-note-detail .note-author {
+  float: right;
+  background: #997700;
+  border-radius: 5px;
+  color: #FFFFD0;
+  padding: 5px;
+  padding-bottom: 2px;
+  padding-top: 2px;
+}
+
+#ck-note-detail .note-author span.by {
+  opacity: 0.5;
+}
+
+#ck-note-detail .note-headline {
+  margin: 0;
+  margin-bottom: 0.25em;
+  margin-top: 0.25em;
+}
+
+#ck-note-detail .note-hide {
+  float: right;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+#ck-note-detail .note-hide span {
+  float: right;
+}
+
+.ck-tag-collection {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.ck-selectable-tag {
+  background: #fff;
+  border: 3px solid #aaa;
+  border-radius: 10px;
+  margin-right: 8px;
+  padding: 3px 8px;
+}
+
+.ck-selectable-tag:hover {
+  cursor: pointer;
+}
+
+.ck-selectable-tag.selected {
+  background: #92C060;
+  border-color: #888;
+}
+
+.ck-hidden-tag {
+  display: none;
 }

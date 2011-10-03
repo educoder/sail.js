@@ -4,6 +4,17 @@ CommonKnowledge = {
         discussionContainer: 'body'
     },
     
+    context: {
+        selectableTags: [
+            "Theory",
+            "Question",
+            "Observation",
+            "Investigation",
+            "Other Idea"
+        ],
+        hiddenTags: []
+    },
+    
     events: {
         initialized: function(ev) {
             Sail.loadCSS(Sail.modules.defaultPath + 'CommonKnowledge.css')
@@ -13,18 +24,28 @@ CommonKnowledge = {
             CommonKnowledge.showDiscussButton()
         },
         
+        context_switch: function(ev, newContextData) {
+            /*debugger
+            CommonKnowledge.updateSelectableTags()
+            CommonKnowledge.updateHiddenTags()*/
+        },
+        
         sail: {
             ck_new_note: function(sev) {
-                $('#ck-notes-index').dataTable().fnAddData([
-                    sev.payload.headline,
-                    sev.origin,
-                    sev.payload.keywords.join(", "),
-                    sev.timestamp
-                ])
+                CommonKnowledge.addNotesToIndex({
+                    content: {
+                        writeup: sev.payload.writeup,
+                        headline: sev.payload.headline,
+                        keywords: sev.payload.keywords,
+                    },
+                    author: sev.origin,
+                    timestamp: sev.timestamp,
+                    run: sev.run,
+                    _id: sev.payload.id
+                })
             }
         }
     },
-    
     
     showDiscussButton: function() {
         $('#ck-discuss-button').remove()
@@ -64,14 +85,13 @@ CommonKnowledge = {
         newNoteButton = $('<button id="ck-new-note-button" class="ck">Write a New Note</button>')
         newNoteButton.button({icons: {primary: 'ui-icon-pencil'}})
         newNoteButton.click(function() {
-            $('#ck-new-note').slideDown('fast')
+            CommonKnowledge.showNewNoteForm()
         })
         
         panel.append(notesIndexLabel)
         panel.append(closeButton)
         panel.append(newNoteButton)
         panel.append(CommonKnowledge.createNotesIndex())
-        panel.append(CommonKnowledge.createNewNoteForm())
         
         CommonKnowledge.fetchExistingNotes()
         
@@ -83,11 +103,11 @@ CommonKnowledge = {
         src = $(button).find('img').attr('src')
         $(button).find('img').attr('src', src.replace('.png','-active.png'))
         
-        if (!this.panel) {
-            this.panel = this.createDiscussionPanel()
-            $(CommonKnowledge.options.discussionContainer).append(this.panel)
+        if (!CommonKnowledge.panel) {
+            CommonKnowledge.panel = CommonKnowledge.createDiscussionPanel()
+            $(CommonKnowledge.options.discussionContainer).append(CommonKnowledge.panel)
         } else {
-            this.panel.show()
+            CommonKnowledge.panel.show()
         }
     },
     
@@ -96,7 +116,7 @@ CommonKnowledge = {
         src = $(button).find('img').attr('src')
         $(button).find('img').attr('src', src.replace('-active.png','.png'))
         
-        this.panel.hide()
+        CommonKnowledge.panel.hide()
     },
     
     createNewNoteForm: function() {
@@ -110,6 +130,8 @@ CommonKnowledge = {
         noteTextarea = $('<textarea class="ck writeup" name="writeup"></textarea>')
         noteHeadline = $('<label>Headline:</label> <input class="ck headline" type="text" name="headline" />')
     
+        noteKeywords = $('<label>Keywords:</label> <div class="keywords ck"></div>')
+        
         addNoteButton = $('<button id="ck-add-note-button" class="ck" type="submit">Submit</button>')
         addNoteButton.button({icons: {primary: 'ui-icon-plusthick'}})
     
@@ -120,12 +142,15 @@ CommonKnowledge = {
             $('form.ck.note textarea, form.ck.note input').each(function() {
                 payload[$(this).attr('name')] = $(this).val()
             })
-            payload.keywords = ['foo', 'bar', 'test', 'blah'] // TODO: just testing for now...
+            payload.keywords = noteForm.find('.ck-selectable-tag.selected').map(function() {return $(this).text()}).toArray()
+            
             payload.id = CommonKnowledge.generateNoteId()
             sev = new Sail.Event('ck_new_note', payload)
+        	
         	Sail.app.groupchat.sendEvent(sev)
-        	noteForm[0].reset()
+        	CommonKnowledge.resetNewNoteForm()
         	addNoteButton.attr('disabled','disabled')
+        	setTimeout(CommonKnowledge.hideNewNoteForm, 300)
         })
     
         cancelNoteButton = $('<button id="ck-cancel-note-button" class="ck" type="reset">Cancel</button>')
@@ -134,8 +159,8 @@ CommonKnowledge = {
         cancelNoteButton.click(function(ev) {
             ev.preventDefault() // prevent page from reloading
             noteForm = $('#ck-new-note')
-            noteForm[0].reset()
-            noteForm.slideUp('fast')
+            CommonKnowledge.resetNewNoteForm()
+            CommonKnowledge.hideNewNoteForm()
         })
     
         noteForm.bind('keyup change', function() {
@@ -145,51 +170,140 @@ CommonKnowledge = {
         })
     
         addNoteButton.attr('disabled','disabled')
-    
+        
         noteFieldset.append(noteTextarea)
         noteFieldset.append(noteHeadline)
+        noteFieldset.append(noteKeywords)
         noteFieldset.append(cancelNoteButton)
         noteFieldset.append(addNoteButton)
-        noteFieldset.append($('.ck.extra-note-fields'))
+        
+        noteFieldset.find('.keywords').append(CommonKnowledge.createSelectableTags())
+        noteFieldset.find('.keywords').append(CommonKnowledge.createHiddenTags())
         
         return noteForm
     },
     
     showNewNoteForm: function() {
-        if (!this.newNoteForm) {
-            this.newNoteForm = this.createNewNoteForm()
-            this.panel.append(this.newNoteForm)
+        if (!CommonKnowledge.newNoteForm) {
+            CommonKnowledge.newNoteForm = CommonKnowledge.createNewNoteForm()
+            CommonKnowledge.panel.append(CommonKnowledge.newNoteForm)
         }
         
-        this.newNoteForm.show()
+        CommonKnowledge.newNoteForm.slideDown('fast')
+    },
+    
+    hideNewNoteForm: function() {
+        CommonKnowledge.newNoteForm.slideUp('fast')
+    },
+    
+    resetNewNoteForm: function() {
+        CommonKnowledge.newNoteForm[0].reset()
+        CommonKnowledge.newNoteForm.find('.ck-selectable-tag').removeClass('selected')
+    },
+    
+    createSelectableTags: function() {
+        tags = $('<div class="ck-tag-collection"></div>')
+        
+        _.each(CommonKnowledge.context.selectableTags, function(t) {
+            tag = $('<span class="ck-selectable-tag"></span>')
+            tag.text(t)
+            tag.click(function() {
+                $(this).toggleClass('selected')
+            })
+            this.append(tag)
+        }, tags)
+        
+        return tags
+    },
+    
+    createHiddenTags: function() {
+        tags = $('<div class="ck-tag-collection"></div>')
+        
+        _.each(CommonKnowledge.context.hiddenTags, function(t) {
+            tag = $('<span class="ck-hidden-tag"></span>')
+            tag.text(t)
+            this.append(tag)
+        }, tags)
+        
+        return tags
     },
     
     createNotesIndex: function() {
+        index = $('<div id="ck-notes-index"></div>')
         table = $('<table id="ck-notes-index"></table>')
-        table.append('<thead><tr><th>Headline</th><th>Author(s)</th><th>Keywords</th><th>Date</th></tr></thead>')
+        table.append('<thead><tr><td /><th>Date</th><th>Headline</th><th>Author(s)</th></tr></thead>')
         table.dataTable({
-            "oLanguage": {
+            aoColumns: [
+                {sClass: 'note-id'},
+                {sClass: 'note-date'},
+                {sClass: 'note-headline'},
+                {sClass: 'note-author'},
+                //{sClass: 'note-keywords'}
+            ],
+            iDisplayLength: 100,
+            aaSorting: [[1,'desc']], // initially sort by date, descending
+            bJQueryUI: true, // enable jQuery features
+            oLanguage: {
                 "sEmptyTable": "There aren't any notes in this discussion yet."
             },
-            "bJQueryUI": true
         })
-        $('#ck-notes-index tbody tr').live('click', function() {
+        $('#ck-notes-index tr').live('click', function() {
             if ($(this).is('.selected')) {
                 $(this).removeClass('selected')
+                CommonKnowledge.hideNoteDetailPanel()
             } else {
-                $('#ck-notes-index tbody tr').removeClass('selected')
+                $('#ck-notes-index tr.selected').removeClass('selected')
                 $(this).addClass('selected')
+                CommonKnowledge.showNoteDetailPanel()
+                CommonKnowledge.loadNoteIntoDetailPanel($(this).data('note'))
             }
         })
-        return table
+        
+        // need to do this becuase dataTable() for some reason insits on setting it to 0
+        table.attr('style', null)
+        
+        index.append(table)
+        return index
+    },
+    
+    addNotesToIndex: function(notes) {
+        if (notes.length === undefined)
+            notes = [notes]
+            
+        data = _.map(notes, function(note) {
+            return [
+                note._id,
+                CommonKnowledge.formatDate(note.timestamp),
+                note.content.headline,
+                note.author,
+                //note.content.keywords && note.content.keywords.join(", ")
+            ]
+        })
+        
+        added = $('#ck-notes-index table').dataTable().fnAddData(data)
+        
+        _.each(added, function(idx) {
+            //$(this.aoData[idx].nTr).effect('highlight', 'fast')
+            tr = $(this.aoData[idx].nTr)
+            id = tr.children('td.note-id').text().trim()
+            note = _.detect(notes, function(n) { return n._id == id })
+            tr.attr('id', 'note-'+id)
+            tr.data('note', note)
+        }, $('#ck-notes-index table').dataTable().fnSettings())
     },
     
     fetchExistingNotes: function() {
+        // FIXME: will only fetch last 100 notes... need to implement paging
         $.ajax({
             url: (Sail.app.mongooseURL || '/mongoose') + '/common-knowledge/notes/_find',
-            data: {criteria: JSON.stringify({'run.name':'wallcology-julia-fall2011'})},
+            data: {
+                criteria: JSON.stringify({'run.name':'wallcology-julia-fall2011'}),
+                batch_size: 100, // 30 is the max that will comfortably fit on the screen... arbitrarily picked 100 for now
+                sort: JSON.stringify({"timestamp":-1})
+            },
             success: function(data) {
-                debugger
+                console.debug("Got "+data.results.length+" notes from mongoose...")
+                CommonKnowledge.addNotesToIndex(data.results)
             },
             error: function(xhr, error, ex) {
                 console.error("Failed to load existing discussions: ", error, ex)
@@ -200,16 +314,75 @@ CommonKnowledge = {
     
     createNoteDetailPanel: function() {
       detailPanel = $('<div id="ck-note-detail" class="ck"></div>')
-      detailPanel.append('<div class="author"></div>')
-      detailPanel.append('<h3 class="headline"></h3>')
-      detailPanel.append('<div class="writeup"></div>')
-      detailPanel.append('<div class="keywords"></div>')
+      detailPanel.hide() // initially hidden
+      
+      closeButton = $('<a class="note-hide" href="#">close</a>')
+      closeButtonIcon = $('<span />')
+      closeButtonIcon.addClass('ui-icon')
+      closeButtonIcon.addClass('ui-icon-closethick')
+      closeButton.click(function() {
+          CommonKnowledge.hideNoteDetailPanel()
+      })
+      closeButton.append(closeButtonIcon)
+      
+      fieldset = $('<fieldset />')
+      fieldset.append('<legend></legend>')
+      fieldset.append(closeButton)
+      
+      fieldset.append('<h3 class="note-headline"></h3>')
+      fieldset.append('<div class="note-writeup"></div>')
+      //fieldset.append('<div class="note-author"><span class="by">by: </span><span class="name"></span></div>')
+      fieldset.append('<div class="note-keywords"></div>')
+      
+      detailPanel.append(fieldset)
       
       return detailPanel
+    },
+    
+    showNoteDetailPanel: function() {
+        if (!CommonKnowledge.detail) {
+            CommonKnowledge.detail = CommonKnowledge.createNoteDetailPanel()
+            $(CommonKnowledge.panel).append(CommonKnowledge.detail)
+            $(CommonKnowledge.detail).slideDown('fast')
+        } else {
+            $(CommonKnowledge.detail).slideDown('fast')
+        }
+    },
+    
+    hideNoteDetailPanel: function () {
+        $(CommonKnowledge.detail).slideUp('fast')
+    },
+    
+    loadNoteIntoDetailPanel: function(note) {
+        if (!CommonKnowledge.detail) {
+            CommonKnowledge.detail = CommonKnowledge.createNoteDetailPanel()
+            $(CommonKnowledge.panel).append(CommonKnowledge.detail)
+        }
+        
+        fieldset = CommonKnowledge.detail.children('fieldset')
+        
+        fieldset.find('legend').text(note.author+"'s Note")
+        //fieldset.children('.note-author').children('.name').text(note.author)
+        fieldset.children('.note-headline').text(note.content.headline)
+        fieldset.children('.note-writeup').text(note.content.writeup)
+        fieldset.children('.note-keywords').text(note.content.keywords)
+    },
+    
+    updateHiddenTags: function() {
+        
     },
     
     // generate a pseudo-unique identifier for a note
     generateNoteId: function() {
         return Math.floor((Math.random() * 1e50)).toString(36)
+    },
+    
+    formatDate: function(date) {
+        if (typeof date == 'string')
+            date = new Date(date)
+        
+        now = new Date()
+        
+        return _date(date).format("MMM D @ h:m:s a")
     }
 }
