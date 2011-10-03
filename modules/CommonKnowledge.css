@@ -211,7 +211,7 @@ form.ck.note input[type=text].headline {
   margin-bottom: 1em;
 }
 
-.ck-selectable-tag {
+.ck-input-tag {
   background: #fff;
   border: 3px solid #aaa;
   border-radius: 10px;
@@ -219,15 +219,16 @@ form.ck.note input[type=text].headline {
   padding: 3px 8px;
 }
 
-.ck-selectable-tag:hover {
+.ck-selectable-tags .ck-input-tag:hover {
   cursor: pointer;
 }
 
-.ck-selectable-tag.selected {
+.ck-selectable-tags .ck-input-tag.selected {
   background: #92C060;
   border-color: #888;
 }
 
-.ck-hidden-tag {
-  display: none;
+.ck-auto-tags .ck-input-tag {
+  background: #C09260;
+  border-color: #888;
 }

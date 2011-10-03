@@ -5,13 +5,7 @@ CommonKnowledge = {
     },
     
     context: {
-        selectableTags: [
-            "Theory",
-            "Question",
-            "Observation",
-            "Investigation",
-            "Other Idea"
-        ],
+        selectableTags: [],
         hiddenTags: []
     },
     
@@ -25,9 +19,11 @@ CommonKnowledge = {
         },
         
         context_switch: function(ev, newContextData) {
-            /*debugger
-            CommonKnowledge.updateSelectableTags()
-            CommonKnowledge.updateHiddenTags()*/
+            _.extend(CommonKnowledge.context, newContextData)
+            if (CommonKnowledge.newNoteForm) {
+                CommonKnowledge.updateSelectableInputTags()
+                CommonKnowledge.updateHiddenInputTags()
+            }
         },
         
         sail: {
@@ -142,7 +138,7 @@ CommonKnowledge = {
             $('form.ck.note textarea, form.ck.note input').each(function() {
                 payload[$(this).attr('name')] = $(this).val()
             })
-            payload.keywords = noteForm.find('.ck-selectable-tag.selected').map(function() {return $(this).text()}).toArray()
+            payload.keywords = noteForm.find('.ck-selectable-tags .ck-input-tag.selected, .ck-auto-tags .ck-input-tag').map(function() {return $(this).text()}).toArray()
             
             payload.id = CommonKnowledge.generateNoteId()
             sev = new Sail.Event('ck_new_note', payload)
@@ -178,7 +174,7 @@ CommonKnowledge = {
         noteFieldset.append(addNoteButton)
         
         noteFieldset.find('.keywords').append(CommonKnowledge.createSelectableTags())
-        noteFieldset.find('.keywords').append(CommonKnowledge.createHiddenTags())
+        noteFieldset.find('.keywords').append(CommonKnowledge.createAutoTags())
         
         return noteForm
     },
@@ -198,14 +194,14 @@ CommonKnowledge = {
     
     resetNewNoteForm: function() {
         CommonKnowledge.newNoteForm[0].reset()
-        CommonKnowledge.newNoteForm.find('.ck-selectable-tag').removeClass('selected')
+        CommonKnowledge.newNoteForm.find('.ck-input-tag').removeClass('selected')
     },
     
     createSelectableTags: function() {
-        tags = $('<div class="ck-tag-collection"></div>')
+        tags = $('<div class="ck-tag-collection ck-selectable-tags"></div>')
         
         _.each(CommonKnowledge.context.selectableTags, function(t) {
-            tag = $('<span class="ck-selectable-tag"></span>')
+            tag = $('<span class="ck-input-tag"></span>')
             tag.text(t)
             tag.click(function() {
                 $(this).toggleClass('selected')
@@ -216,16 +212,32 @@ CommonKnowledge = {
         return tags
     },
     
-    createHiddenTags: function() {
-        tags = $('<div class="ck-tag-collection"></div>')
+    createAutoTags: function() {
+        tags = $('<div class="ck-tag-collection ck-auto-tags"></div>')
         
         _.each(CommonKnowledge.context.hiddenTags, function(t) {
-            tag = $('<span class="ck-hidden-tag"></span>')
+            tag = $('<span class="ck-input-tag"></span>')
             tag.text(t)
             this.append(tag)
         }, tags)
         
         return tags
+    },
+    
+    updateSelectableInputTags: function() {
+        if (!CommonKnowledge.newNoteForm)
+            return // don't need to update yet
+        
+        CommonKnowledge.newNoteForm.find('.ck-selectable-tags').html('') // clear existing tags
+        CommonKnowledge.newNoteForm.find('.ck-selectable-tags').append(CommonKnowledge.createSelectableTags())
+    },
+    
+    updateHiddenInputTags: function() {
+        if (!CommonKnowledge.newNoteForm)
+            return // don't need to update yet
+        
+            CommonKnowledge.newNoteForm.find('.ck-auto-tags').html('') // clear existing tags
+            CommonKnowledge.newNoteForm.find('.ck-auto-tags').append(CommonKnowledge.createAutoTags())
     },
     
     createNotesIndex: function() {
@@ -366,10 +378,6 @@ CommonKnowledge = {
         fieldset.children('.note-headline').text(note.content.headline)
         fieldset.children('.note-writeup').text(note.content.writeup)
         fieldset.children('.note-keywords').text(note.content.keywords)
-    },
-    
-    updateHiddenTags: function() {
-        
     },
     
     // generate a pseudo-unique identifier for a note
