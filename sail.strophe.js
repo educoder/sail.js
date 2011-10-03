@@ -350,6 +350,12 @@ Sail.Strophe.Groupchat.prototype = {
     },
     
     sendEvent: function(event) {
+        if (Sail.app.allowRunlessEvents === false && !event.run) {
+            err = "Cannot create a Sail.Event without a run because this Sail app does not allow runless events!"
+            console.error(err)
+            throw err
+        }
+        
         /*if (Sail.Strophe.dataMode == 'xml')
             this.sendXML(event.toXML())
         else*/ if (Sail.Strophe.dataMode == 'json')

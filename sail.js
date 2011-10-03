@@ -226,6 +226,12 @@ Sail.loadCSS = function(url) {
 Sail.Event = function(type, payload, meta) {
     meta = meta || {}
     
+    if (!type && typeof type != 'string') {
+        err = "Cannot create a Sail.Event without a type."
+        console.error(err)
+        throw err
+    }
+    
     this.eventType = type
     this.payload = payload
     
@@ -240,12 +246,6 @@ Sail.Event = function(type, payload, meta) {
         this.run = meta.run
     else if (meta.run === undefined && Sail.app.run)
         this.run = Sail.app.run
-        
-    if (Sail.app.allowRunlessEvents === false && !this.run) {
-        err = "Cannot create a Sail.Event without a run because this Sail app does not allow runless events!"
-        console.error(err)
-        throw err
-    }
 }
 
 Sail.Event.prototype = {
