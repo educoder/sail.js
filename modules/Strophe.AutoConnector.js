@@ -49,17 +49,16 @@ Strophe.AutoConnector = {
     },
     
     connectSuccess: function(ev) {
-        sailHandler = Sail.generateSailEventHandler(Sail.app)
-  	    Sail.Strophe.addStanzaHandler(sailHandler, null, null, 'chat')
-  	    
-  	    for (mod in Sail.modules.loaded) {
-  	        sailHandler = Sail.generateSailEventHandler(Sail.modules.loaded[mod])
-            Sail.Strophe.addStanzaHandler(sailHandler, null, null, 'chat')
-  	    }
-  	    
         groupchatRoom = Sail.app.groupchatRoom || Sail.app.run.name + '@conference.' + Sail.app.xmppDomain
   	    Sail.app.groupchat = new Sail.Strophe.Groupchat(groupchatRoom)
+  	    
+  	    sailHandler = Sail.generateSailEventHandler(Sail.app)
         Sail.app.groupchat.addGroupchatStanzaHandler(sailHandler)
+        
+        for (mod in Sail.modules.loaded) {
+            modSailHandler = Sail.generateSailEventHandler(Sail.modules.loaded[mod])
+            Sail.app.groupchat.addGroupchatStanzaHandler(modSailHandler)
+        }
 
         Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
             $(Sail.app).trigger('selfJoined')
