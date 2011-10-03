@@ -34,6 +34,7 @@ Sail.load = function() {
                 'js/sail.js/deps/md5.js',
                 'js/sail.js/deps/base64.js')
         .then('js/sail.js/deps/strophe.js',
+                'js/sail.js/deps/underscore.date-0.6.0.js',
                 'js/sail.js/deps/jquery-ui-1.8.14.js',
                 'js/sail.js/deps/jquery.url.js',
                 'js/sail.js/deps/jquery.cookie.js')
