@@ -30,6 +30,7 @@ var Sail = window.Sail || {}
 Sail.load = function() {
     Sail.loader = 
         load('js/sail.js/deps/jquery-1.6.2.js',
+                'js/sail.js/deps/underscore-1.1.7.js',
                 'js/sail.js/deps/md5.js',
                 'js/sail.js/deps/base64.js')
         .then('js/sail.js/deps/strophe.js',
