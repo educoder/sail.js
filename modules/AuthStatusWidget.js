@@ -1,11 +1,15 @@
 AuthStatusWidget = {
+    options: {
+        indicatorContainer: 'header'
+    },
+    
     events: {
         initialized: function(ev) {
             Sail.loadCSS(Sail.modules.defaultPath + 'AuthStatusWidget.css')
         },
         
         authenticated: function(ev) {
-            AuthStatusWidget.showIndicator('header')
+            AuthStatusWidget.showIndicator(CommonKnowledge.options.indicatorContainer)
         },
         
         unauthenticated: function(ev) {
