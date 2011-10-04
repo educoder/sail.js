@@ -9,7 +9,7 @@ AuthStatusWidget = {
         },
         
         authenticated: function(ev) {
-            AuthStatusWidget.showIndicator(CommonKnowledge.options.indicatorContainer)
+            AuthStatusWidget.showIndicator(AuthStatusWidget.options.indicatorContainer)
         },
         
         unauthenticated: function(ev) {
