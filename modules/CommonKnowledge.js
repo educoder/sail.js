@@ -5,7 +5,7 @@ CommonKnowledge = {
     },
     
     context: {
-        available: true,
+        discussable: true,
         selectableTags: [],
         autoTags: []
     },
@@ -22,7 +22,7 @@ CommonKnowledge = {
         context_switch: function(ev, newContextData) {
             _.extend(CommonKnowledge.context, newContextData)
             
-            if (CommonKnowledge.context.available) {
+            if (CommonKnowledge.context.discussable) {
                 CommonKnowledge.showDiscussButton()
             } else {
                 CommonKnowledge.hideDiscussButton()
