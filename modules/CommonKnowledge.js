@@ -5,6 +5,7 @@ CommonKnowledge = {
     },
     
     context: {
+        available: true,
         selectableTags: [],
         autoTags: []
     },
@@ -20,6 +21,13 @@ CommonKnowledge = {
         
         context_switch: function(ev, newContextData) {
             _.extend(CommonKnowledge.context, newContextData)
+            
+            if (CommonKnowledge.context.available) {
+                CommonKnowledge.showDiscussButton()
+            } else {
+                CommonKnowledge.hideDiscussButton()
+            }
+            
             if (CommonKnowledge.newNoteForm) {
                 CommonKnowledge.updateSelectableInputTags()
                 CommonKnowledge.updateHiddenInputTags()
@@ -57,6 +65,10 @@ CommonKnowledge = {
         })
         
         $(CommonKnowledge.options.buttonContainer).append(button)
+    },
+    
+    hideDiscussButton: function() {
+        $('#ck-discuss-button').css('visibility', 'hidden')
     },
     
     createDiscussionPanel: function() {
