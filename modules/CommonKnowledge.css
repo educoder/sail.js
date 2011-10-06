@@ -211,6 +211,11 @@ form.ck.note input[type=text].headline {
   margin-bottom: 1em;
 }
 
+.ck-tag-group {
+  margin-bottom: 1em;
+  margin-top: 1em;
+}
+
 .ck-input-tag {
   background: #fff;
   border: 3px solid #aaa;

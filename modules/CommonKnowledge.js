@@ -7,7 +7,7 @@ CommonKnowledge = {
     context: {
         discussable: true,
         selectableTags: [],
-        autoTags: []
+        defaultTags: []
     },
     
     events: {
@@ -30,7 +30,7 @@ CommonKnowledge = {
             
             if (CommonKnowledge.newNoteForm) {
                 CommonKnowledge.updateSelectableInputTags()
-                CommonKnowledge.updateHiddenInputTags()
+                // CommonKnowledge.updateHiddenInputTags()
             }
         },
         
@@ -186,7 +186,7 @@ CommonKnowledge = {
         noteFieldset.append(addNoteButton)
         
         noteFieldset.find('.keywords').append(CommonKnowledge.createSelectableTags())
-        noteFieldset.find('.keywords').append(CommonKnowledge.createAutoTags())
+        //noteFieldset.find('.keywords').append(CommonKnowledge.createAutoTags())
         
         return noteForm
     },
@@ -212,29 +212,35 @@ CommonKnowledge = {
     createSelectableTags: function() {
         tags = $('<div class="ck-tag-collection ck-selectable-tags"></div>')
         
-        _.each(CommonKnowledge.context.selectableTags, function(t) {
-            tag = $('<span class="ck-input-tag"></span>')
-            tag.text(t)
-            tag.click(function() {
-                $(this).toggleClass('selected')
-            })
-            this.append(tag)
+        _.each(CommonKnowledge.context.selectableTags, function(g) {
+            tagGroup = $('<div class="ck-tag-group"></div>')
+            _.each(g, function(t) {
+                tag = $('<span class="ck-input-tag"></span>')
+                tag.text(t)
+                if (_.include(CommonKnowledge.context.defaultTags, t))
+                    tag.addClass('selected')
+                tag.click(function() {
+                    $(this).toggleClass('selected')
+                })
+                this.append(tag)
+            }, tagGroup)
+            this.append(tagGroup)
         }, tags)
         
         return tags
     },
     
-    createAutoTags: function() {
-        tags = $('<div class="ck-tag-collection ck-auto-tags"></div>')
-        
-        _.each(CommonKnowledge.context.autoTags, function(t) {
-            tag = $('<span class="ck-input-tag"></span>')
-            tag.text(t)
-            this.append(tag)
-        }, tags)
-        
-        return tags
-    },
+    // createAutoTags: function() {
+    //     tags = $('<div class="ck-tag-collection ck-auto-tags"></div>')
+    //     
+    //     _.each(CommonKnowledge.context.autoTags, function(t) {
+    //         tag = $('<span class="ck-input-tag"></span>')
+    //         tag.text(t)
+    //         this.append(tag)
+    //     }, tags)
+    //     
+    //     return tags
+    // },
     
     updateSelectableInputTags: function() {
         if (!CommonKnowledge.newNoteForm)
@@ -244,13 +250,13 @@ CommonKnowledge = {
         CommonKnowledge.newNoteForm.find('.ck-selectable-tags').append(CommonKnowledge.createSelectableTags())
     },
     
-    updateHiddenInputTags: function() {
-        if (!CommonKnowledge.newNoteForm)
-            return // don't need to update yet
-        
-            CommonKnowledge.newNoteForm.find('.ck-auto-tags').html('') // clear existing tags
-            CommonKnowledge.newNoteForm.find('.ck-auto-tags').append(CommonKnowledge.createAutoTags())
-    },
+    // updateHiddenInputTags: function() {
+    //     if (!CommonKnowledge.newNoteForm)
+    //         return // don't need to update yet
+    //     
+    //         CommonKnowledge.newNoteForm.find('.ck-auto-tags').html('') // clear existing tags
+    //         CommonKnowledge.newNoteForm.find('.ck-auto-tags').append(CommonKnowledge.createAutoTags())
+    // },
     
     createNotesIndex: function() {
         index = $('<div id="ck-notes-index"></div>')
