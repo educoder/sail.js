@@ -3,10 +3,16 @@ Rollcall.Authenticator = {
         mode: 'picker',
         /** If true, the user will be asked to select a run prior to login. */
         askForRun: false,
-        /** If true, only users from Sail.app.run will be shown in the account picker. */
-        limitToRun: false,
-        /** If set to a curnit id or curnit name, only runs from this curnit will be shown in run picker. */ 
-        curnit: null
+        /** If set to a run id or run name, only users from this run be shown in the account picker. 
+            If set to true and askForRun is true, the current Sail.app.run value will be used.
+            Can also be set to a function to postpone evaluation. */
+        run: false,
+        /** If set to a curnit id or curnit name, only runs from this curnit will be shown in run picker. 
+            Can be set to a function to postpone evaluation. */ 
+        curnit: null,
+        /** Optional function to use as a filter for users shown in account pickers. The function will be passed a
+            user object and must return true if the user is to be shown or false if the user is to be hidden. */
+        userFilter: null
     },
     
     events: {
@@ -91,8 +97,12 @@ Rollcall.Authenticator = {
         picker.append("<h1 id='account-picker-instructions'>Log in as:</h1>")
         picker.append("<ul class='users'></ul>")
         
-        if (Rollcall.Authenticator.options.limitToRun)
+        if (Rollcall.Authenticator.options.run && Rollcall.Authenticator.options.askForRun)
             usersQuery = {run_id: Sail.app.run.id}
+        else if (typeof Rollcall.Authenticator.options.run == 'function')
+            usersQuery = {run_id: Rollcall.Authenticator.options.run()}
+        else if (Rollcall.Authenticator.options.run)
+            usersQuery = {run_id: Rollcall.Authenticator.options.run}
         else
             usersQuery = {}
         
@@ -103,6 +113,9 @@ Rollcall.Authenticator = {
                         (Rollcall.Authenticator.options.mode == 'picker' && Rollcall.Authenticator.options.mode == 'mulit-picker'))
                     return // only use passwordless login accounts for picker
                 
+                if (Rollcall.Authenticator.options.userFilter && !Rollcall.Authenticator.options.userFilter(u))
+                    return // user was rejected by userFilter
+                    
                 li = $("<li id='user-"+u.account.login+"'>"+u.account.login+"</li> ")
                 li.data('account', u.account)
                 li.click(Rollcall.Authenticator.pickLogin)
