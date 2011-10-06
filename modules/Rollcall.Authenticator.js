@@ -55,7 +55,7 @@ Rollcall.Authenticator = {
     showRunPicker: function() {
         inContainer = 'body'
         picker = $("<div id='run-picker' class='auth-picker widget-box'></div>")
-        picker.append("<h1 id='run-picker-instructions'>Select your class:</h1>")
+        picker.append("<h1 id='run-picker-instructions' class='titlebar'>Select your class:</h1>")
         picker.append("<ul class='runs'></ul>")
         
         curnit = Rollcall.Authenticator.options.curnit
@@ -84,7 +84,7 @@ Rollcall.Authenticator = {
         multi = Rollcall.Authenticator.options.mode == 'multi-picker' || false
         
         picker = $("<div id='account-picker' class='auth-picker widget-box'></div>")
-        picker.append("<h1 id='account-picker-instructions'>Log in as:</h1>")
+        picker.append("<h1 id='account-picker-instructions' class='titlebar'>Log in as:</h1>")
         picker.append("<ul class='users'></ul>")
         
         Sail.app.rollcall.fetchUsers({}, function(data) {
