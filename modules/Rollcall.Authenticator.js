@@ -1,7 +1,11 @@
 Rollcall.Authenticator = {
     options: {
         mode: 'picker',
-        askForRun: false, // TODO: implement me!
+        /** If true, the user will be asked to select a run prior to login. */
+        askForRun: false,
+        /** If true, only users from Sail.app.run will be shown in the account picker. */
+        limitToRun: false,
+        /** If set to a curnit id or curnit name, only runs from this curnit will be shown in run picker. */ 
         curnit: null
     },
     
@@ -87,7 +91,12 @@ Rollcall.Authenticator = {
         picker.append("<h1 id='account-picker-instructions' class='titlebar'>Log in as:</h1>")
         picker.append("<ul class='users'></ul>")
         
-        Sail.app.rollcall.fetchUsers({}, function(data) {
+        if (Rollcall.Authenticator.options.limitToRun)
+            usersQuery = {run_id: Sail.app.run.id}
+        else
+            usersQuery = {}
+        
+        Sail.app.rollcall.fetchUsers(usersQuery, function(data) {
             $(data).each(function() {
                 u = this['user']
                 if (!u.account.allow_passwordless_login || 
