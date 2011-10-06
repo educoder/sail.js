@@ -7,7 +7,8 @@ CommonKnowledge = {
     context: {
         discussable: true,
         selectableTags: [],
-        defaultTags: []
+        defaultTags: [],
+        
     },
     
     events: {
@@ -327,7 +328,7 @@ CommonKnowledge = {
         $.ajax({
             url: (Sail.app.mongooseURL || '/mongoose') + '/common-knowledge/notes/_find',
             data: {
-                criteria: JSON.stringify({'run.name':'wallcology-julia-fall2011'}),
+                criteria: JSON.stringify({'run.name':Sail.app.run.name}),
                 batch_size: 100, // 30 is the max that will comfortably fit on the screen... arbitrarily picked 100 for now
                 sort: JSON.stringify({"timestamp":-1})
             },
