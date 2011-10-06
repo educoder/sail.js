@@ -3,10 +3,8 @@ Rollcall.Authenticator = {
         mode: 'picker',
         /** If true, the user will be asked to select a run prior to login. */
         askForRun: false,
-        /** If set to a run id or run name, only users from this run be shown in the account picker. 
-            If set to true and askForRun is true, the current Sail.app.run value will be used.
-            Can also be set to a function to postpone evaluation. */
-        run: false,
+        // FIXME: bloody mess
+        run: null,
         /** If set to a curnit id or curnit name, only runs from this curnit will be shown in run picker. 
             Can be set to a function to postpone evaluation. */ 
         curnit: null,
@@ -97,7 +95,9 @@ Rollcall.Authenticator = {
         picker.append("<h1 id='account-picker-instructions' class='titlebar'>Log in as:</h1>")
         picker.append("<ul class='users'></ul>")
         
-        if (Rollcall.Authenticator.options.run && Rollcall.Authenticator.options.askForRun)
+        
+        // FIXME: bloody mess
+        if (Rollcall.Authenticator.options.askForRun)
             usersQuery = {run_id: Sail.app.run.id}
         else if (typeof Rollcall.Authenticator.options.run == 'function')
             usersQuery = {run_id: Rollcall.Authenticator.options.run()}
