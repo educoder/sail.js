@@ -237,3 +237,13 @@ form.ck.note input[type=text].headline {
   /*background: #C09260;
   border-color: #888;*/
 }
+
+.note-keywords {
+  margin-top: 5px;
+}
+
+.ck-keyword {
+  margin-right: 12px;
+  font-style: italic;
+  color: #888;
+}

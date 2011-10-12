@@ -423,7 +423,13 @@ CommonKnowledge = {
         //fieldset.children('.note-author').children('.name').text(note.author)
         fieldset.children('.note-headline').text(note.content.headline)
         fieldset.children('.note-writeup').text(note.content.writeup)
-        fieldset.children('.note-keywords').text(note.content.keywords)
+        fieldset.children('.note-keywords').html('')
+        
+        _.each(note.content.keywords, function(keyword) {
+            k = $('<span class="ck-keyword"></span>')
+            k.text(keyword)
+            this.append(k)
+        }, fieldset.children('.note-keywords'))
     },
     
     // generate a pseudo-unique identifier for a note
