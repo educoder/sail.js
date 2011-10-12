@@ -33,6 +33,8 @@ CommonKnowledge = {
                 CommonKnowledge.updateSelectableInputTags()
                 // CommonKnowledge.updateHiddenInputTags()
             }
+            
+            CommonKnowledge.fetchExistingNotes()
         },
         
         sail: {
@@ -151,7 +153,7 @@ CommonKnowledge = {
             $('form.ck.note textarea, form.ck.note input').each(function() {
                 payload[$(this).attr('name')] = $(this).val()
             })
-            payload.keywords = noteForm.find('.ck-selectable-tags .ck-input-tag.selected, .ck-auto-tags .ck-input-tag').map(function() {return $(this).text()}).toArray()
+            payload.keywords = CommonKnowledge.currentlySelectedKeywords()
             
             payload.id = CommonKnowledge.generateNoteId()
             sev = new Sail.Event('ck_new_note', payload)
@@ -171,12 +173,19 @@ CommonKnowledge = {
             CommonKnowledge.resetNewNoteForm()
             CommonKnowledge.hideNewNoteForm()
         })
-    
-        noteForm.bind('keyup change', function() {
-            if ($(this).find('.headline').val().length > 0 && $(this).find('.writeup').val().length > 0) {
-                addNoteButton.removeAttr('disabled')
+        
+        checkForm = $.proxy(function() {
+            if ($(this).find('.headline').val().length > 0 
+                    && $(this).find('.writeup').val().length > 0
+                    && CommonKnowledge.currentlySelectedKeywords().length > 0   ) {
+                $('#ck-add-note-button').removeAttr('disabled')
+            } else {
+                $('#ck-add-note-button').attr('disabled', 'disabled')
             }
-        })
+        }, noteForm)
+    
+        noteForm.bind('keyup change click', checkForm)
+        noteForm.find('.ck-input-tag').bind('click', checkForm)
     
         addNoteButton.attr('disabled','disabled')
         
@@ -207,7 +216,7 @@ CommonKnowledge = {
     
     resetNewNoteForm: function() {
         CommonKnowledge.newNoteForm[0].reset()
-        CommonKnowledge.newNoteForm.find('.ck-input-tag').removeClass('selected')
+        CommonKnowledge.newNoteForm.find('.ck-input-tag').not('.ck-default-tag').removeClass('selected')
     },
     
     createSelectableTags: function() {
@@ -218,10 +227,13 @@ CommonKnowledge = {
             _.each(g, function(t) {
                 tag = $('<span class="ck-input-tag"></span>')
                 tag.text(t)
-                if (_.include(CommonKnowledge.context.defaultTags, t))
+                if (_.include(CommonKnowledge.context.defaultTags, t)) {
                     tag.addClass('selected')
+                    tag.addClass('ck-default-tag')
+                }
                 tag.click(function() {
                     $(this).toggleClass('selected')
+                    CommonKnowledge.fetchExistingNotes()
                 })
                 this.append(tag)
             }, tagGroup)
@@ -261,9 +273,10 @@ CommonKnowledge = {
     
     createNotesIndex: function() {
         index = $('<div id="ck-notes-index"></div>')
-        table = $('<table id="ck-notes-index"></table>')
+        table = $('<table></table>')
+        index.append(table) // need to append to parent before calling dataTable()
         table.append('<thead><tr><td /><th>Date</th><th>Headline</th><th>Author(s)</th></tr></thead>')
-        table.dataTable({
+        this.dataTable = table.dataTable({
             aoColumns: [
                 {sClass: 'note-id'},
                 {sClass: 'note-date'},
@@ -278,22 +291,21 @@ CommonKnowledge = {
                 "sEmptyTable": "There aren't any notes in this discussion yet."
             },
         })
-        $('#ck-notes-index tr').live('click', function() {
+        $('#ck-notes-index table tr').live('click', function() {
             if ($(this).is('.selected')) {
                 $(this).removeClass('selected')
                 CommonKnowledge.hideNoteDetailPanel()
             } else {
-                $('#ck-notes-index tr.selected').removeClass('selected')
+                $('#ck-notes-index table tr.selected').removeClass('selected')
                 $(this).addClass('selected')
                 CommonKnowledge.showNoteDetailPanel()
                 CommonKnowledge.loadNoteIntoDetailPanel($(this).data('note'))
             }
         })
         
-        // need to do this becuase dataTable() for some reason insits on setting it to 0
+        // need to do this because dataTable() for some reason insits on setting it to 0
         table.attr('style', null)
         
-        index.append(table)
         return index
     },
     
@@ -311,7 +323,7 @@ CommonKnowledge = {
             ]
         })
         
-        added = $('#ck-notes-index table').dataTable().fnAddData(data)
+        added = CommonKnowledge.dataTable.fnAddData(data)
         
         _.each(added, function(idx) {
             //$(this.aoData[idx].nTr).effect('highlight', 'fast')
@@ -320,20 +332,28 @@ CommonKnowledge = {
             note = _.detect(notes, function(n) { return n._id == id })
             tr.attr('id', 'note-'+id)
             tr.data('note', note)
-        }, $('#ck-notes-index table').dataTable().fnSettings())
+        }, CommonKnowledge.dataTable.fnSettings())
     },
     
     fetchExistingNotes: function() {
+        criteria = {'run.name':Sail.app.run.name}
+        
+        currentlySelectedKeywords = CommonKnowledge.currentlySelectedKeywords()
+        
+        if (currentlySelectedKeywords.length > 0)
+            criteria['content.keywords'] = {'$in': currentlySelectedKeywords}
+        
         // FIXME: will only fetch last 100 notes... need to implement paging
         $.ajax({
             url: (Sail.app.mongooseURL || '/mongoose') + '/common-knowledge/notes/_find',
             data: {
-                criteria: JSON.stringify({'run.name':Sail.app.run.name}),
+                criteria: JSON.stringify(criteria),
                 batch_size: 100, // 30 is the max that will comfortably fit on the screen... arbitrarily picked 100 for now
                 sort: JSON.stringify({"timestamp":-1})
             },
             success: function(data) {
                 console.debug("Got "+data.results.length+" notes from mongoose...")
+                CommonKnowledge.dataTable.fnClearTable()
                 CommonKnowledge.addNotesToIndex(data.results)
             },
             error: function(xhr, error, ex) {
@@ -380,8 +400,15 @@ CommonKnowledge = {
         }
     },
     
-    hideNoteDetailPanel: function () {
+    hideNoteDetailPanel: function() {
         $(CommonKnowledge.detail).slideUp('fast')
+    },
+    
+    currentlySelectedKeywords: function() {
+        if (CommonKnowledge.newNoteForm)
+            return CommonKnowledge.newNoteForm.find('.ck-input-tag.selected ').map(function() {return $(this).text()}).toArray()
+        else
+            return []
     },
     
     loadNoteIntoDetailPanel: function(note) {

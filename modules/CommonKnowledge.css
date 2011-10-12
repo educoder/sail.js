@@ -233,7 +233,7 @@ form.ck.note input[type=text].headline {
   border-color: #888;
 }
 
-.ck-auto-tags .ck-input-tag {
-  background: #C09260;
-  border-color: #888;
+.ck-default-tag {
+  /*background: #C09260;
+  border-color: #888;*/
 }
