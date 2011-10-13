@@ -353,7 +353,8 @@ CommonKnowledge = {
             },
             success: function(data) {
                 console.debug("Got "+data.results.length+" notes from mongoose...")
-                CommonKnowledge.dataTable.fnClearTable()
+                if (CommonKnowledge.dataTable)
+                    CommonKnowledge.dataTable.fnClearTable()
                 CommonKnowledge.addNotesToIndex(data.results)
             },
             error: function(xhr, error, ex) {
