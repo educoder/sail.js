@@ -73,6 +73,7 @@ Sail.init = function(app, opts) {
     Sail.app = app
     Sail.loader
         .thenRun(function() {
+            Sail.configure(Sail.app)
             Sail.app.init()
             
             if (Sail.app.allowRunlessEvents === undefined)
@@ -95,6 +96,31 @@ Sail.init = function(app, opts) {
         })
     
     return true
+}
+
+/**
+    Retrieves a JSON config file from "/config.json" and configures
+    the given Sail app accordingly.
+    
+    @param {object} app - The Sail app object to be configured.
+    @param {object} [options] - Additional options for configuration. Currently unused.
+*/
+Sail.configure = function(app, opts) {
+    $.ajax(
+        {
+            url: '/config.json', 
+            dataType: 'json',
+            async: false,
+            cache: false,
+            success: function(data) {
+                app.xmppDomain = data.xmpp.domain
+            },
+            error: function(xhr, code, error) {
+                console.error("Couldn't load `config.json`: ", code, error, xhr)
+                alert("Couldn't load `config.json` because:\n\n"+error+" ("+code+")")
+            }
+        }
+    )
 }
 
 /** 
