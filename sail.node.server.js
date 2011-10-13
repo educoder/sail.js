@@ -1,9 +1,15 @@
-// Simple stand-alone HTTP server with built-in reverse proxy for XMPP-BOSH.
-//
-// This uses node.js with the http-proxy and node-static modules.
-//
-// Looks for a config.json file in the current directory and configures itself accordingly.
-//
+/**
+    Simple stand-alone HTTP server with built-in reverse proxy for XMPP-BOSH.
+    
+    This uses node.js with the http-proxy and node-static modules.
+    
+    To use, create a `server.js` file at the root of your Sail app and add this code:
+    
+        var sail = require('./js/sail.js/sail.node.server.js')
+        sail.server.listen(8000)
+    
+    Looks for a `config.json` file in the current directory and configures itself accordingly.
+*/
 
 var http = require('http')
 var httpProxy = require('http-proxy')
@@ -91,14 +97,10 @@ var server = http.createServer(function (req, res) {
 
 server.start = function(port) {
     this.listen(port, function() {
-        console.log("Starting... Sail server will listen on " + port + "...")
+        console.log("\nUsing settings from config.js:\n", config, "\n")
+        console.log("Sail server listening on http://localhost:" + port + "...")
     })
 }
 
 exports.server = server
 
-// Create a 'server.js' file at the root of your Sail app,
-// and add this code:
-//
-// var sail = require('./js/sail.js/sail.node.server.js')
-// sail.server.listen(8000)
