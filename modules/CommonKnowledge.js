@@ -284,7 +284,7 @@ CommonKnowledge = {
                 {sClass: 'note-author'},
                 //{sClass: 'note-keywords'}
             ],
-            iDisplayLength: 100,
+            iDisplayLength: 15,
             aaSorting: [[1,'desc']], // initially sort by date, descending
             bJQueryUI: true, // enable jQuery features
             oLanguage: {
