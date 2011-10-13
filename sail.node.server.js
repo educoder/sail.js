@@ -2,11 +2,7 @@
 //
 // This uses node.js with the http-proxy and node-static modules.
 //
-// Can be configured using the following global keys:
-//
-//   global.bosh     --> server and port number for XMPP BOSH service
-//   global.rollcall --> server and port number for Rollcall authentication service
-//   global.mongoose --> server and port number for Sleepy Mongoose MongoDB REST service
+// Looks for a config.json file in the current directory and configures itself accordingly.
 //
 
 var http = require('http')
@@ -14,18 +10,14 @@ var httpProxy = require('http-proxy')
 var httpStatic = require('node-static')
 var url = require('url')
 var util = require('util')
+var fs = require('fs')
 
-global.bosh        = global.bosh || {}
-global.bosh.server = global.bosh.server || 'proto.encorelab.org'
-global.bosh.port   = global.bosh.port   || 5280
-
-global.rollcall        = global.rollcall || {}
-global.rollcall.server = global.rollcall.server || 'rollcall.proto.encorelab.org'
-global.rollcall.port   = global.rollcall.port   || 80
-
-global.mongoose        = global.mongoose || {}
-global.mongoose.server = global.mongoose.server || 'proto.encorelab.org'
-global.mongoose.port   = global.mongoose.port   || 27080
+try {
+    var config = JSON.parse(fs.readFileSync('config.json'))
+} catch (e) {
+    console.error("Error reading config.json. Does the file exists?\n("+e+")")
+    throw e
+}
 
 var proxy = new httpProxy.HttpProxy()
 var file = new(httpStatic.Server)('.', {cache: false})
@@ -35,10 +27,11 @@ global.proxyMap = [
         name: 'BOSH',
         match: function(req) { return url.parse(req.url).pathname.match(/^\/http-bind/) },
         proxy: function(req, res) {
-            console.log("PROXY "+req.url+" ==> "+global.bosh.server+":"+global.bosh.port)
+            console.log("PROXY "+req.url+" ==> "+config.bosh.url)
+            boshUrl = url.parse(config.bosh.url)
             proxy.proxyRequest(req, res, {
-                host: global.bosh.server,
-                port: global.bosh.port
+                host: boshUrl.hostname,
+                port: boshUrl.port
             })
         }
     },
@@ -48,11 +41,12 @@ global.proxyMap = [
         match: function(req) { return url.parse(req.url).pathname.match(/^\/rollcall/) },
         proxy: function(req, res) {
             req.url = req.url.replace(/\/rollcall/,'')
-            console.log("PROXY "+req.url+" ==> "+global.rollcall.server+":"+global.rollcall.port)
-            req.headers['host'] = global.rollcall.server
+            rollcallUrl = url.parse(config.rollcall.url)
+            console.log("PROXY "+req.url+" ==> "+config.rollcall.url)
+            req.headers['host'] = rollcallUrl.hostname
             proxy.proxyRequest(req, res, {
-                host: global.rollcall.server,
-                port: global.rollcall.port
+                host: rollcallUrl.hostname,
+                port: rollcallUrl.port
             })
         }
     },
@@ -62,11 +56,12 @@ global.proxyMap = [
         match: function(req) { return url.parse(req.url).pathname.match(/^\/mongoose/) },
         proxy: function(req, res) {
             req.url = req.url.replace(/\/mongoose/,'')
-            console.log("PROXY "+req.url+" ==> "+global.mongoose.server+":"+global.mongoose.port)
-            req.headers['host'] = global.mongoose.server
+            mongooseUrl = url.parse(config.mongoose.url)
+            console.log("PROXY "+req.url+" ==> "+config.mongoose.url)
+            req.headers['host'] = mongooseUrl.hostname
             proxy.proxyRequest(req, res, {
-                host: global.mongoose.server,
-                port: global.mongoose.port
+                host: mongooseUrl.hostname,
+                port: mongooseUrl.port
             })
         }
     },
