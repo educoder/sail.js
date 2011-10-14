@@ -95,7 +95,7 @@
 
 #ck-notes-index table td,
 #ck-notes-index table th {
-  font-size: 22px;
+  font-size: 18px;
 }
 
 #ck-notes-index table tbody tr:hover {
@@ -124,8 +124,16 @@
   background-color: #D1CE85
 }
 
-#ck-notes-index tr td.note-id {
+#ck-notes-index td.note-id {
   display: none;
+}
+
+#ck-notes-index td.note-headline {
+  font-weight: bold;
+}
+
+#ck-notes-index td.note-keywords {
+  font-size: 14px;
 }
 
 #ck-new-note-button {

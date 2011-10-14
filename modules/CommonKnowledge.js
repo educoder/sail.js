@@ -275,16 +275,17 @@ CommonKnowledge = {
         index = $('<div id="ck-notes-index"></div>')
         table = $('<table></table>')
         index.append(table) // need to append to parent before calling dataTable()
-        table.append('<thead><tr><td /><th>Date</th><th>Headline</th><th>Author(s)</th></tr></thead>')
+        table.append('<thead><tr><td /><th>Date</th><th>Headline</th><th>Author(s)</th><th>Keywords</th></tr></thead>')
         this.dataTable = table.dataTable({
             aoColumns: [
                 {sClass: 'note-id'},
                 {sClass: 'note-date'},
                 {sClass: 'note-headline'},
                 {sClass: 'note-author'},
-                //{sClass: 'note-keywords'}
+                {sClass: 'note-keywords'}
             ],
             iDisplayLength: 15,
+            bLengthChange: false,
             aaSorting: [[1,'desc']], // initially sort by date, descending
             bJQueryUI: true, // enable jQuery features
             oLanguage: {
@@ -322,7 +323,7 @@ CommonKnowledge = {
                 CommonKnowledge.formatDate(note.timestamp),
                 note.content.headline,
                 note.author,
-                //note.content.keywords && note.content.keywords.join(", ")
+                note.content.keywords && note.content.keywords.join(", ")
             ]
         })
         
@@ -447,6 +448,6 @@ CommonKnowledge = {
         
         now = new Date()
         
-        return _date(date).format("MMM D @ h:m:s a")
+        return _date(date).format("MMM D @ h:mm:ss a")
     }
 }
