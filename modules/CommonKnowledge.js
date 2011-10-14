@@ -310,6 +310,9 @@ CommonKnowledge = {
     },
     
     addNotesToIndex: function(notes) {
+        if (!CommonKnowledge.dataTable)
+            return // don't try to add to index if the index hasn't been created yet
+        
         if (notes.length === undefined)
             notes = [notes]
             
