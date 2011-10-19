@@ -62,6 +62,7 @@ Sail.Strophe = {
         Sail.Strophe.conn.sync = true
         Sail.Strophe.conn.flush()
         Sail.Strophe.conn.disconnect()
+        Sail.Strophe.clearConnInfo()
     },
     
     addStanzaHandler: function(handler, ns, name, type, id, from) {
@@ -184,9 +185,6 @@ Sail.Strophe = {
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
                 $(Sail.Strophe).trigger('connect_disconnected')
-                // ConnInfo (for .attach()) is currently unused, but if it were
-                // used it should be cleared here
-                Sail.Strophe.clearConnInfo()
                 break
             case Strophe.Status.DISCONNECTING:
                 /**
