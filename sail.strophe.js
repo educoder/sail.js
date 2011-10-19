@@ -129,7 +129,7 @@ Sail.Strophe = {
                 $(Sail.Strophe).trigger('connect_connecting')
                 break
             case Strophe.Status.CONNFAIL:
-                msg = 'CONNECTING as '+Sail.Strophe.jid+' FAILED BECAUSE: '
+                msg = 'CONNECTION as '+Sail.Strophe.jid+' FAILED BECAUSE: '
                 console.error(msg, error)
                 /**
                      The connection attempt failed, for example because the server rejected it.
