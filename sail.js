@@ -41,6 +41,7 @@ Sail.load = function() {
         .then('js/sail.js/deps/strophe.ping.js')
         .then('js/sail.js/sail.strophe.js',
                 'js/sail.js/sail.ui.js')
+		.then('js/sail.js/deps/jquery.flot.js')
                 
     return Sail.loader
 }
