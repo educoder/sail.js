@@ -25,7 +25,7 @@ try {
     throw e
 }
 
-var proxy = new httpProxy.HttpProxy()
+var proxy = new httpProxy.RoutingProxy()
 var file = new(httpStatic.Server)('.', {cache: false})
 
 global.proxyMap = [
@@ -52,7 +52,7 @@ global.proxyMap = [
             req.headers['host'] = rollcallUrl.hostname
             proxy.proxyRequest(req, res, {
                 host: rollcallUrl.hostname,
-                port: rollcallUrl.port
+                port: rollcallUrl.port || 80
             })
         }
     },
