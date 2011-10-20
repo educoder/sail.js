@@ -45,6 +45,8 @@ Sail.Strophe = {
         //     console.log("OUT:", $(data).children()[0])
         // }
         
+        Sail.Strophe.auto_reconnect = true
+        
         this.conn.connect(this.jid, this.password, this.onConnect)
     },
     
@@ -59,6 +61,11 @@ Sail.Strophe = {
     */
     disconnect: function() {
         console.log("sending disconnect request...")
+        
+        // need to disable auto_reconnect to explicitly disconnect
+        // Sail.Strophe.connect() automatically re-enables it
+        Sail.Strophe.auto_reconnect = false
+        
         Sail.Strophe.conn.sync = true
         Sail.Strophe.conn.flush()
         Sail.Strophe.conn.disconnect()
@@ -185,6 +192,12 @@ Sail.Strophe = {
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
                 $(Sail.Strophe).trigger('connect_disconnected')
+                
+                if (Sail.Strophe.auto_reconnect) {
+                    console.log("Attempting to automatically reconnect...")
+                    Sail.Strophe.connect()
+                }
+                
                 break
             case Strophe.Status.DISCONNECTING:
                 /**
