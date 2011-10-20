@@ -72,7 +72,7 @@ Strophe.AutoConnector = {
     
     connectFailure: function(ev, error) {
         $('#connecting p').text("Connection Failure!")
-        alert("FAILED TO CONNECT TO XMPP SERVER AS "+Sail.Strophe.jid+" BECAUSE: "+error+" ("+ev.type+")")
+        alert("CONNECTION FAILED TO XMPP SERVER AS "+Sail.Strophe.jid+" BECAUSE: "+error+" ("+ev.type+")")
     },
     
     connectDisconnected: function(ev) {
