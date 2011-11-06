@@ -432,7 +432,7 @@ Sail.generateSailEventHandler = function(sailApp) {
             if (events && events[eventName]) // hacky way to check if a handler was bound for this event
                 $(sailApp).trigger(eventName, sev)
             else
-                console.debug(sailApp.name+" is ignoring event "+eventName, sev)
+                console.debug("Module '"+sailApp.name+"' is ignoring event '"+eventName+"': ", sev)
                 
         } else if (typeof(mapping) == 'function') {
             mapping(sev)
