@@ -448,6 +448,6 @@ CommonKnowledge = {
         
         now = new Date()
         
-        return _date(date).format("MMM D @ h:mm:ss a")
+        return moment(date).format("MMM D @ h:mm:ss a")
     }
 }
