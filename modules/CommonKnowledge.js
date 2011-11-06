@@ -41,9 +41,9 @@ CommonKnowledge = {
             ck_new_note: function(sev) {
                 CommonKnowledge.addNotesToIndex({
                     content: {
-                        writeup: sev.payload.writeup,
-                        headline: sev.payload.headline,
-                        keywords: sev.payload.keywords,
+                        writeup: sev.payload.content.writeup,
+                        headline: sev.payload.content.headline,
+                        keywords: sev.payload.content.keywords,
                     },
                     author: sev.origin,
                     timestamp: sev.timestamp,
@@ -149,11 +149,12 @@ CommonKnowledge = {
         addNoteButton.click(function(ev) {
             ev.preventDefault() // prevent page from reloading
             payload = {}
+            payload.content = {}
             noteForm = $('#ck-new-note')
             $('form.ck.note textarea, form.ck.note input').each(function() {
-                payload[$(this).attr('name')] = $(this).val()
+                payload.content[$(this).attr('name')] = $(this).val()
             })
-            payload.keywords = CommonKnowledge.currentlySelectedKeywords()
+            payload.content.keywords = CommonKnowledge.currentlySelectedKeywords()
             
             payload.id = CommonKnowledge.generateNoteId()
             sev = new Sail.Event('ck_new_note', payload)
