@@ -347,13 +347,17 @@ Sail.Strophe.Groupchat.prototype = {
     participants: {},
     
     join: function() {
-        console.log("Joining "+this.room+" as "+this.jid())
-        
-        pres = $pres({to: this.jid()}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
-        this.conn.send(pres.tree())
-        
-        this.addDefaultNicknameConflictHandler()
-        this.addDefaultPresenceHandlers()
+        if (this.joined) {
+            console.error("Room '"+this.room+"' is already joined... cannot join again.")
+        } else {
+            console.log("Joining "+this.room+" as "+this.jid())
+
+            pres = $pres({to: this.jid()}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
+            this.conn.send(pres.tree())
+
+            this.addDefaultNicknameConflictHandler()
+            this.addDefaultPresenceHandlers()
+        }
     },
     
     jid: function() {
@@ -469,6 +473,7 @@ Sail.Strophe.Groupchat.prototype = {
         })
         
         this.addSelfJoinedHandler(function(who, stanza) {
+            chat.joined = true
             console.log("JOINED "+chat.room)
         })
         
