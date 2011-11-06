@@ -28,7 +28,30 @@ try {
 var proxy = new httpProxy.RoutingProxy()
 var file = new(httpStatic.Server)('.', {cache: false})
 
-global.proxyMap = [
+
+var server = http.createServer(function (req, res) {
+    for (i in server.proxyMap) {
+        map = server.proxyMap[i]
+        
+        if (map.match(req)) {
+            map.proxy(req, res)
+            break
+        }
+    }
+})
+
+server.config = config
+server.proxy = proxy
+
+server.start = function(port) {
+    this.listen(port, function() {
+        console.log("\nUsing settings from config.js:\n", config, "\n")
+        console.log("Sail server listening on http://localhost:" + port + "...")
+    })
+}
+
+
+server.proxyMap = [
     {
         name: 'BOSH',
         match: function(req) { return url.parse(req.url).pathname.match(/^\/http-bind/) },
@@ -84,23 +107,6 @@ global.proxyMap = [
     }
 ]
 
-var server = http.createServer(function (req, res) {
-    for (i in global.proxyMap) {
-        map = global.proxyMap[i]
-        
-        if (map.match(req)) {
-            map.proxy(req, res)
-            break
-        }
-    }
-})
-
-server.start = function(port) {
-    this.listen(port, function() {
-        console.log("\nUsing settings from config.js:\n", config, "\n")
-        console.log("Sail server listening on http://localhost:" + port + "...")
-    })
-}
 
 exports.server = server
 
