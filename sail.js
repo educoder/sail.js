@@ -463,7 +463,7 @@ Sail.generateSailEventHandler = function(callback, eventType, origin, payload, r
         }
         
         if (sev.eventType == eventType &&
-            (!origin  || sev.origin = origin) &&
+            (!origin  || sev.origin == origin) &&
             (!payload || Sail.objectMatchesTemplate(payload, sev.payload)) &&
             (!run || Sail.objectMatchesTemplate(run, sev.run))) {
                 callback(sev)
