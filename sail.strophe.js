@@ -409,7 +409,11 @@ Sail.Strophe.Groupchat.prototype = {
     },
     
     addOneoffEventHandler: function(handler, eventType, origin, payload, run) {
-        return this.addOneoffGroupchatStanzaHandler(Sail.generateSailEventHandler(handler, eventType, origin, payload, run))
+        var sailEventHandler = Sail.generateSailEventHandler(handler, eventType, origin, payload, run)
+        var handlerRef = this.addGroupchatStanzaHandler(sailEventHandler)
+        var conn = this.conn
+        sailEventHandler.deleteSelf = function() { conn.deleteHandler(handlerRef) }
+        return handlerRef
     },
     
     addGroupchatStanzaHandler: function(handler, ns, name, id, from) {

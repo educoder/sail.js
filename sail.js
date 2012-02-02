@@ -476,6 +476,7 @@ Sail.generateSailEventHandler = function(callback, eventType, origin, payload, r
             (!origin  || sev.origin == origin) &&
             (!payload || Sail.objectMatchesTemplate(payload, sev.payload)) &&
             (!run || Sail.objectMatchesTemplate(run, sev.run))) {
+                if (this.deleteSelf) this.deleteSelf()
                 callback(sev)
         }
         
