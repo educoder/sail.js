@@ -462,6 +462,16 @@ Sail.generateSailEventHandler = function(callback, eventType, origin, payload, r
             return
         }
         
+        sev = new Sail.Event(data.eventType, data.payload, {
+            origin: data.origin || null,
+            timestamp: data.timestamp || null,
+            run: data.run || null
+        })
+        
+        sev.from = msg.attr('from')
+        sev.to = msg.attr('to')
+        sev.stanza = stanza
+        
         if (sev.eventType == eventType &&
             (!origin  || sev.origin == origin) &&
             (!payload || Sail.objectMatchesTemplate(payload, sev.payload)) &&
