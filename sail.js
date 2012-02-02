@@ -307,11 +307,11 @@ Sail.Event.prototype = {
                           based on the source stanza's `from` property.
      */
     fromLogin: function() {
-        from = this.from
+        var from = this.from
         if (!from || from.length == 0)
             return null
         
-        jidRegExp = /(.*?)@([a-zA-Z0-9\.\-]*)(?:\/(.*))?/
+        var jidRegExp = /(.*?)@([a-zA-Z0-9\.\-]*)(?:\/(.*))?/
         
         fromParts = from.split("/")
         if (fromParts[1] && fromParts[1].match(jidRegExp))
@@ -349,7 +349,7 @@ Sail.Event.prototype = {
         // the event handler defined for foo in MyApp.events will be called
  */
 Sail.autobindEvents = function(obj, options) {
-    options = options || {}
+    var options = options || {}
     
     for (var event in obj.events) {
         if (obj.events.hasOwnProperty(event) && typeof obj.events[event] == 'function') {
@@ -369,7 +369,7 @@ Sail.autobindEvents = function(obj, options) {
 }
 
 /**
-    Similar in principle to `Sail.autobindEvents` but works on Sail events instead of regular JavaScript events.
+    Similar in principle to `Sail.autobindEvents` but deals with Sail events instead of regular JavaScript events.
     Unlike `Sail.autobindEvents` this method does not perform any event binding on the given object but rather
     returns a new function that can be passed to Sail.Strophe's `addStanzaHandler()`.
     
@@ -389,14 +389,14 @@ Sail.autobindEvents = function(obj, options) {
             }
         }
     
-        handler = Sail.generateSailEventHandler(MyApp)
+        handler = Sail.generateSailEventHandlerFromMap(MyApp)
         Sail.Strophe.addStanzaHandler(handler, null, null, 'chat')
         
         // incoming Sail events of type 'someone_did_something' will now
         // trigger the alert specified in MyApp.events.sail.someone_did_something
  */
-Sail.generateSailEventHandler = function(sailApp) {
-    handler = function(stanza) {
+Sail.generateSailEventHandlerFromMap = function(sailApp) {
+    var handler = function(stanza) {
         msg = $(stanza)
 
         body = $(msg).children('body').text()
@@ -413,6 +413,7 @@ Sail.generateSailEventHandler = function(sailApp) {
             timestamp: data.timestamp || null,
             run: data.run || null
         })
+        
         sev.from = msg.attr('from')
         sev.to = msg.attr('to')
         sev.stanza = stanza
@@ -440,9 +441,43 @@ Sail.generateSailEventHandler = function(sailApp) {
             throw "Invalid mapping '"+mapping+"' for Sail event '"+sev.eventType+"'!"
         }
 
-        return true
+        return true // TODO: why are we returning true here? 
     }
     
     return handler
     //return $.proxy(handler, obj)
+}
+
+Sail.generateSailEventHandler = function(callback, eventType, origin, payload, run) {
+    var handler = function(stanza) {
+        var msg = $(stanza)
+
+        var body = $(msg).children('body').text()
+        var sev = null
+        var data = null
+        try {
+            data = JSON.parse(body)
+        } catch(err) {
+            console.log("couldn't parse message, ignoring: "+err)
+            return
+        }
+        
+        if (sev.eventType == eventType &&
+            (!origin  || sev.origin = origin) &&
+            (!payload || Sail.objectMatchesTemplate(payload, sev.payload)) &&
+            (!run || Sail.objectMatchesTemplate(run, sev.run))) {
+                callback(sev)
+        }
+        
+        return true // TODO: why are we returning true here? 
+    }
+    
+    return handler
+}
+
+Sail.objectMatchesTemplate = function (obj, template, comparer) {
+    if (!comparer) comparer = function(a,b) { return a == b }
+    return _.all(_.keys(template), function(key) {
+        return comparer(obj[key], template[key])
+    })
 }

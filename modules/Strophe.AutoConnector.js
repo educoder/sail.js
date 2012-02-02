@@ -52,11 +52,11 @@ Strophe.AutoConnector = {
         groupchatRoom = Sail.app.groupchatRoom || Sail.app.run.name + '@conference.' + Sail.app.xmppDomain
   	    Sail.app.groupchat = new Sail.Strophe.Groupchat(groupchatRoom)
   	    
-  	    sailHandler = Sail.generateSailEventHandler(Sail.app)
+  	    sailHandler = Sail.generateSailEventHandlerFromMap(Sail.app)
         Sail.app.groupchat.addGroupchatStanzaHandler(sailHandler)
         
         for (mod in Sail.modules.loaded) {
-            modSailHandler = Sail.generateSailEventHandler(Sail.modules.loaded[mod])
+            modSailHandler = Sail.generateSailEventHandlerFromMap(Sail.modules.loaded[mod])
             Sail.app.groupchat.addGroupchatStanzaHandler(modSailHandler)
         }
 

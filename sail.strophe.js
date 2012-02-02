@@ -77,6 +77,11 @@ Sail.Strophe = {
         Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, type, id, from)
     },
     
+    addOneoffStanzaHandler: function(handler, ns, name, type, id, from) {
+        if (!Sail.Strophe.conn) throw "Must connect before you can add handlers"
+        Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return false}, ns, name, type, id, from)
+    },
+    
     addErrorStanzaHandler: function(handler, type, condition) {
         Sail.Strophe.conn.addHandler(function(stanza, text){
             error = $(stanza).children('error').eq(0)
@@ -399,9 +404,22 @@ Sail.Strophe.Groupchat.prototype = {
         this.conn.send(msg.tree())
     },
     
+    addEventHandler: function(handler, eventType, origin, payload, run) {
+        return this.addGroupchatStanzaHandler(Sail.generateSailEventHandler(handler, eventType, origin, payload, run))
+    },
+    
+    addOneoffEventHandler: function(handler, eventType, origin, payload, run) {
+        return this.addOneoffGroupchatStanzaHandler(Sail.generateSailEventHandler(handler, eventType, origin, payload, run))
+    },
+    
     addGroupchatStanzaHandler: function(handler, ns, name, id, from) {
         if (!this.conn) throw "Must connect before you can add handlers"
         return this.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, "groupchat", id, from)
+    },
+    
+    addOneoffGroupchatStanzaHandler: function(handler, ns, name, id, from) {
+        if (!this.conn) throw "Must connect before you can add handlers"
+        return this.conn.addHandler(function(stanza){handler(stanza);return false}, ns, name, "groupchat", id, from)
     },
     
     addParticipantJoinedHandler: function(handler) {
