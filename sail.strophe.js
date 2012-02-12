@@ -411,7 +411,8 @@ Sail.Strophe.Groupchat.prototype = {
     addOneoffEventHandler: function(handler, eventType, origin, payload, run) {
         var handlerRef
         var conn = this.conn
-        selfDeletingHandler = function(sev) {
+        if (!conn) throw "Must connect before you can add handlers"
+        var selfDeletingHandler = function(sev) {
             handler(sev)
             conn.deleteHandler(handlerRef)
         }
