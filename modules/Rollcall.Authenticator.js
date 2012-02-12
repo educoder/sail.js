@@ -55,6 +55,9 @@ Rollcall.Authenticator = {
             case 'multi-picker':
                 Rollcall.Authenticator.showAccountPicker()
                 break
+            case 'username-and-password':
+                Rollcall.Authenticator.showLoginBox()
+                break;
             default:
                 Rollcall.Authenticator.showAccountPicker()
         }
@@ -62,7 +65,7 @@ Rollcall.Authenticator = {
     
     showRunPicker: function() {
         inContainer = 'body'
-        picker = $("<div id='run-picker' class='auth-picker widget-box'></div>")
+        picker = $("<div id='run-picker' class='auth-box widget-box'></div>")
         picker.append("<h1 id='run-picker-instructions' class='titlebar'>Select your class:</h1>")
         picker.append("<ul class='runs'></ul>")
         
@@ -91,13 +94,14 @@ Rollcall.Authenticator = {
         inContainer = 'body'
         multi = Rollcall.Authenticator.options.mode == 'multi-picker' || false
         
-        picker = $("<div id='account-picker' class='auth-picker widget-box'></div>")
+        picker = $("<div id='account-picker' class='auth-box widget-box'></div>")
         picker.append("<h1 id='account-picker-instructions' class='titlebar'>Log in as:</h1>")
         picker.append("<ul class='users'></ul>")
         
-        
         // FIXME: bloody mess
-        if (Rollcall.Authenticator.options.askForRun)
+        if (Rollcall.Authenticator.options.usersQuery)
+            usersQuery = Rollcall.Authenticator.options.usersQuery
+        else if (Rollcall.Authenticator.options.askForRun)
             usersQuery = {run_id: Sail.app.run.id}
         else if (typeof Rollcall.Authenticator.options.run == 'function')
             usersQuery = {run_id: Rollcall.Authenticator.options.run()}
@@ -110,11 +114,14 @@ Rollcall.Authenticator = {
             $(data).each(function() {
                 u = this['user']
                 if (!u.account.allow_passwordless_login || 
-                        (Rollcall.Authenticator.options.mode == 'picker' && Rollcall.Authenticator.options.mode == 'mulit-picker'))
+                        (Rollcall.Authenticator.options.mode == 'picker' && Rollcall.Authenticator.options.mode == 'mulit-picker')) {
+                    console.log("Skipping user "+u.account.log+" because they are not allowed to log in without a password.")
                     return // only use passwordless login accounts for picker
+                }
                 
-                if (Rollcall.Authenticator.options.userFilter && !Rollcall.Authenticator.options.userFilter(u))
+                if (Rollcall.Authenticator.options.userFilter && !Rollcall.Authenticator.options.userFilter(u)) {
                     return // user was rejected by userFilter
+                }
                     
                 li = $("<li id='user-"+u.account.login+"'>"+u.account.login+"</li> ")
                 li.data('account', u.account)
@@ -143,10 +150,43 @@ Rollcall.Authenticator = {
                 'font-weight': 'bold',
             })
             loginButton.button()
-            loginButton.click(Rollcall.Authenticator.commitLogin)
+            loginButton.click(Rollcall.Authenticator.confirmLoginSelection)
             loginButtonContainer.append(loginButton)
             picker.append(loginButtonContainer)
         }
+    },
+    
+    showLoginBox: function() {
+        inContainer = 'body'
+        
+        picker = $("<div id='login-box' class='auth-box widget-box'></div>")
+        picker.append("<h1 id='login-box-instructions' class='titlebar'>Enter your credentials:</h1>")
+        
+        loginForm = $('<form />')
+        picker.append(loginForm)
+        
+        box = $("<fieldset />")
+        box.append("<div><label>Username:</label> <input type='text' name='username' /></div>")
+        box.append("<div><label>Password:</label> <input type='password' name='password' /></div>")
+        
+        loginButton = $("<button>Login</button>")
+        loginButton.button()
+        box.append(loginButton)
+        
+        loginForm.submit(function() {
+            creds = {
+                login: $('#login-box input[name=username]').val(), 
+                password: $('#login-box input[name=password]').val()
+            }
+            Sail.app.rollcall.createSession(creds, Rollcall.Authenticator.loginFromSession)
+            return false
+        })
+        
+        loginForm.append(box)
+        
+        $(inContainer).append(picker)
+        
+        $('#login-box input[name=username]').focus()
     },
     
     pickRun: function() {
@@ -169,7 +209,7 @@ Rollcall.Authenticator = {
     },
     
     // only currently used when in multi-picker mode
-    commitLogin: function() {
+    confirmLoginSelection: function() {
         accounts = $('#account-picker li.selected').map(function () {
             return $(this).data('account').login
         }).toArray()
@@ -191,7 +231,7 @@ Rollcall.Authenticator = {
     
     loginFromSession: function(session) {
         Sail.app.rollcall.setToken(session.token)
-        Sail.UI.dismissDialog('#account-picker')
+        Sail.UI.dismissDialog('.auth-box')
     
         Sail.app.session = session
     

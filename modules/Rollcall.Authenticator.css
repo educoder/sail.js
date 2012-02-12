@@ -1,4 +1,4 @@
-.auth-picker {
+.auth-box {
   padding-left: 20px;
   padding-right: 20px;
   position: absolute;
@@ -12,7 +12,7 @@
 
 }
 
-.auth-picker ul {
+.auth-box ul {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -27,7 +27,7 @@
   
 }
 
-.auth-picker li {
+.auth-box li {
   padding: 5px;
   padding-left: 40px;
   padding-right: 40px;
@@ -68,7 +68,7 @@
   )
 }
 
-.auth-picker li:hover {
+.auth-box li:hover {
   cursor: pointer;
   
   background: #e6f0a3; /* Old browsers */
@@ -81,7 +81,7 @@
   background: linear-gradient(top, #e6f0a3 0%,#d2e638 50%,#c3d825 51%,#dbf043 100%); /* W3C */
 }
 
-.auth-picker.multi-picker li.selected {
+.auth-box.multi-picker li.selected {
   border-style: dashed;
   
   background: #fceabb; /* Old browsers */
@@ -96,4 +96,29 @@
 
 #run-picker li {
   width: 33%;
+}
+
+#login-box fieldset {
+  text-align: center;
+  background: rgba(255, 150, 100, 0.25);
+  padding: 20px;
+}
+
+#login-box label {
+  display: inline-block;
+  width: 11ex;
+}
+
+#login-box button {
+  margin-top: 20px;
+}
+
+#login-box input[type=text],
+#login-box input[type=password] {
+  width: 20em;
+}
+
+#login-box.auth-box {
+  left: 30%;
+  right: 30%;
 }

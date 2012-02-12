@@ -89,7 +89,8 @@ legend {
 }
 
 textarea,
-input[type=text] {
+input[type=text],
+input[type=password] {
   border: 3px solid #ccc;
   border-radius: 5px;
 }
