@@ -98,4 +98,5 @@ input[type=password] {
 button[disabled],
 input[type=button][disabled] {
   opacity: 0.5;
+  cursor: default;
 }
