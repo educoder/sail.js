@@ -69,7 +69,6 @@ Sail.Strophe = {
         Sail.Strophe.conn.sync = true
         Sail.Strophe.conn.flush()
         Sail.Strophe.conn.disconnect()
-        Sail.Strophe.clearConnInfo()
     },
     
     addStanzaHandler: function(handler, ns, name, type, id, from) {
@@ -176,9 +175,17 @@ Sail.Strophe = {
                 break
             case Strophe.Status.CONNECTED:
                 console.log('CONNECTED to '+Sail.Strophe.bosh_url+' as '+Sail.Strophe.jid)
-
-                $(window).unload(Sail.Strophe.disconnect)
-                $(window).bind('beforeunload', Sail.Strophe.disconnect)
+                
+                Sail.Strophe.unloadAlreadyRan = false
+                var onUnload = function() {
+                    if (!Sail.Strophe.unloadAlreadyRan) {
+                        Sail.Strophe.conn.pause() // prevent any further messages from being sent in order to freeze rid
+                        Sail.Strophe.storeConnInfo()
+                        Sail.Strophe.unloadRan = true
+                    }
+                }
+                $(window).unload(onUnload)
+                $(window).bind('beforeunload', onUnload)
 
                 Sail.Strophe.addDefaultXmppHandlers()
                 /**
@@ -217,13 +224,24 @@ Sail.Strophe = {
             case Strophe.Status.ATTACHED:
                 /**
                      The connection has been attached.
-                     This would normally happen in response to a conn.attach() call, but Sail.Strophe
-                     doesn't currently support re-attaching to an existing BOSH session.
                      @event
                      @name Sail.Strophe.connect_attached
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
-                console.log('AUTHENTICATING as '+Sail.Strophe.jid)
+                 
+                 Sail.Strophe.unloadAlreadyRan = false
+                 var onUnload = function() {
+                     if (!Sail.Strophe.unloadAlreadyRan) {
+                         Sail.Strophe.conn.pause() // prevent any further messages from being sent in order to freeze rid
+                         Sail.Strophe.storeConnInfo()
+                         Sail.Strophe.unloadRan = true
+                     }
+                 }
+                 $(window).unload(onUnload)
+                 $(window).bind('beforeunload', onUnload)
+
+                 Sail.Strophe.addDefaultXmppHandlers()
+                 
                 $(Sail.Strophe).trigger('connect_attached')
                 break
             default:
@@ -327,14 +345,14 @@ Sail.Strophe = {
     },
     
     reconnect: function() {
-        if (!this.bosh_url) throw "No bosh_url set!"
+        if (!Sail.Strophe.bosh_url) throw "No bosh_url set!"
         
         info = Sail.Strophe.retrieveConnInfo()
         
-        this.conn = new Strophe.Connection(this.bosh_url)
+        Sail.Strophe.conn = new Strophe.Connection(Sail.Strophe.bosh_url)
         
-        console.log('REATTACHING TO '+this.bosh_url+'WITH: ', info)
-        this.conn.attach(info.jid, info.sid, info.rid + 1)
+        console.log('REATTACHING TO '+Sail.Strophe.bosh_url+'WITH: ', info)
+        Sail.Strophe.conn.attach(info.jid, info.sid, info.rid, this.onConnect)
     },
 }
 
