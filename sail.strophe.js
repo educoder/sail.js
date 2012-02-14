@@ -20,6 +20,7 @@ Sail.Strophe = {
         @see Sail.Strophe.log
     */
     logLevel: Strophe.LogLevel.INFO,
+    groupchats: [],
     
     /**
         Connect to the XMPP service using current Sail.Strophe settings.
@@ -46,6 +47,7 @@ Sail.Strophe = {
         // }
         
         Sail.Strophe.auto_reconnect = true
+        Sail.Strophe.groupchats = []
         
         this.conn.connect(this.jid, this.password, this.onConnect)
     },
@@ -112,6 +114,30 @@ Sail.Strophe = {
         })
     },
     
+    bindDetacher: function() {
+        Sail.Strophe.detacherAlreadyRan = false
+        var onUnload = function() {
+            if (Sail.Strophe.detacherAlreadyRan) {
+                console.warn("Tried to run Sail.Strophe's onUnload by it has already ran!")
+            } else {
+                console.log("Running Sail.Strophe's onUnload...")
+                
+                // need to leave groupchats to get presence stanzas when we come back
+                for (i = 0; i < Sail.Strophe.groupchats.length; i++) {
+                    console.log("Leaving "+Sail.Strophe.groupchats[i].room+" before detaching...")
+                    Sail.Strophe.groupchats[i].leave()
+                }
+                Sail.Strophe.conn.flush()
+                
+                Sail.Strophe.conn.pause() // prevent any further messages from being sent in order to freeze rid
+                Sail.Strophe.storeConnInfo()
+                Sail.Strophe.detacherAlreadyRan = true
+            }
+        }
+        $(window).unload(onUnload)
+        $(window).bind('beforeunload', onUnload)
+    },
+    
     /**
         Called by strophe.js at different stages in connecting to the XMPP service.
         Triggers the various `connect_` events.
@@ -175,18 +201,8 @@ Sail.Strophe = {
                 break
             case Strophe.Status.CONNECTED:
                 console.log('CONNECTED to '+Sail.Strophe.bosh_url+' as '+Sail.Strophe.jid)
-                
-                Sail.Strophe.unloadAlreadyRan = false
-                var onUnload = function() {
-                    if (!Sail.Strophe.unloadAlreadyRan) {
-                        Sail.Strophe.conn.pause() // prevent any further messages from being sent in order to freeze rid
-                        Sail.Strophe.storeConnInfo()
-                        Sail.Strophe.unloadRan = true
-                    }
-                }
-                $(window).unload(onUnload)
-                $(window).bind('beforeunload', onUnload)
 
+                Sail.Strophe.bindDetacher();
                 Sail.Strophe.addDefaultXmppHandlers()
                 /**
                      The connection has been successfully established.
@@ -229,17 +245,7 @@ Sail.Strophe = {
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
                  
-                 Sail.Strophe.unloadAlreadyRan = false
-                 var onUnload = function() {
-                     if (!Sail.Strophe.unloadAlreadyRan) {
-                         Sail.Strophe.conn.pause() // prevent any further messages from being sent in order to freeze rid
-                         Sail.Strophe.storeConnInfo()
-                         Sail.Strophe.unloadRan = true
-                     }
-                 }
-                 $(window).unload(onUnload)
-                 $(window).bind('beforeunload', onUnload)
-
+                 Sail.Strophe.bindDetacher();
                  Sail.Strophe.addDefaultXmppHandlers()
                  
                 $(Sail.Strophe).trigger('connect_attached')
@@ -352,7 +358,7 @@ Sail.Strophe = {
         Sail.Strophe.conn = new Strophe.Connection(Sail.Strophe.bosh_url)
         
         console.log('REATTACHING TO '+Sail.Strophe.bosh_url+'WITH: ', info)
-        Sail.Strophe.conn.attach(info.jid, info.sid, info.rid, this.onConnect)
+        Sail.Strophe.conn.attach(info.jid, info.sid, info.rid + 1, this.onConnect)
     },
 }
 
@@ -380,6 +386,24 @@ Sail.Strophe.Groupchat.prototype = {
 
             this.addDefaultNicknameConflictHandler()
             this.addDefaultPresenceHandlers()
+            
+            Sail.Strophe.groupchats.push(this)
+        }
+    },
+    
+    leave: function() {
+        if (this.joined) {
+            console.log("Leaving "+this.room+" as "+this.jid())
+
+            pres = $pres({to: this.jid(), type: 'unavailable'}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
+                
+            this.conn.send(pres.tree())
+            
+            idx = Sail.Strophe.groupchats.indexOf(this)
+            if (idx >= 0)
+                Sail.Strophe.groupchats.splice(idx, 1)
+        } else {
+            console.error("Cannot leave '"+this.room+"' because it has not yet been joined.")
         }
     },
     
