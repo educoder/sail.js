@@ -39,6 +39,9 @@ Sail.Strophe = {
         
         this.conn = new Strophe.Connection(this.bosh_url)
         
+        // turn off sync in case it was set during previous detach (see bindDetacher)
+        this.conn.sync = false
+
         // this.conn.xmlInput = function(data) {
         //     console.log("IN:", $(data).children()[0])
         // }
@@ -121,6 +124,9 @@ Sail.Strophe = {
                 console.warn("Tried to run Sail.Strophe's onUnload by it has already ran!")
             } else {
                 console.log("Running Sail.Strophe's onUnload...")
+                
+                // hack to try to force the browser to wait until strophe is done sending stuff
+                Sail.Strophe.conn.sync = true
                 
                 // need to leave groupchats to get presence stanzas when we come back
                 for (i = 0; i < Sail.Strophe.groupchats.length; i++) {
