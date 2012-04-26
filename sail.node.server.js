@@ -11,6 +11,7 @@
     Looks for a `config.json` file in the current directory and configures itself accordingly.
 */
 
+/*jshint devel: true */
 /*global require, exports */
 
 var http = require('http');
@@ -75,7 +76,7 @@ server.proxyMap = [
             req.url = req.url.replace(/\/rollcall/,'');
             var rollcallUrl = url.parse(config.rollcall.url);
             console.log("PROXY "+req.url+" ==> "+config.rollcall.url);
-            req.headers['host'] = rollcallUrl.hostname;
+            req.headers.host = rollcallUrl.hostname;
             proxy.proxyRequest(req, res, {
                 host: rollcallUrl.hostname,
                 port: rollcallUrl.port || 80
@@ -90,10 +91,25 @@ server.proxyMap = [
             req.url = req.url.replace(/\/mongoose/,'');
             var mongooseUrl = url.parse(config.mongoose.url);
             console.log("PROXY "+req.url+" ==> "+config.mongoose.url);
-            req.headers['host'] = mongooseUrl.hostname;
+            req.headers.host = mongooseUrl.hostname;
             proxy.proxyRequest(req, res, {
                 host: mongooseUrl.hostname,
                 port: mongooseUrl.port
+            });
+        }
+    },
+
+    {
+        name: "Mongo REST",
+        match: function(req) { return url.parse(req.url).pathname.match(/^\/mongo/); },
+        proxy: function(req, res) {
+            req.url = req.url.replace(/\/mongo/,'');
+            var mongoUrl = url.parse(config.mongo.url);
+            console.log("PROXY "+req.url+" ==> "+config.mongo.url);
+            req.headers.host = mongoUrl.hostname;
+            proxy.proxyRequest(req, res, {
+                host: mongoUrl.hostname,
+                port: mongoUrl.port
             });
         }
     },
