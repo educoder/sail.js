@@ -21,7 +21,7 @@ AuthStatusWidget = {
         $('#auth-indicator').remove()
         
         indicator = $('<div id="auth-indicator"></div>')
-        indicator.append('<div id="auth-as">'+Sail.app.session.account.login+'</div>')
+        indicator.append('<div id="auth-as">'+Sail.app.nickname+'</div>')
         indicator.append('<div id="logout-button">[<a href="#">Logout</a>]</div>')
         
         indicator.find('a').click(function() {

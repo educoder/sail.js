@@ -35,7 +35,7 @@ Sail.Strophe = {
     connect: function() {
         if (!this.bosh_url) throw "No bosh_url set!"
         if (!this.jid) throw "No jid set!"
-        if (!this.password) throw "No password set!"
+        //if (!this.password) throw "No password set!"
         
         this.conn = new Strophe.Connection(this.bosh_url)
         
