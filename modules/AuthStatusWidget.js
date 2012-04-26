@@ -5,7 +5,7 @@ AuthStatusWidget = {
     
     events: {
         initialized: function(ev) {
-            Sail.loadCSS(Sail.modules.defaultPath + 'AuthStatusWidget.css')
+            Sail.loadCSS(Sail.modules.PATH + 'AuthStatusWidget.css')
         },
         
         authenticated: function(ev) {

@@ -13,7 +13,7 @@ CommonKnowledge = {
     
     events: {
         initialized: function(ev) {
-            Sail.loadCSS(Sail.modules.defaultPath + 'CommonKnowledge.css')
+            Sail.loadCSS(Sail.modules.PATH + 'CommonKnowledge.css')
         },
         
         authenticated: function(ev) {

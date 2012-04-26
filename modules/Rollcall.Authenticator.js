@@ -15,7 +15,7 @@ Rollcall.Authenticator = {
     
     events: {
         initialized: function(ev) {
-            Sail.loadCSS(Sail.modules.defaultPath + 'Rollcall.Authenticator.css')
+            Sail.loadCSS(Sail.modules.PATH + 'Rollcall.Authenticator.css')
             
             // if (Rollcall.Authenticator.options.askForRun && !Sail.app.run) {
             //                 Rollcall.Authenticator.requestRun()

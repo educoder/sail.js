@@ -21,6 +21,8 @@ if (!window.console) {
 /** @namespace **/
 var Sail = window.Sail || {}
 
+Sail.JS_ROOT_PATH = 'js/sail.js'
+
 /**
     Loads the base requirements for a Sail app using chain.js and load.js.
     Also initializes `Sail.loader` which can be used for furter `load()` calls.
@@ -29,19 +31,19 @@ var Sail = window.Sail || {}
 */
 Sail.load = function() {
     Sail.loader = 
-        load('js/sail.js/deps/jquery-1.6.2.js',
-                'js/sail.js/deps/underscore-1.1.7.js',
-                'js/sail.js/deps/md5.js',
-                'js/sail.js/deps/base64.js')
-        .then('js/sail.js/deps/strophe.js',
-                'js/sail.js/deps/moment-1.1.0.js',
-                'js/sail.js/deps/jquery-ui-1.8.14.js',
-                'js/sail.js/deps/jquery.url.js',
-                'js/sail.js/deps/jquery.cookie.js')
-        .then('js/sail.js/deps/strophe.ping.js')
-        .then('js/sail.js/sail.strophe.js',
-                'js/sail.js/sail.ui.js')
-		.then('js/sail.js/deps/jquery.flot.js')
+        load(Sail.JS_ROOT_PATH+'/deps/jquery-1.6.2.js',
+                Sail.JS_ROOT_PATH+'/deps/underscore-1.1.7.js',
+                Sail.JS_ROOT_PATH+'/deps/md5.js',
+                Sail.JS_ROOT_PATH+'/deps/base64.js')
+        .then(Sail.JS_ROOT_PATH+'/deps/strophe.js',
+                Sail.JS_ROOT_PATH+'/deps/moment-1.1.0.js',
+                Sail.JS_ROOT_PATH+'/deps/jquery-ui-1.8.14.js',
+                Sail.JS_ROOT_PATH+'/deps/jquery.url.js',
+                Sail.JS_ROOT_PATH+'/deps/jquery.cookie.js')
+        .then(Sail.JS_ROOT_PATH+'/deps/strophe.ping.js')
+        .then(Sail.JS_ROOT_PATH+'/sail.strophe.js',
+                Sail.JS_ROOT_PATH+'/sail.ui.js')
+		.then(Sail.JS_ROOT_PATH+'/deps/jquery.flot.js')
                 
     return Sail.loader
 }
@@ -71,12 +73,12 @@ Sail.load = function() {
     // The 
 */
 Sail.init = function(app, opts) {
-    Sail.app = app
+    Sail.app = app;
     Sail.loader
         .thenRun(function() {
-            Sail.configure(Sail.app)
-            Sail.app.init()
-            
+            Sail.configure(Sail.app);
+            Sail.app.init();
+
             if (Sail.app.allowRunlessEvents === undefined)
                 Sail.app.allowRunlessEvents = true 
             
@@ -130,27 +132,24 @@ Sail.configure = function(app, opts) {
 */
 Sail.modules = Sail.modules || {}
 
-/** Default path from which modules are loaded. */
-Sail.modules.defaultPath = '/js/sail.js/modules/'
-
 /** 
     Loads the given module into the current Sail app (`Sail.app`) using load.js' `load()`.
     
     @param {string} module - The name of the module. e.g. `"Rollcall.Authenticator"`
-                             Should correspond to the module's filename under `Sail.modules.defaultPath` or 
+                             Should correspond to the module's filename under `Sail.modules.PATH` or 
                              or the `url` with the `.js` suffix removed.
     @param {object} [options] - Options to pass on to the module.
     @param {string} [url] - A URL where the module can be loaded from. By default, modules will be loaded from
-                            the directory specified under `Sail.modules.defaultPath`. If the given `url` contains
-                            only a path (starts with "/"), it will be made relative to `Sail.modules.defaultPath`.
+                            the directory specified under `Sail.modules.PATH`. If the given `url` contains
+                            only a path (starts with "/"), it will be made relative to `Sail.modules.PATH`.
                             
     @returns Returns `Sail.modules` to allow for chaining of `load()` calls.
     
     @see <a href="https://github.com/chriso/load.js">load.js</a>
 */
 Sail.modules.load = function(module, options, url) {
-    defaultModulesPath = Sail.app.defaultModulesPath || Sail.modules.defaultPath
-    
+    Sail.modules.PATH = Sail.modules.PATH || Sail.JS_ROOT_PATH+'/modules/'
+
     if (typeof options == 'string') {
         url = options
         delete options
@@ -158,9 +157,9 @@ Sail.modules.load = function(module, options, url) {
     
     if (url) {
         if (url.indexOf('/') < 0)
-            url = defaultModulesPath + url
+            url = Sail.modules.PATH + url
     } else {
-        url = defaultModulesPath + module + '.js'
+        url = Sail.modules.PATH + module + '.js'
     }
     
     Sail.loader.load(url).thenRun(function() {
@@ -349,19 +348,20 @@ Sail.Event.prototype = {
         // the event handler defined for foo in MyApp.events will be called
  */
 Sail.autobindEvents = function(obj, options) {
-    var options = options || {}
+    var options = options || {};
+    var events = obj.events;
     
-    for (var event in obj.events) {
-        if (obj.events.hasOwnProperty(event) && typeof obj.events[event] == 'function') {
-            console.debug("Sail: auto-binding event '"+event+"'")
+    for (var ev in events) {
+        if (events.hasOwnProperty(ev) && typeof events[ev] == 'function') {
+            console.debug("Sail: auto-binding event '"+ev+"'")
             try {
                 if (options.pre)
-                  $(obj).bind(event, options.pre)
-                $(obj).bind(event, obj.events[event])
+                  $(obj).bind(ev, options.pre)
+                $(obj).bind(ev, events[ev])
                 if (options.post)
-                  $(obj).bind(event, options.post)
+                  $(obj).bind(ev, options.post)
             } catch(e) {
-                alert("Sail: failed to auto-bind event! '"+event+"' may be a reserved word.")
+                alert("Sail: failed to auto-bind event! '"+ev+"' may be a reserved word.")
                 throw e
             }
         }

@@ -1,7 +1,7 @@
 Strophe.AutoConnector = {
     events: {
         initialized: function() {
-            Sail.loadCSS(Sail.modules.defaultPath + 'Strophe.AutoConnector.css')
+            Sail.loadCSS(Sail.modules.PATH + 'Strophe.AutoConnector.css')
             
             Sail.Strophe.bosh_url = '/http-bind/'
             
