@@ -2,7 +2,7 @@
 
 body {
   margin: 0;
-  background-color: #E8F3FA;
+  background-color: #E8F3E8;
   font-family: Verdana, sans-serif;
 }
 
@@ -12,7 +12,7 @@ label {
 
 header {
   background-color: #000;
-  border-bottom: 3px solid #888;
+  border-bottom: 3px solid rgba(176,176,176,0.75);
   padding-bottom: 4px;
   padding-top: 2px;
   padding-left: 10px;
@@ -29,7 +29,7 @@ header h1 {
 
 .widget-box {
   color: #fff;
-  border: 3px solid #888;
+  border: 3px solid rgba(176,176,176,0.75);
   border-radius: 5px;
   background-color: 0;
   background-color: black;
@@ -57,9 +57,10 @@ legend {
 .widget-box  h5.titlebar,
 .widget-box  h6.titlebar {
   margin-top: 0;
-  background-color: #666;
+  background-color: #444;
   border-radius: 5px 5px 0px 0px;
-  padding: 10px;
+  padding: 5px;
+  border-bottom: 2px dotted #666;
 }
 
 .widget-box h1.titlebar {
