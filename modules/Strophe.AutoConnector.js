@@ -4,8 +4,15 @@
 Strophe.AutoConnector = (function() {
     var self = {};
 
+    /**
+     * `mode` can be:
+     *   'session': (default) uses Sail.app.session to authenticate; works with Rollcall.Authenticator
+     *   'anon': anonymous mode with no username/password (XMPP server must be set to anonymous auth)
+     *   'pseudo-anon': pseudo-anonymous mode, uses a single account to connect; the username and
+     *                  password provided under Sail.app.username and Sail.app.password
+     */
     self.options = {
-        anonymous: false
+        mode: 'session'
     };
 
     function showConnecting () {
@@ -99,9 +106,15 @@ Strophe.AutoConnector = (function() {
             if (Sail.app.run)
                 Sail.app.groupchatRoom = Sail.app.run.name+'@conference.'+Sail.app.xmppDomain;
             
-            if (self.options.anonymous) {
-                Sail.Strophe.jid = Sail.app.xmppDomain;
-                Sail.Strophe.password = "";
+            if (self.options.mode === 'anon' || self.options.mode === 'pseudo-anon') {
+                
+                if (self.options.mode === 'pseudo-anon') {
+                    Sail.Strophe.jid = Sail.app.username + '@' + Sail.app.xmppDomain;
+                    Sail.Strophe.password = Sail.app.password;
+                } else {
+                    Sail.Strophe.jid = Sail.app.xmppDomain;
+                    Sail.Strophe.password = "";
+                }
 
                 var haveNickname = function (nickname) {
                     Sail.app.nickname = nickname;
