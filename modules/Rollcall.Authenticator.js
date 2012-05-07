@@ -77,7 +77,7 @@ Rollcall.Authenticator = {
         
         Sail.app.rollcall.fetchRuns({curnit: curnit}, function(data) {
             $(data).each(function() {
-                r = this['run']
+                r = this
                 
                 li = $("<li id='run-"+r.id+"'>"+r.name+"</li> ")
                 li.data('run', r)
@@ -113,7 +113,7 @@ Rollcall.Authenticator = {
         
         Sail.app.rollcall.fetchUsers(usersQuery, function(data) {
             $(data).each(function() {
-                u = this['user']
+                u = this
                 if (!u.account.allow_passwordless_login || 
                         (Rollcall.Authenticator.options.mode == 'picker' && Rollcall.Authenticator.options.mode == 'mulit-picker')) {
                     console.log("Skipping user "+u.account.log+" because they are not allowed to log in without a password.")
