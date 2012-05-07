@@ -1,10 +1,13 @@
+/*jshint browser: true, devel: true */
+/*globals Sail, jQuery */
+
 // uses jquery.url.js --> https://github.com/allmarkedup/jQuery-URL-Parser
 
-var Rollcall = window.Rollcall || {}
+var Rollcall = window.Rollcall || {};
 
 Rollcall.Client = function(url) {
-    this.url = url
-}
+    this.url = url;
+};
 
 Rollcall.Client.prototype = {
     /**
@@ -13,21 +16,21 @@ Rollcall.Client.prototype = {
      * In the future we may also wan to check for a 'token' cookie.
      */
     getCurrentToken: function() {
-        // $.url is from jquery.url.js and refers to the current url 
+        // jQuery.url is from jquery.url.js and refers to the current url 
         // (i.e. the url of the page we are currently on)
-        return this.token || $.url.param('token') || $.cookie('token')
+        return this.token || jQuery.url.param('token') || jQuery.cookie('token');
     },
     
     setToken: function(token) {
-        this.token = token
-        $.url.param('token', token)
-        $.cookie('token', token)
+        this.token = token;
+        jQuery.url.param('token', token);
+        jQuery.cookie('token', token);
     },
     
     unsetToken: function() {
-        this.token = null
-        $.url.param('token', '')
-        $.cookie('token', null)
+        this.token = null;
+        jQuery.url.param('token', '');
+        jQuery.cookie('token', null);
     },
     
      
@@ -35,78 +38,75 @@ Rollcall.Client.prototype = {
      * Redirect the user to the Rollcall login page for authentication.
      */
     redirectToLogin: function() {        
-        window.location.replace(this.url+'/login?destination='+escape(window.location.href))
+        window.location.replace(this.url+'/login?destination='+encodeURIComponent(window.location.href));
     },
     
     
     /**
-     * Determine whether we can talk to rollcall over REST
-     * or whetehr we have to use JSONP.
-     * Due to the same-origin policy in web browsers, REST can
-     * only be used if Rollcall is being served on the same
-     * domain as this script; otherwise JSONP must be used.
+     * Determine whether this is a cross-domain request.
      */
-    canUseREST: function() {
+    isCrossDomain: function() {
         
         // using jquery.url.js here
-        currentUrl = $.url.attr('source')
-        $.url.setUrl(this.url)
-        rollcallHost = $.url.attr('host')
-        rollcallPort = $.url.attr('port')
-        rollcallProtocol = $.url.attr('protocol')
-        $.url.setUrl(currentUrl)
+        var currentUrl = jQuery.url.attr('source');
+        jQuery.url.setUrl(this.url);
+        var rollcallHost = jQuery.url.attr('host');
+        var rollcallPort = jQuery.url.attr('port');
+        var rollcallProtocol = jQuery.url.attr('protocol');
+        jQuery.url.setUrl(currentUrl);
         
-        return rollcallHost == null || (
-                    rollcallHost == $.url.attr('host') 
-                    && rollcallPort == $.url.attr('port')
-                    && rollcallProtocol == $.url.attr('protocol')
-                )
+        if (!rollcallHost)
+            return true;
+
+        return rollcallHost !== jQuery.url.attr('host')  || 
+                rollcallPort !== jQuery.url.attr('port') || 
+                rollcallProtocol !== jQuery.url.attr('protocol');
     },
     
     
     createSession: function(account, successCallback, errorCallback) {
-        login = account.login
-        password = account.password
-        url = this.url + '/sessions.json'
+        var login = account.login;
+        var password = account.password;
+        var url = this.url + '/sessions.json';
         
-        data = {
+        var data = {
             session: {
                 login: login,
                 password: password
             }
-        }
+        };
         
-        successCallbackWrapper = function(data) {
-            successCallback(data['session'])
-        }
+        var successCallbackWrapper = function(data) {
+            successCallback(data);
+        };
         
-        this.request(url, 'POST', data, successCallbackWrapper, errorCallback)
+        this.request(url, 'POST', data, successCallbackWrapper, errorCallback);
     },
     
     // Creates a session for a group composed of the given members.
     // If the group doesn't yet exist, it is created automatically.
     createGroupSession: function(accounts, successCallback, errorCallback) {
-        url = this.url + '/sessions/group.json'
+        var url = this.url + '/sessions/group.json';
         
-        data = {
+        var data = {
             logins: accounts,
-            run_id: Sail.app.run.id
-        }
+            run_id: Sail.app.run.id // FIXME: probably don't want this referenced here; pass as argument?
+        };
         
-        successCallbackWrapper = function(data) {
-            successCallback(data['session'])
-        }
+        var successCallbackWrapper = function(data) {
+            successCallback(data);
+        };
         
-        this.request(url, 'POST', data, successCallbackWrapper, errorCallback)
+        this.request(url, 'POST', data, successCallbackWrapper, errorCallback);
     },
     
     
     destroySessionForToken: function(token, successCallback, errorCallback) {
-        rollcall = this
+        var rollcall = this;
         
-        url = rollcall.url + '/sessions/invalidate_token.json'
+        var url = rollcall.url + '/sessions/invalidate_token.json';
         
-        this.request(url, 'DELETE', {token: token}, successCallback, errorCallback)
+        this.request(url, 'DELETE', {token: token}, successCallback, errorCallback);
     },
 
 
@@ -116,101 +116,111 @@ Rollcall.Client.prototype = {
      * callbacks are executed with the session data.
      */
     fetchSessionForToken: function(token, successCallback, errorCallback) {
-        url = this.url + '/sessions/validate_token.json'
+        var url = this.url + '/sessions/validate_token.json';
         
-        this.request(url, 'GET', {token: token}, successCallback, errorCallback)
+        this.request(url, 'GET', {token: token}, successCallback, errorCallback);
     },
     
     /**
      * Fetch the list of users.
      */
     fetchUsers: function(options, successCallback, errorCallback) {
-        url = this.url + '/users.json'
+        var url = this.url + '/users.json';
         
-        this.request(url, 'GET', options, successCallback, errorCallback)
+        this.request(url, 'GET', options, successCallback, errorCallback);
     },
     
     /**
      * Fetch the list of runs.
      */
     fetchRuns: function(options, successCallback, errorCallback) {
+        var url;
         if (options.curnit) {
-            url = this.url + '/curnits/'+options.curnit+'/runs.json'
+            url = this.url + '/curnits/'+options.curnit+'/runs.json';
         } else {
-            url = this.url + '/runs.json'
+            url = this.url + '/runs.json';
         }
         
-        this.request(url, 'GET', options, successCallback, errorCallback)
+        this.request(url, 'GET', options, successCallback, errorCallback);
     },
     
     /**
      * Fetch run data for a run id or name.
      */
     fetchRun: function(id, successCallback, errorCallback) {
-        url = this.url + '/runs/'+id+'.json'
+        var url = this.url + '/runs/'+id+'.json';
         
-        this.request(url, 'GET', {}, successCallback, errorCallback)
+        this.request(url, 'GET', {}, successCallback, errorCallback);
     },
     
     fetchGroup: function(login, successCallback, errorCallback) {
-        url = this.url + '/groups/'+login+'.json'
+        var url = this.url + '/groups/'+login+'.json';
         
-        this.request(url, 'GET', {}, successCallback, errorCallback)
+        this.request(url, 'GET', {}, successCallback, errorCallback);
     },
     
     error: function(error) {
-        alert(error.responseText)
+        alert(error.responseText);
     },
     
     request: function(url, method, params, successCallback, errorCallback) {
-        if (this.canUseREST()) {
-            this.requestUsingREST(url, method, params, successCallback, errorCallback)
-        } else {
-            this.requestUsingJSONP(url, method, params, successCallback, errorCallback)
-        }
+        //if (this.canUseREST()) {
+            this.requestUsingREST(url, method, params, successCallback, errorCallback);
+        //} else {
+        //    this.requestUsingJSONP(url, method, params, successCallback, errorCallback);
+        //}
     },
     
     requestUsingREST: function(url, method, params, successCallback, errorCallback) {
-        rollcall = this
+        var rollcall = this;
         
-        $.ajax({
+        jQuery.ajax({
             url: url,
             type: method,
             dataType: 'json',
             data: params,
             success: successCallback,
+            xhrFields: {
+               withCredentials: true
+            },
+            crossDomain: this.isCrossDomain(),
             error: function(error) {
-                console.error("Error response from Rollcall at " + rollcall.url + ":", error)
-                if (errorCallback)
-                    errorCallback(error)
+                if (error.status === 0 && rollcall.isCrossDomain())
+                    console.error("Error while making cross-domain request to Rollcall. Is Rollcall configured for CORS?");
                 else
-                    rollcall.error(error)
+                    console.error("Error response from Rollcall at " + rollcall.url + ":", error);
+                
+                if (errorCallback)
+                    errorCallback(error);
+                else
+                    rollcall.error(error);
             }
-        })
+        });
     },
-    
+
+    // no longer used
     requestUsingJSONP: function(url, method, params, successCallback, errorCallback) {
-        rollcall = this
+        var rollcall = this;
         
-        params['_method'] = method
+        params._method = method;
         
-        wrappedCallback = function(data) {
+        var wrappedCallback = function(data) {
             if (data.error) {
-                console.error("Error response from Rollcall at " + rollcall.url + ":", data.error.data)
+                console.error("Error response from Rollcall at " + rollcall.url + ":", data.error.data);
                 if (errorCallback)
-                    errorCallback(data.error.data)
+                    errorCallback(data.error.data);
                 else
-                    rollcall.error(data.error.data)
+                    rollcall.error(data.error.data);
             } else {
-                successCallback(data)
+                successCallback(data);
             }
-        }
+        };
         
-        return $.ajax({
+        return jQuery.ajax({
             url: url,
             dataType: 'jsonp',
             data: params,
             success: wrappedCallback
-        })
+        });
     }
-}
+};
