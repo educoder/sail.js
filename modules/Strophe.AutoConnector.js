@@ -67,7 +67,7 @@ Strophe.AutoConnector = (function() {
         Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
             jQuery(Sail.app).trigger('selfJoined');
             
-            Strophe.AutoConnector.hideConnecting();
+            hideConnecting();
             jQuery(Sail.app).trigger('connected');
         });
         
