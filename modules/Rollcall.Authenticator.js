@@ -167,13 +167,19 @@ Rollcall.Authenticator = {
         picker.append(loginForm)
         
         box = $("<fieldset />")
-        box.append("<div><label>Username:</label> <input type='text' name='username' /></div>")
-        box.append("<div><label>Password:</label> <input type='password' name='password' /></div>")
+        box.append("<div data-role='fieldcontain'><label for='login-username-input'>Username:</label> <input type='text' name='username' id='login-username-input' /></div>")
+        box.append("<div data-role='fieldcontain'><label for='login-password-input'>Password:</label> <input type='password' name='password' id='login-password-input' /></div>")
         
         loginButton = $("<button>Login</button>")
-        loginButton.button()
+
+        if (!jQuery.mobile)
+            loginButton.button()
+
         box.append(loginButton)
         
+        if (jQuery.mobile)
+            box.trigger('create')
+
         loginForm.submit(function() {
             creds = {
                 login: $('#login-box input[name=username]').val(), 
