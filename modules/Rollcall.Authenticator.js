@@ -40,8 +40,8 @@ Rollcall.Authenticator = {
             Sail.app.rollcall.unsetToken()
             Sail.app.run = null
             $.cookie('run', null)
-            $(Sail.app).trigger('unauthenticated')
             Sail.Strophe.clearConnInfo()
+            $(Sail.app).trigger('unauthenticated')
         })
     },
     

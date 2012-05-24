@@ -332,6 +332,7 @@ Sail.Strophe = {
     // they are unused.
     
     storeConnInfo: function() {
+        console.log("Storing connection info: ", Sail.Strophe.conn);
         $.cookie('Sail.jid', Sail.Strophe.conn.jid)
         $.cookie('Sail.sid', Sail.Strophe.conn.sid)
         $.cookie('Sail.rid', Sail.Strophe.conn.rid)
@@ -346,6 +347,7 @@ Sail.Strophe = {
     },
     
     clearConnInfo: function() {
+        console.log("Clearing connection info...");
         $.cookie('Sail.jid', null)
         $.cookie('Sail.sid', null)
         $.cookie('Sail.rid', null)

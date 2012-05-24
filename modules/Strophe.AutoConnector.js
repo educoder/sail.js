@@ -40,6 +40,7 @@ Strophe.AutoConnector = (function() {
         }
 
         Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
+            console.log("Joined groupchat...", pres);
             jQuery(Sail.app).trigger('selfJoined');
             
             hideConnecting();
@@ -64,18 +65,21 @@ Strophe.AutoConnector = (function() {
             Sail.app.groupchat.addGroupchatStanzaHandler(modSailHandler);
         }
 
-        Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
+        // FIXME: looks like reattaching automatically reconnects to existing chat
+        //Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
+            console.log("Already in groupchat...");
             jQuery(Sail.app).trigger('selfJoined');
             
             hideConnecting();
             jQuery(Sail.app).trigger('connected');
-        });
+        //});
         
-        Sail.app.groupchat.join();
+        //Sail.app.groupchat.join();
     }
     
     function connectFailure (ev, error) {
         jQuery('#connecting p').text("Connection Failure!");
+        Sail.Strophe().clearConnInfo();
         alert("CONNECTION FAILED TO XMPP SERVER AS "+Sail.Strophe.jid+" BECAUSE: "+error+" ("+ev.type+")");
     }
     
