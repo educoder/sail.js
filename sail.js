@@ -32,7 +32,7 @@ Sail.JS_ROOT_PATH = 'js/sail.js'
 Sail.load = function() {
     Sail.loader = 
         load(Sail.JS_ROOT_PATH+'/deps/jquery-1.6.2.js',
-                Sail.JS_ROOT_PATH+'/deps/underscore-1.1.7.js',
+                Sail.JS_ROOT_PATH+'/deps/underscore-1.3.3.js',
                 Sail.JS_ROOT_PATH+'/deps/md5.js',
                 Sail.JS_ROOT_PATH+'/deps/base64.js')
         .then(Sail.JS_ROOT_PATH+'/deps/strophe.js',
