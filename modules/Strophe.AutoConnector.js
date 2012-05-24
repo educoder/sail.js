@@ -93,7 +93,12 @@ Strophe.AutoConnector = (function() {
     function connectFailure (ev, error) {
         jQuery('#connecting p').text("Connection Failure!");
         Sail.Strophe.clearConnInfo();
-        alert("CONNECTION FAILED TO XMPP SERVER AS "+Sail.Strophe.jid+" BECAUSE: "+error+" ("+ev.type+")");
+        console.error("CONNECTION FAILED TO XMPP SERVER AS "+Sail.Strophe.jid+" BECAUSE: "+error+" ("+ev.type+")");
+        if (confirm("Connection to XMPP server failed. Try to reconnect?")) {
+            Sail.Strophe.connect();
+        } else {
+            Sail.Strophe.disconnect();
+        }
     }
     
     function connectDisconnected (ev) {
@@ -160,12 +165,13 @@ Strophe.AutoConnector = (function() {
 
                 Sail.app.token = Sail.app.rollcall.getCurrentToken();
                 
-                if (Sail.app.token && Sail.Strophe.hasExistingConnInfo()) {
+                // screw this... lets just switch to WebSockets
+                //if (Sail.app.token && Sail.Strophe.hasExistingConnInfo()) {
                     // try reattaching
-                    Sail.Strophe.reconnect();
-                } else {
+                //    Sail.Strophe.reconnect();
+                //} else {
                     Sail.Strophe.connect();
-                }
+                //}
             }
         },
         

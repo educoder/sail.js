@@ -111,8 +111,24 @@ Sail.Strophe = {
         
         pingInterval = 14 * 1000 // default is 14 seconds
         this.conn.addTimedHandler(pingInterval, function() {
-            console.log("SEDNING PING!")
-            Sail.Strophe.conn.ping.ping(Strophe.getDomainFromJid(Sail.Strophe.conn.jid))
+            console.log("Ping ...")
+            Sail.Strophe.conn.ping.ping(Strophe.getDomainFromJid(Sail.Strophe.conn.jid),
+                function() {
+                    console.log("... Pong");
+                },
+                function() {
+                    console.warn("Ping failed!");
+                    
+                    if (Sail.Strophe.auto_reconnect) {
+                        console.log("Attempting to automatically reconnect...")
+                        //Sail.Strophe.reconnect()
+                        Sail.Strophe.connect();
+                    } else {
+                        console.error("XMPP connection seems to have gone away :(");
+                        // TODO: add some sort of UI indicator to show connection problem
+                    }
+                }
+            )
             return true
         })
     },
@@ -348,6 +364,9 @@ Sail.Strophe = {
     
     clearConnInfo: function() {
         console.log("Clearing connection info...");
+        Sail.Strophe.conn.jid = null;
+        Sail.Strophe.conn.sid = null;
+        Sail.Strophe.conn.rid = null;
         $.cookie('Sail.jid', null)
         $.cookie('Sail.sid', null)
         $.cookie('Sail.rid', null)
