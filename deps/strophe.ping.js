@@ -36,7 +36,7 @@ Strophe.addConnectionPlugin('ping',
     var id = this._connection.getUniqueId('ping');
         
     var iq = $iq({ type:'get', to: jid, id: id }).c('ping', { xmlns: Strophe.NS.PING } );
-    this._connection.sendIQ( iq, success, error );
+    this._connection.sendIQ( iq, success, error, 10000 );
     
   },
   
