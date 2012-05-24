@@ -418,6 +418,22 @@ Sail.Strophe.Groupchat.prototype = {
     jid: function() {
         return this.room + "/" + this.resource
     },
+
+    // executes yes callback if this Groupchat object is joined to the room, no callback otherwise or on error
+    isJoined: function (yes, no) {
+        var iq = $iq({to: this.room, type: 'get'}).c('query', {xmlns: 'http://jabber.org/protocol/disco#items'})
+
+        var cb = function(riq) {
+            if ($(riq).find('item[jid="'+Sail.app.groupchat.jid()+'"]').length > 0) {
+                yes();
+            } else {
+                no();
+            }
+        };
+
+        this.conn.sendIQ(iq, cb, no, 4000); // wait 4 seconds for response then call no()... prosody never seems to send error response if we're not joined (or maybe we're just not catching it properly)
+        this.conn.flush();
+    },
     
     sendEvent: function(event) {
         if (Sail.app.allowRunlessEvents === false && !event.run) {
