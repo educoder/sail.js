@@ -31,22 +31,12 @@ Sail.JS_ROOT_PATH = 'js/sail.js'
 */
 Sail.load = function() {
     Sail.loader = 
-        load(Sail.JS_ROOT_PATH+'/deps/jquery-1.6.2.js',
-                Sail.JS_ROOT_PATH+'/deps/underscore-1.3.3.js',
-                Sail.JS_ROOT_PATH+'/deps/md5.js',
-                Sail.JS_ROOT_PATH+'/deps/base64.js')
-        .then(Sail.JS_ROOT_PATH+'/deps/strophe.js',
-                Sail.JS_ROOT_PATH+'/deps/moment-1.1.0.js',
-                Sail.JS_ROOT_PATH+'/deps/jquery-ui-1.8.14.js',
-                Sail.JS_ROOT_PATH+'/deps/jquery.url.js',
-                Sail.JS_ROOT_PATH+'/deps/jquery.cookie.js')
-        .then(Sail.JS_ROOT_PATH+'/deps/strophe.ping.js')
+        load(Sail.JS_ROOT_PATH+'/deps.base.BUNDLE.js')
         .then(Sail.JS_ROOT_PATH+'/sail.strophe.js',
-                Sail.JS_ROOT_PATH+'/sail.ui.js')
-		.then(Sail.JS_ROOT_PATH+'/deps/jquery.flot.js')
+              Sail.JS_ROOT_PATH+'/sail.ui.js');
                 
-    return Sail.loader
-}
+    return Sail.loader;
+};
 
 /**
     Initializes the given object as a sail.js app.
