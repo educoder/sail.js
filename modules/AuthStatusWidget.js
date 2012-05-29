@@ -5,7 +5,8 @@ var AuthStatusWidget = (function () {
     var mod = {};
 
     mod.options = {
-        indicatorContainer: 'header'
+        indicatorContainer: 'header',
+        clickNameToLogout: false
     };
     
     mod.events = {
@@ -14,7 +15,7 @@ var AuthStatusWidget = (function () {
         },
         
         authenticated: function(ev) {
-            AuthStatusWidget.showIndicator(AuthStatusWidget.options.indicatorContainer);
+            mod.showIndicator(mod.options.indicatorContainer);
         },
         
         unauthenticated: function(ev) {
@@ -26,8 +27,15 @@ var AuthStatusWidget = (function () {
         jQuery('#auth-indicator').remove();
         
         var indicator = jQuery('<div id="auth-indicator"></div>');
-        indicator.append('<div id="auth-as">'+Sail.app.nickname+'</div>');
-        indicator.append('<div id="logout-button">[<a href="#">Logout</a>]</div>');
+        var authAs = jQuery('<div id="auth-as"></div>');
+        indicator.append(authAs);
+
+        if (mod.options.clickNameToLogout) {
+            authAs.append('<a href="#">'+Sail.app.nickname+'</a>');
+        } else {
+            authAs.text(Sail.app.nickname);
+            indicator.append('<div id="logout-button">[<a href="#">Logout</a>]</div>');
+        }
         
         indicator.find('a').click(function() {
             jQuery(Sail.app).trigger('logout');

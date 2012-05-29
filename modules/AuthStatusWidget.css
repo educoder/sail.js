@@ -10,6 +10,10 @@
   font-size: 12px;
 }
 
+#auth-indicator a {
+    color: #fff;
+}
+
 #logout-button a {
   color: #aaa;
 }
