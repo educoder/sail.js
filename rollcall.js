@@ -120,6 +120,15 @@ Rollcall.Client.prototype = {
         
         this.request(url, 'GET', {token: token}, successCallback, errorCallback);
     },
+
+    /**
+     * Fetch data for a single user identified by an id or username.
+     */
+    fetchUser: function(idOrUsername, options, successCallback, errorCallback) {
+        var url = this.url + '/users/' + idOrUsername + '.json';
+        
+        this.request(url, 'GET', options, successCallback, errorCallback);
+    },
     
     /**
      * Fetch the list of users.
