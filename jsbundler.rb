@@ -22,7 +22,7 @@ end
 selected_bundles.each do |bundle|
   File.open("#{bundle}.BUNDLE.js", 'w') do |bundle_file|
     js = ""
-    js << "\n\n/*** ----------- star of [#{bundle}] ----------- ***/\n\n"
+    js << "\n\n/*** ----------- start of [#{bundle}] ----------- ***/\n\n"
 
     BUNDLES[bundle].each do |jsfile|
       jsfile = jsfile + ".js"
