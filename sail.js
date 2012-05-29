@@ -127,6 +127,32 @@ Sail.configure = function(app, opts) {
     )
 }
 
+/**
+    Verifies the given Sail app configuration based on the required conifg.
+    The path argument is used internally in recursion and can be omitted.
+*/
+Sail.verifyConfig = function(config, required, path) {
+    var curPath = path || "";
+
+    _.each(_.keys(required), function (req) {
+        if (typeof required[req] == 'object') {
+            Sail.verifyConfig(config[req], required[req], curPath + "." + req);
+        } else {
+            var err;
+            if (!config[req]) {
+                err = "Missing configuration value for key '"+req+"'! Check your config.json";
+            } else if (typeof config[req] != required[req]) {
+                err = "Configuration value for '"+req+"' must be a "+(typeof required[req])+" but is a "+(typeof config[req])+"! Check your config.json";
+            }
+
+            if (err) {
+                console.error(err);
+                throw err;
+            }
+        }
+    });
+};
+
 /** 
     Manages loadable modules. 
     @namespace
@@ -486,9 +512,13 @@ Sail.generateSailEventHandler = function(callback, eventType, origin, payload, r
     return handler
 }
 
+/**
+    Returns true if all properties in obj match all properties in template
+    based on the comparer function. If comparer is omitted, == is used by default.
+*/
 Sail.objectMatchesTemplate = function (obj, template, comparer) {
-    if (!comparer) comparer = function(a,b) { return a == b }
+    if (!comparer) comparer = function(a,b) { return a == b };
     return _.all(_.keys(template), function(key) {
-        return comparer(obj[key], template[key])
+        return comparer(obj[key], template[key]);
     })
 }
