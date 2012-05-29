@@ -36,13 +36,24 @@ Rollcall.Authenticator = {
     },
     
     unauthenticate: function() {
-        Sail.app.rollcall.destroySessionForToken(Sail.app.rollcall.getCurrentToken(), function() {
-            Sail.app.rollcall.unsetToken()
-            Sail.app.run = null
-            $.cookie('run', null)
-            Sail.Strophe.clearConnInfo()
-            $(Sail.app).trigger('unauthenticated')
-        })
+        var token = Sail.app.rollcall.getCurrentToken();
+
+        var reset = function () {
+            Sail.app.rollcall.unsetToken();
+            Sail.app.run = null;
+            $.cookie('run', null);
+            Sail.Strophe.clearConnInfo();
+            $(Sail.app).trigger('unauthenticated');
+        }
+
+        if (token)
+            Sail.app.rollcall.destroySessionForToken(Sail.app.rollcall.getCurrentToken(), reset, 
+                function (err) { 
+                    console.warn("Could not delete session token '"+token+"' in Rollcall!", err);
+                    reset();
+                });
+        else
+            reset();
     },
     
     requestRun: function() {
