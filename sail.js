@@ -210,8 +210,8 @@ window.Sail = window.Sail || {};
             
             console.log("Loaded module "+module+" from "+url, m);
             
-            _.each(m.events, function (event) {
-                jQuery(Sail.app).bind(event+"."+module, m.events[event]);
+            _.each(m.events, function (handler, event) {
+                jQuery(Sail.app).bind(event+"."+module, handler);
                 console.debug("Bound event "+event+"."+module);
             });
             
@@ -536,6 +536,12 @@ window.Sail = window.Sail || {};
         return _.all(_.keys(template), function(key) {
             return comparer(obj[key], template[key]);
         });
+    };
+
+    Sail.getURLParameter = function (name) {
+        return decodeURIComponent(
+            (location.search.match(RegExp("[?|&]"+name+'=(.+?)(&|$)'))||[,null])[1]
+        );  
     };
 
 })(window.Sail);
