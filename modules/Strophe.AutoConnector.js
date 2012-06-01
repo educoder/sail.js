@@ -40,7 +40,7 @@ Strophe.AutoConnector = (function() {
         }
 
         Sail.app.groupchat.addSelfJoinedHandler(function(pres) {
-            console.log("Joined groupchat...", pres);
+            console.log("Joined groupchat as '"+Sail.app.groupchat.jid()+"' : ", pres);
             jQuery(Sail.app).trigger('selfJoined');
             
             hideConnecting();
