@@ -465,8 +465,8 @@ window.Sail = window.Sail || {};
                 mapping = sailApp.events.sail[sev.eventType];
             
             var eventName;
-            if (mapping === null || typeof(mapping) == 'string') {
-                if (mapping === null)
+            if (mapping === undefined || mapping === null || typeof(mapping) == 'string') {
+                if (mapping === undefined || mapping === null)
                     eventName = sev.eventType;
                 else
                     eventName = sailApp.events.sail[sev.eventType];
