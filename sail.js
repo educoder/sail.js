@@ -296,7 +296,6 @@ window.Sail = window.Sail || {};
         if (!type && typeof type != 'string') {
             err = "Cannot create a Sail.Event without a type.";
             console.error(err);
-            throw err;
         }
         
         this.eventType = type;
@@ -480,7 +479,7 @@ window.Sail = window.Sail || {};
             } else if (typeof(mapping) == 'function') {
                 mapping(sev);
             } else {
-                throw "Invalid mapping '"+mapping+"' for Sail event '"+sev.eventType+"'!";
+                console.error("Invalid mapping '"+mapping+"' for Sail event '"+sev.eventType+"'!");
             }
 
             return true; // TODO: why are we returning true here? 
