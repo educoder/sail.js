@@ -128,8 +128,6 @@ window.Sail = window.Sail || {};
 
                     if (data.rollcall)
                         app.rollcallURL = data.rollcall.url;
-
-                    jQuery(app).trigger('configured');
                 },
                 error: function(xhr, code, error) {
                     console.error("Couldn't load `config.json`: ", code, error, xhr);
