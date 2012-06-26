@@ -15,10 +15,10 @@ Strophe.AutoConnector = (function() {
         mode: 'session'
     };
 
-    function showConnecting () {
+    function showConnecting (text) {
         var connecting = jQuery('<div id="connecting" />');
         connecting.append('<img src="loader.gif" alt="..." />');
-        connecting.append('<p>Connecting...</p>');
+        connecting.append('<p>'+(text ? text : "Connecting...")+'</p>');
         
         jQuery('body').append(connecting);
     }
@@ -94,15 +94,12 @@ Strophe.AutoConnector = (function() {
         jQuery('#connecting p').text("Connection Failure!");
         Sail.Strophe.clearConnInfo();
         console.error("CONNECTION FAILED TO XMPP SERVER AS "+Sail.Strophe.jid+" BECAUSE: "+error+" ("+ev.type+")");
-        if (confirm("Connection to XMPP server failed. Try to reconnect?")) {
-            Sail.Strophe.connect();
-        } else {
-            Sail.Strophe.disconnect();
-        }
+
+        alert("Connection to XMPP server as "+Sail.Strophe.jid+" failed!");
     }
     
     function connectDisconnected (ev) {
-        // do nothing for now
+        console.warn("DISCONNECTED FROM "+Sail.Strophe.jid);
     }
 
     self.events = {
@@ -177,6 +174,16 @@ Strophe.AutoConnector = (function() {
         
         unauthenticated: function() {
             Sail.Strophe.disconnect();
+        },
+
+
+        connection_lost: function () {
+            console.log("Attempting to automatically reconnect...")
+            //Sail.Strophe.reconnect()
+
+            showConnecting("Reconnecting...");
+
+            Sail.Strophe.connect();
         }
     };
 
