@@ -543,6 +543,23 @@ window.Sail = window.Sail || {};
         );  
     };
 
+    Sail.App = function () {
+        this.on = function (event, callback) {
+            jQuery(this).on(event, callback);
+            return this;
+        };
+        this.bind = this.on;
+        this.off = function (event) {
+            jQuery(this).unbind(event);
+            return this;
+        };
+        this.off = this.off;
+        this.trigger = function (event, args) {
+            jQuery(this).trigger.apply(jQuery(this), arguments)
+            return this;
+        };
+    };
+
 })(window.Sail);
 
 
