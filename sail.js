@@ -11,7 +11,7 @@ window.Sail = window.Sail || {};
 
 (function (Sail) {
 
-    Sail.JS_ROOT_PATH = 'js/sail.js';
+    Sail.JS_ROOT_PATH = Sail.JS_ROOT_PATH || 'js/sail.js';
 
     /** Minified loadjs from <a href="https://github.com/chriso/load.js">https://github.com/chriso/load.js</a> **/
     /* Copyright (c) 2010 Chris O'Hara <cohara87@gmail.com>. MIT Licensed */
