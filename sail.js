@@ -93,7 +93,7 @@ window.Sail = window.Sail || {};
                 return true;
             }).thenRun(function () {
                 console.log("Initialized.");
-                jQuery(Sail.app).trigger('initialized');
+                Sail.app.trigger('initialized');
                 return true;
             });
         
@@ -472,7 +472,7 @@ window.Sail = window.Sail || {};
                 
                 var events = jQuery(sailApp).data('events');
                 if (events && events[eventName]) // hacky way to check if a handler was bound for this event
-                    jQuery(sailApp).trigger(eventName, sev);
+                    sailApp.trigger(eventName, sev);
                 else
                     console.debug("Module '"+sailApp.name+"' is ignoring event '"+eventName+"': ", sev);
                     
