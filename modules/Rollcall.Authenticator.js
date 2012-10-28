@@ -127,7 +127,7 @@ Rollcall.Authenticator = {
                 u = this
                 if (!u.account.allow_passwordless_login || 
                         (Rollcall.Authenticator.options.mode == 'picker' && Rollcall.Authenticator.options.mode == 'mulit-picker')) {
-                    console.log("Skipping user "+u.account.log+" because they are not allowed to log in without a password.")
+                    console.warn("Skipping user "+u.account.login+" because they are not allowed to log in without a password.")
                     return // only use passwordless login accounts for picker
                 }
                 
