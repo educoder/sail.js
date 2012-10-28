@@ -13,7 +13,7 @@ Sail.UI = {
                 Sail.UI.dismissDialog(jQuery(this).parents('.dialog'));
             });
             
-            console.log("UI initialized...");
+            console.log("ui.initialized...");
             jQuery(Sail.app).trigger('ui.initialized');
         });
     },
