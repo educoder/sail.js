@@ -6,7 +6,7 @@ BUNDLES['deps.base'] = [
   'deps/jquery-1.8.2',
   'deps/jquery.url',
   'deps/jquery.cookie',
-  'deps/jquery-ui-1.8.14',
+  'deps/jquery-ui-1.9.1',
   'deps/underscore-1.4.2',
   'deps/backbone-0.9.2',
   'deps/moment-1.1.0',
