@@ -37,6 +37,9 @@ Strophe.AutoConnector = (function() {
     
     function hideConnecting () {
         jQuery('#connecting').css('opacity', 0.0);
+        setTimeout(function () {
+            jQuery('#connecting').remove();
+        }, 201);
     }
     
     function connectSuccess (ev) {
