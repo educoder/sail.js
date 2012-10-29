@@ -391,10 +391,10 @@ window.Sail = window.Sail || {};
                 console.debug("Sail: auto-binding event '"+ev+"'");
                 try {
                     if (options.pre)
-                      jQuery(obj).bind(ev, options.pre);
-                    jQuery(obj).bind(ev, events[ev]);
+                      jQuery(obj).bind(ev, jQuery.proxy(options.pre, Sail.app));
+                    jQuery(obj).bind(ev, jQuery.proxy(events[ev], Sail.app));
                     if (options.post)
-                      jQuery(obj).bind(ev, options.post);
+                      jQuery(obj).bind(ev, jQuery.proxy(options.post, Sail.app));
                 } catch(e) {
                     alert("Sail: failed to auto-bind event! '"+ev+"' may be a reserved word.");
                     throw e;
@@ -473,7 +473,7 @@ window.Sail = window.Sail || {};
                     console.debug("Module '"+sailApp.name+"' is ignoring event '"+eventName+"': ", sev);
                     
             } else if (typeof(mapping) == 'function') {
-                mapping(sev);
+                jQuery.proxy(mapping, Sail.app)(sev);
             } else {
                 console.error("Invalid mapping '"+mapping+"' for Sail event '"+sev.eventType+"'!");
             }
