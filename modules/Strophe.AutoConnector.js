@@ -22,13 +22,15 @@ Strophe.AutoConnector = (function() {
             connecting.css('opacity', 1.0);
         } else {
             connecting = jQuery('<div id="connecting" />');
+            container = jQuery('<div></div>');
+            connecting.append(container);
             ajaxSpinner = '<div id="connecting-anim">';
             ajaxSpinner += '<div id="circleG_1" class="circleG"></div>';
             ajaxSpinner += '<div id="circleG_2" class="circleG"></div>';
             ajaxSpinner += '<div id="circleG_3" class="circleG"></div>';
             ajaxSpinner += '</dvi>';
-            connecting.append(ajaxSpinner);
-            connecting.append('<p class="message">'+(text ? text : "Connecting...")+'</p>');
+            container.append(ajaxSpinner);
+            container.append('<p class="message">'+(text ? text : "Connecting...")+'</p>');
             jQuery('body').append(connecting);
         }
     }
