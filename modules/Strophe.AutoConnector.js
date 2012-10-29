@@ -16,15 +16,25 @@ Strophe.AutoConnector = (function() {
     };
 
     function showConnecting (text) {
-        var connecting = jQuery('<div id="connecting" />');
-        connecting.append('<img src="loader.gif" alt="..." />');
-        connecting.append('<p>'+(text ? text : "Connecting...")+'</p>');
-        
-        jQuery('body').append(connecting);
+        var connecting = jQuery('#connecting');
+        if (connecting.length > 0) {
+            connecting.find('.message').text(text);
+            connecting.css('opacity', 1.0);
+        } else {
+            connecting = jQuery('<div id="connecting" />');
+            ajaxSpinner = '<div id="connecting-anim">';
+            ajaxSpinner += '<div id="circleG_1" class="circleG"></div>';
+            ajaxSpinner += '<div id="circleG_2" class="circleG"></div>';
+            ajaxSpinner += '<div id="circleG_3" class="circleG"></div>';
+            ajaxSpinner += '</dvi>';
+            connecting.append(ajaxSpinner);
+            connecting.append('<p class="message">'+(text ? text : "Connecting...")+'</p>');
+            jQuery('body').append(connecting);
+        }
     }
     
     function hideConnecting () {
-        jQuery('#connecting').remove();
+        jQuery('#connecting').css('opacity', 0.0);
     }
     
     function connectSuccess (ev) {
@@ -95,11 +105,12 @@ Strophe.AutoConnector = (function() {
         Sail.Strophe.clearConnInfo();
         console.error("CONNECTION FAILED TO XMPP SERVER AS "+Sail.Strophe.jid+" BECAUSE: "+error+" ("+ev.type+")");
 
-        alert("Connection to XMPP server as "+Sail.Strophe.jid+" failed!");
+        showConnecting('CONNECTION FAILED!');
     }
     
     function connectDisconnected (ev) {
         console.warn("DISCONNECTED FROM "+Sail.Strophe.jid);
+        showConnecting('DISCONNECTED!');
     }
 
     self.events = {
