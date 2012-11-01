@@ -8,7 +8,7 @@ Sail.UI = {
             if (navigator.userAgent.match('Android'))
                 jQuery.fx.off = true;
             
-            jQuery('button, input[type=submit], input[type=reset], input[type=button]').button();
+            //jQuery('button, input[type=submit], input[type=reset], input[type=button]').button();
             jQuery('.dialog button').click(function () {
                 Sail.UI.dismissDialog(jQuery(this).parents('.dialog'));
             });
