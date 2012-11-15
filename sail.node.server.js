@@ -60,8 +60,9 @@ server.proxyMap = [
         name: 'BOSH',
         match: function(req) { return url.parse(req.url).pathname.match(/^\/http-bind/); },
         proxy: function(req, res) {
-            console.log("PROXY "+req.url+" ==> "+config.bosh.url);
-            var boshUrl = url.parse(config.bosh.url);
+            console.log("PROXY "+req.url+" ==> "+config.xmpp.url);
+            // FIXME: config.xmpp.url might be for websockets, in which case reverse proxying doesn't make sense
+            var boshUrl = url.parse(config.xmpp.url);
             proxy.proxyRequest(req, res, {
                 host: boshUrl.hostname,
                 port: boshUrl.port

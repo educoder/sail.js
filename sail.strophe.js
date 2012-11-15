@@ -7,8 +7,8 @@ var Sail = window.Sail || {}
 
 /** @namespace */
 Sail.Strophe = {
-    /** URL of the BOSH service we'll be connecting to. */
-    bosh_url: null,
+    /** URL of the XMPP over BOSH or Websockets service we'll be connecting to. */
+    xmppUrl: null,
     /** JID to connect as (e.g. "somebody@somewhere.com"). */
     jid: null,
     /** Password to use during authentication with the XMPP server. */
@@ -27,17 +27,17 @@ Sail.Strophe = {
         
         `Sail.Strophe.onConnect` is used as the strophe callback function.
         
-        @see Sail.Strophe.bosh_url
+        @see Sail.Strophe.xmppUrl
         @see Sail.Strophe.jid
         @see Sail.Strophe.password
         @see Sail.Strophe.onConnect
     */
     connect: function() {
-        if (!this.bosh_url) throw "No bosh_url set!"
+        if (!this.xmppUrl) throw "No xmppUrl set!"
         if (!this.jid) throw "No jid set!"
         //if (!this.password) throw "No password set!"
         
-        this.conn = new Strophe.Connection(this.bosh_url)
+        this.conn = new Strophe.Connection(this.xmppUrl)
         
         // turn off sync in case it was set during previous detach (see bindDetacher)
         this.conn.sync = false
@@ -168,7 +168,7 @@ Sail.Strophe = {
                 $(Sail.Strophe).trigger('connect_error', error)
                 break
             case Strophe.Status.CONNECTING:
-                console.log('CONNECTING to '+Sail.Strophe.bosh_url+' as '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
+                console.log('CONNECTING to '+Sail.Strophe.xmppUrl+' as '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
                 /**
                      The connection is currently being established.
                      @event
@@ -211,7 +211,7 @@ Sail.Strophe = {
                 $(Sail.Strophe).trigger('connect_authfail', error)
                 break
             case Strophe.Status.CONNECTED:
-                console.log('CONNECTED to '+Sail.Strophe.bosh_url+' as '+Sail.Strophe.jid)
+                console.log('CONNECTED to '+Sail.Strophe.xmppUrl+' as '+Sail.Strophe.jid)
 
                 Sail.Strophe.bindDetacher();
                 Sail.Strophe.addDefaultXmppHandlers()
@@ -295,7 +295,7 @@ Sail.Strophe = {
         @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Log_Level_Constants
     */
     log: function(level, message, data) {
-        switch(level) {
+        switch(0) {
             case Strophe.LogLevel.DEBUG:
                 logFunc = 'debug'
                 logMsg = "DEBUG: "+message
@@ -362,13 +362,13 @@ Sail.Strophe = {
     },
     
     reconnect: function() {
-        if (!Sail.Strophe.bosh_url) throw "No bosh_url set!"
+        if (!Sail.Strophe.xmppUrl) throw "No xmppUrl set!"
         
         info = Sail.Strophe.retrieveConnInfo()
         
-        Sail.Strophe.conn = new Strophe.Connection(Sail.Strophe.bosh_url)
+        Sail.Strophe.conn = new Strophe.Connection(Sail.Strophe.xmppUrl)
         
-        console.log('REATTACHING TO '+Sail.Strophe.bosh_url+'WITH: ', info)
+        console.log('REATTACHING TO '+Sail.Strophe.xmppUrl+'WITH: ', info)
         Sail.Strophe.conn.attach(info.jid, info.sid, info.rid + 1, this.onConnect)
     },
 }

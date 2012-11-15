@@ -122,7 +122,14 @@ Strophe.AutoConnector = (function() {
         initialized: function() {
             Sail.loadCSS(Sail.modules.PATH + 'Strophe.AutoConnector.css');
             
-            Sail.Strophe.bosh_url = '/http-bind/';
+            if (Sail.app.config.xmpp.url.match(/^ws/)) {
+                // we're using Websockets
+                Sail.Strophe.xmppUrl = Sail.app.config.xmpp.url;
+            } else {
+                // we're using BOSH, so go through local reverse proxy
+                Sail.Strophe.xmppUrl = "/http-bind";
+            }
+            
             
             jQuery(Sail.Strophe).bind({
                 connect_error:      connectFailure,
