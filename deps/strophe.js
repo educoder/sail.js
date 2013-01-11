@@ -2786,7 +2786,7 @@ Strophe.Connection.prototype = {
                         plugin.statusChanged(status, condition);
                     } catch (err) {
                         Strophe.error("" + k + " plugin caused an exception " +
-                                      "changing status: " + err);
+                                      "changing status: " + err, e.stack);
                     }
                 }
             }
@@ -2798,7 +2798,7 @@ Strophe.Connection.prototype = {
                 this.connect_callback(status, condition);
             } catch (e) {
                 Strophe.error("User connection callback caused an " +
-                              "exception: " + e);
+                              "exception: " + e, e.stack);
             }
         }
     },
