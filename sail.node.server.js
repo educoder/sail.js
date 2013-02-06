@@ -84,33 +84,18 @@ server.proxyMap = [
             });
         }
     },
-    
-    {
-        name: "Mongoose",
-        match: function(req) { return url.parse(req.url).pathname.match(/^\/mongoose/); },
-        proxy: function(req, res) {
-            req.url = req.url.replace(/\/mongoose/,'');
-            var mongooseUrl = url.parse(config.mongoose.url);
-            console.log("PROXY "+req.url+" ==> "+config.mongoose.url);
-            req.headers.host = mongooseUrl.hostname;
-            proxy.proxyRequest(req, res, {
-                host: mongooseUrl.hostname,
-                port: mongooseUrl.port
-            });
-        }
-    },
 
     {
         name: "Mongo REST",
         match: function(req) { return url.parse(req.url).pathname.match(/^\/mongo/); },
         proxy: function(req, res) {
             req.url = req.url.replace(/\/mongo/,'');
-            var mongoUrl = url.parse(config.mongo.url);
-            console.log("PROXY "+req.url+" ==> "+config.mongo.url);
-            req.headers.host = mongoUrl.hostname;
+            var drowsyUrl = url.parse(config.drowsy.url);
+            console.log("PROXY "+req.url+" ==> "+config.drowsy.url);
+            req.headers.host = drowsyUrl.hostname;
             proxy.proxyRequest(req, res, {
-                host: mongoUrl.hostname,
-                port: mongoUrl.port
+                host: drowsyUrl.hostname,
+                port: drowsyUrl.port
             });
         }
     },
