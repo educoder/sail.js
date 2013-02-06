@@ -138,15 +138,17 @@ window.Sail = window.Sail || {};
         The path argument is used internally in recursion and can be omitted.
     */
     Sail.verifyConfig = function(config, required, path) {
-        var curPath = path || "";
+        var curPath = path || null;
 
         _.each(_.keys(required), function (req) {
             if (typeof required[req] == 'object') {
-                Sail.verifyConfig(config[req], required[req], curPath + "." + req);
+                Sail.verifyConfig(config[req], required[req], (curPath ? curPath + "." : "") + req);
             } else {
                 var err;
-                if (!config[req]) {
-                    err = "Missing configuration value for key '"+req+"'! Check your config.json";
+                if (!config) {
+                    err = "Missing configuration value for key '"+curPath+"'! Check your config.json";
+                } else if (!config[req]) {
+                    err = "Missing configuration value for key '"+curPath+"."+req+"'! Check your config.json";
                 } else if (typeof config[req] != required[req]) {
                     err = "Configuration value for '"+req+"' must be a "+(typeof required[req])+" but is a "+(typeof config[req])+"! Check your config.json";
                 }
