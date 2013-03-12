@@ -36,7 +36,7 @@ window.Sail = window.Sail || {};
     */
     Sail.load = function () {
         Sail.loader = 
-            load(Sail.JS_ROOT_PATH+'/deps.base.BUNDLE.js')
+            load(Sail.JS_ROOT_PATH+'/deps.base.Bundle.new.min.js')
             .then(Sail.JS_ROOT_PATH+'/sail.strophe.js',
                   Sail.JS_ROOT_PATH+'/sail.ui.js');
                     
