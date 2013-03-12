@@ -553,7 +553,7 @@ window.Sail = window.Sail || {};
         };
         this.off = this.off;
         this.trigger = function (event, args) {
-            jQuery(this).trigger.apply(jQuery(this), arguments)
+            jQuery(this).trigger.apply(jQuery(this), arguments);
             return this;
         };
     };
