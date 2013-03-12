@@ -1,0 +1,17 @@
+{
+  "name": "sail.js",
+  "version": "0.0.1",
+  "description": "...",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:educoder/sail.js.git"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib": "~0.4.0",
+    "grunt-minified": "~0.0.5",
+    "grunt-contrib-concat": "~0.1.3"
+  },
+  "author": "ENCORE Lab",
+  "license": "MIT"
+}
