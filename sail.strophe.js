@@ -1,9 +1,11 @@
+/*jshint browser: true, devel: true, eqeqeq:false, eqnull:true, undef:false */
+/*globals Strophe, $ */
 /**
     @fileOverview
     Wrapper around strophe.js that adds some convenience and Sail-specific functionality.
 */
 
-var Sail = window.Sail || {}
+var Sail = window.Sail || {};
 
 /** @namespace */
 Sail.Strophe = {
@@ -33,14 +35,14 @@ Sail.Strophe = {
         @see Sail.Strophe.onConnect
     */
     connect: function() {
-        if (!this.xmppUrl) throw "No xmppUrl set!"
-        if (!this.jid) throw "No jid set!"
+        if (!this.xmppUrl) throw "No xmppUrl set!";
+        if (!this.jid) throw "No jid set!";
         //if (!this.password) throw "No password set!"
         
-        this.conn = new Strophe.Connection(this.xmppUrl)
+        this.conn = new Strophe.Connection(this.xmppUrl);
         
         // turn off sync in case it was set during previous detach (see bindDetacher)
-        this.conn.sync = false
+        this.conn.sync = false;
 
         // this.conn.xmlInput = function(data) {
         //     console.log("IN:", $(data).children()[0])
@@ -49,9 +51,9 @@ Sail.Strophe = {
         //     console.log("OUT:", $(data).children()[0])
         // }
 
-        Sail.Strophe.groupchats = []
+        Sail.Strophe.groupchats = [];
         
-        this.conn.connect(this.jid, this.password, this.onConnect)
+        this.conn.connect(this.jid, this.password, this.onConnect);
     },
     
     /**
@@ -64,49 +66,59 @@ Sail.Strophe = {
         request doesn't always complete before the page is unloaded.
     */
     disconnect: function() {
-        console.log("sending disconnect request...")
+        console.log("sending disconnect request...");
         
-        Sail.Strophe.conn.sync = true
-        Sail.Strophe.conn.flush()
-        Sail.Strophe.conn.disconnect()
+        Sail.Strophe.conn.sync = true;
+        Sail.Strophe.conn.flush();
+        Sail.Strophe.conn.disconnect();
     },
     
     addStanzaHandler: function(handler, ns, name, type, id, from) {
-        if (!Sail.Strophe.conn) throw "Must connect before you can add handlers"
-        Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, type, id, from)
+        if (!Sail.Strophe.conn) {
+            throw "Must connect before you can add handlers";
+        }
+        Sail.Strophe.conn.addHandler(function(stanza) {
+            handler(stanza);
+            return true;
+        }, ns, name, type, id, from);
     },
     
     addOneoffStanzaHandler: function(handler, ns, name, type, id, from) {
-        if (!Sail.Strophe.conn) throw "Must connect before you can add handlers"
-        Sail.Strophe.conn.addHandler(function(stanza){handler(stanza);return false}, ns, name, type, id, from)
+        if (!Sail.Strophe.conn) throw "Must connect before you can add handlers";
+        Sail.Strophe.conn.addHandler(function(stanza){
+            handler(stanza);
+            return false;
+        }, ns, name, type, id, from);
     },
     
     addErrorStanzaHandler: function(handler, type, condition) {
         Sail.Strophe.conn.addHandler(function(stanza, text){
-            error = $(stanza).children('error').eq(0)
+            error = $(stanza).children('error').eq(0);
             
-            if (type && $(error).attr('type') != type)
-                return true // this error isn't of the desired type, so bail out
+            if (type && $(error).attr('type') != type) {
+                return true; // this error isn't of the desired type, so bail out
+            }
             
-            if (condition && $(error).children(condition).length == 0)
-                return true // this error doesn't contain the desired condition, so bail out
+            if (condition && $(error).children(condition).length === 0) {
+                return true; // this error doesn't contain the desired condition, so bail out
+            }
             
-            text = error.children('text').text()
-            handler(error, text)
-        }, null, null, 'error')
+            text = error.children('text').text();
+            handler(error, text);
+        }, null, null, 'error');
     },
     
     pinger: function() {
         this.conn.ping.addPingHandler(function(ping) {
-            console.log("GOT PING! sending pong...")
-            Sail.Strophe.conn.ping.pong(ping)
-        })
+            console.log("GOT PING! sending pong...");
+            Sail.Strophe.conn.ping.pong(ping);
+        });
         
         // set up a pinger to keep the connection alive
         
-        pingInterval = 14 * 1000 // default is 14 seconds
+        pingInterval = 14 * 1000; // default is 14 seconds
         this.conn.addTimedHandler(pingInterval, function() {
-            console.log("Ping ...")
+            console.log("Ping ...");
             Sail.Strophe.conn.ping.ping(Strophe.getDomainFromJid(Sail.Strophe.conn.jid),
                 function() {
                     console.log("... Pong");
@@ -117,36 +129,36 @@ Sail.Strophe = {
                     console.error("XMPP connection seems to have gone away :(");
                     jQuery(Sail.app).trigger('connection_lost');
                 }
-            )
-            return true
-        })
+            );
+            return true;
+        });
     },
     
     bindDetacher: function() {
-        Sail.Strophe.detacherAlreadyRan = false
+        Sail.Strophe.detacherAlreadyRan = false;
         var onUnload = function() {
             if (Sail.Strophe.detacherAlreadyRan) {
-                console.warn("Tried to run Sail.Strophe's onUnload by it has already ran!")
+                console.warn("Tried to run Sail.Strophe's onUnload by it has already ran!");
             } else {
-                console.log("Running Sail.Strophe's onUnload...")
+                console.log("Running Sail.Strophe's onUnload...");
                 
                 // hack to try to force the browser to wait until strophe is done sending stuff
-                Sail.Strophe.conn.sync = true
+                Sail.Strophe.conn.sync = true;
                 
                 // need to leave groupchats to get presence stanzas when we come back
                 for (i = 0; i < Sail.Strophe.groupchats.length; i++) {
-                    console.log("Leaving "+Sail.Strophe.groupchats[i].room+" before detaching...")
-                    Sail.Strophe.groupchats[i].leave()
+                    console.log("Leaving "+Sail.Strophe.groupchats[i].room+" before detaching...");
+                    Sail.Strophe.groupchats[i].leave();
                 }
-                Sail.Strophe.conn.flush()
+                Sail.Strophe.conn.flush();
                 
-                Sail.Strophe.conn.pause() // prevent any further messages from being sent in order to freeze rid
-                Sail.Strophe.storeConnInfo()
-                Sail.Strophe.detacherAlreadyRan = true
+                Sail.Strophe.conn.pause(); // prevent any further messages from being sent in order to freeze rid
+                Sail.Strophe.storeConnInfo();
+                Sail.Strophe.detacherAlreadyRan = true;
             }
-        }
-        $(window).unload(onUnload)
-        $(window).bind('beforeunload', onUnload)
+        };
+        $(window).unload(onUnload);
+        $(window).bind('beforeunload', onUnload);
     },
     
     /**
@@ -157,7 +169,7 @@ Sail.Strophe = {
     onConnect: function (status, error) {
         switch (status) {
             case Strophe.Status.ERROR:
-                console.error('CONNECTION ERROR: '+error)
+                console.error('CONNECTION ERROR: '+error);
                 /**
                     Some general error occurred while trying to connect.
                     @event
@@ -165,21 +177,21 @@ Sail.Strophe = {
                     @params {string} error - Foo
                     @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
-                $(Sail.Strophe).trigger('connect_error', error)
-                break
+                $(Sail.Strophe).trigger('connect_error', error);
+                break;
             case Strophe.Status.CONNECTING:
-                console.log('CONNECTING to '+Sail.Strophe.xmppUrl+' as '+Sail.Strophe.jid+'/'+Sail.Strophe.password)
+                console.log('CONNECTING to '+Sail.Strophe.xmppUrl+' as '+Sail.Strophe.jid+'/'+Sail.Strophe.password);
                 /**
                      The connection is currently being established.
                      @event
                      @name Sail.Strophe.connect_connecting
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
-                $(Sail.Strophe).trigger('connect_connecting')
-                break
+                $(Sail.Strophe).trigger('connect_connecting');
+                break;
             case Strophe.Status.CONNFAIL:
-                msg = 'CONNECTION as '+Sail.Strophe.jid+' FAILED BECAUSE: '
-                console.error(msg, error)
+                msg = 'CONNECTION as '+Sail.Strophe.jid+' FAILED BECAUSE: ';
+                console.error(msg, error);
                 /**
                      The connection attempt failed, for example because the server rejected it.
                      @event
@@ -187,20 +199,20 @@ Sail.Strophe = {
                      @param {string} error - Foo
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
-                $(Sail.Strophe).trigger('connect_connfail', error)
-                break
+                $(Sail.Strophe).trigger('connect_connfail', error);
+                break;
             case Strophe.Status.AUTHENTICATING:
-                console.log('AUTHENTICATING')
+                console.log('AUTHENTICATING');
                 /**
                      Connection credentials are being authenticated.
                      @event
                      @name Sail.Strophe.connect_authenticating
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
-                $(Sail.Strophe).trigger('connect_authenticating', error)
-                break
+                $(Sail.Strophe).trigger('connect_authenticating', error);
+                break;
             case Strophe.Status.AUTHFAIL:
-                console.error("AUTHENTICATION as "+Sail.Strophe.jid+" FAILED: ", error)
+                console.error("AUTHENTICATION as "+Sail.Strophe.jid+" FAILED: ", error);
                 /**
                      Authentication with the XMPP server failed.
                      @event
@@ -208,21 +220,21 @@ Sail.Strophe = {
                      @param {string} error - Foo
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
-                $(Sail.Strophe).trigger('connect_authfail', error)
-                break
+                $(Sail.Strophe).trigger('connect_authfail', error);
+                break;
             case Strophe.Status.CONNECTED:
-                console.log('CONNECTED to '+Sail.Strophe.xmppUrl+' as '+Sail.Strophe.jid)
+                console.log('CONNECTED to '+Sail.Strophe.xmppUrl+' as '+Sail.Strophe.jid);
 
                 Sail.Strophe.bindDetacher();
-                Sail.Strophe.addDefaultXmppHandlers()
+                Sail.Strophe.addDefaultXmppHandlers();
                 /**
                      The connection has been successfully established.
                      @event
                      @name Sail.Strophe.connect_connected
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                   */
-                $(Sail.Strophe).trigger('connect_connected', error)
-                break
+                $(Sail.Strophe).trigger('connect_connected', error);
+                break;
             case Strophe.Status.DISCONNECTED:
                 /**
                      The connection has been terminated.
@@ -230,9 +242,9 @@ Sail.Strophe = {
                      @name Sail.Strophe.connect_disconnected
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
-                $(Sail.Strophe).trigger('connect_disconnected')
+                $(Sail.Strophe).trigger('connect_disconnected');
                 
-                break
+                break;
             case Strophe.Status.DISCONNECTING:
                 /**
                      The connection is currently being terminated.
@@ -240,9 +252,9 @@ Sail.Strophe = {
                      @name Sail.Strophe.connect_disconnecting
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
-                $(Sail.Strophe).trigger('connect_disconnecting')
-                console.log('DISCONNECTING...')
-                break
+                $(Sail.Strophe).trigger('connect_disconnecting');
+                console.log('DISCONNECTING...');
+                break;
             case Strophe.Status.ATTACHED:
                 /**
                      The connection has been attached.
@@ -252,10 +264,10 @@ Sail.Strophe = {
                  */
                  
                  Sail.Strophe.bindDetacher();
-                 Sail.Strophe.addDefaultXmppHandlers()
+                 Sail.Strophe.addDefaultXmppHandlers();
                  
-                $(Sail.Strophe).trigger('connect_attached')
-                break
+                $(Sail.Strophe).trigger('connect_attached');
+                break;
             default:
                 /**
                      The connection process has entered an unrecognized state.
@@ -264,8 +276,8 @@ Sail.Strophe = {
                      @name Sail.Strophe.connect_unknown
                      @see http://strophe.im/strophejs/doc/1.0.2/files2/strophe-js.html#Strophe.Connection_Status_Constants
                  */
-                console.warn('UNKNOWN CONNECTION STATUS: '+status+', ERROR: '+error)
-                $(Sail.Strophe).trigger('connect_unknown')
+                console.warn('UNKNOWN CONNECTION STATUS: '+status+', ERROR: '+error);
+                $(Sail.Strophe).trigger('connect_unknown');
         }
     },
     
@@ -274,16 +286,16 @@ Sail.Strophe = {
         such as a default error stanza handler and a timed pinger.
     */
     addDefaultXmppHandlers: function() {
-        Sail.Strophe.addErrorStanzaHandler(Sail.Strophe.defaultErrorStanzaHandler)
-        Sail.Strophe.pinger()
+        Sail.Strophe.addErrorStanzaHandler(Sail.Strophe.defaultErrorStanzaHandler);
+        Sail.Strophe.pinger();
     },
     
     /**
         The default error stanza handler. Prints out the error text and object to the console.
      */
     defaultErrorStanzaHandler: function(error, text) {
-        console.error("XMPP ERROR: ", text, error)
-        return true
+        console.error("XMPP ERROR: ", text, error);
+        return true;
     },
     
     /**
@@ -297,33 +309,33 @@ Sail.Strophe = {
     log: function(level, message, data) {
         switch(0) {
             case Strophe.LogLevel.DEBUG:
-                logFunc = 'debug'
-                logMsg = "DEBUG: "+message
-                break
+                logFunc = 'debug';
+                logMsg = "DEBUG: "+message;
+                break;
             case Strophe.LogLevel.INFO:
-                logFunc = 'info'
-                logMsg = "INFO: "+message
-                break
+                logFunc = 'info';
+                logMsg = "INFO: "+message;
+                break;
             case Strophe.LogLevel.WARN:
-                logFunc = 'warn'
-                logMsg = "WARN: "+message
-                break
+                logFunc = 'warn';
+                logMsg = "WARN: "+message;
+                break;
             case Strophe.LogLevel.ERROR:
-                logFunc = 'error'
-                logMsg = "ERROR: "+message
-                break
+                logFunc = 'error';
+                logMsg = "ERROR: "+message;
+                break;
             case Strophe.LogLevel.FATAL:
-                logFunc = 'error'
-                logMsg = "FATAL: "+message
-                break
+                logFunc = 'error';
+                logMsg = "FATAL: "+message;
+                break;
             default:
-                logFunc = 'log'
-                logMsg = message
-                break
+                logFunc = 'log';
+                logMsg = message;
+                break;
         }
         
         if (Sail.Strophe.logLevel <= level)
-            console[logFunc](logMsg, data)
+            console[logFunc](logMsg, data);
     },
     
     
@@ -333,9 +345,9 @@ Sail.Strophe = {
     
     storeConnInfo: function() {
         console.log("Storing connection info: ", Sail.Strophe.conn);
-        $.cookie('Sail.jid', Sail.Strophe.conn.jid)
-        $.cookie('Sail.sid', Sail.Strophe.conn.sid)
-        $.cookie('Sail.rid', Sail.Strophe.conn.rid)
+        $.cookie('Sail.jid', Sail.Strophe.conn.jid);
+        $.cookie('Sail.sid', Sail.Strophe.conn.sid);
+        $.cookie('Sail.rid', Sail.Strophe.conn.rid);
     },
     
     retrieveConnInfo: function() {
@@ -343,7 +355,7 @@ Sail.Strophe = {
             jid: $.cookie('Sail.jid'),
             sid: $.cookie('Sail.sid'),
             rid: $.cookie('Sail.rid')
-        }
+        };
     },
     
     clearConnInfo: function() {
@@ -351,36 +363,37 @@ Sail.Strophe = {
         Sail.Strophe.conn.jid = null;
         Sail.Strophe.conn.sid = null;
         Sail.Strophe.conn.rid = null;
-        $.cookie('Sail.jid', null)
-        $.cookie('Sail.sid', null)
-        $.cookie('Sail.rid', null)
+        $.cookie('Sail.jid', null);
+        $.cookie('Sail.sid', null);
+        $.cookie('Sail.rid', null);
     },
     
     hasExistingConnInfo: function() {
-        info = Sail.Strophe.retrieveConnInfo()
-        return info.jid && info.rid && info.sid
+        info = Sail.Strophe.retrieveConnInfo();
+        return info.jid && info.rid && info.sid;
     },
     
     reconnect: function() {
-        if (!Sail.Strophe.xmppUrl) throw "No xmppUrl set!"
+        if (!Sail.Strophe.xmppUrl) throw "No xmppUrl set!";
         
-        info = Sail.Strophe.retrieveConnInfo()
+        info = Sail.Strophe.retrieveConnInfo();
         
-        Sail.Strophe.conn = new Strophe.Connection(Sail.Strophe.xmppUrl)
+        Sail.Strophe.conn = new Strophe.Connection(Sail.Strophe.xmppUrl);
         
-        console.log('REATTACHING TO '+Sail.Strophe.xmppUrl+'WITH: ', info)
-        Sail.Strophe.conn.attach(info.jid, info.sid, info.rid + 1, this.onConnect)
-    },
-}
+        console.log('REATTACHING TO '+Sail.Strophe.xmppUrl+'WITH: ', info);
+        Sail.Strophe.conn.attach(info.jid, info.sid, info.rid + 1, this.onConnect);
+    }
+};
 
 Sail.Strophe.Groupchat = function(room, resource, conn) {
-    this.room = room
-    this.conn = conn || Sail.Strophe.conn
-    this.resource = resource || Sail.Strophe.jid
+    this.room = room;
+    this.conn = conn || Sail.Strophe.conn;
+    this.resource = resource || Sail.Strophe.jid;
     
-    if (!this.conn)
-        throw "No connection given for Groupchat!"
-}
+    if (!this.conn) {
+        throw "No connection given for Groupchat!";
+    }
+};
 
 Sail.Strophe.Groupchat.prototype = {
     
@@ -388,43 +401,44 @@ Sail.Strophe.Groupchat.prototype = {
     
     join: function() {
         if (this.joined) {
-            console.error("Room '"+this.room+"' is already joined... cannot join again.")
+            console.error("Room '"+this.room+"' is already joined... cannot join again.");
         } else {
-            console.log("Joining "+this.room+" as "+this.jid())
+            console.log("Joining "+this.room+" as "+this.jid());
 
-            pres = $pres({to: this.jid()}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
-            this.conn.send(pres.tree())
+            pres = $pres({to: this.jid()}).c('x', {xmlns: 'http://jabber.org/protocol/muc'});
+            this.conn.send(pres.tree());
 
-            this.addDefaultNicknameConflictHandler()
-            this.addDefaultPresenceHandlers()
+            this.addDefaultNicknameConflictHandler();
+            this.addDefaultPresenceHandlers();
             
-            Sail.Strophe.groupchats.push(this)
+            Sail.Strophe.groupchats.push(this);
         }
     },
     
     leave: function() {
         if (this.joined) {
-            console.log("Leaving "+this.room+" as "+this.jid())
+            console.log("Leaving "+this.room+" as "+this.jid());
 
-            pres = $pres({to: this.jid(), type: 'unavailable'}).c('x', {xmlns: 'http://jabber.org/protocol/muc'})
+            pres = $pres({to: this.jid(), type: 'unavailable'}).c('x', {xmlns: 'http://jabber.org/protocol/muc'});
                 
-            this.conn.send(pres.tree())
+            this.conn.send(pres.tree());
             
-            idx = Sail.Strophe.groupchats.indexOf(this)
-            if (idx >= 0)
-                Sail.Strophe.groupchats.splice(idx, 1)
+            idx = Sail.Strophe.groupchats.indexOf(this);
+            if (idx >= 0) {
+                Sail.Strophe.groupchats.splice(idx, 1);
+            }
         } else {
-            console.error("Cannot leave '"+this.room+"' because it has not yet been joined.")
+            console.error("Cannot leave '"+this.room+"' because it has not yet been joined.");
         }
     },
     
     jid: function() {
-        return this.room + "/" + this.resource
+        return this.room + "/" + this.resource;
     },
 
     // executes yes callback if this Groupchat object is joined to the room, no callback otherwise or on error
     isJoined: function (yes, no) {
-        var iq = $iq({to: this.room, type: 'get'}).c('query', {xmlns: 'http://jabber.org/protocol/disco#items'})
+        var iq = $iq({to: this.room, type: 'get'}).c('query', {xmlns: 'http://jabber.org/protocol/disco#items'});
 
         var cb = function(riq) {
             if ($(riq).find('item[jid="'+Sail.app.groupchat.jid()+'"]').length > 0) {
@@ -440,144 +454,158 @@ Sail.Strophe.Groupchat.prototype = {
     
     sendEvent: function(event) {
         if (Sail.app.allowRunlessEvents === false && !event.run) {
-            err = "Cannot create a Sail.Event without a run because this Sail app does not allow runless events!"
-            console.error(err)
-            throw err
+            err = "Cannot create a Sail.Event without a run because this Sail app does not allow runless events!";
+            console.error(err);
+            throw err;
         }
         
         /*if (Sail.Strophe.dataMode == 'xml')
             this.sendXML(event.toXML())
-        else*/ if (Sail.Strophe.dataMode == 'json')
-            this.sendJSON(event.toJSON())
-        else // FIXME: this isn't really right...
-            this.sendText(event)
+        else*/ if (Sail.Strophe.dataMode == 'json') {
+            this.sendJSON(event.toJSON());
+        } else { // FIXME: this isn't really right...
+            this.sendText(event);
+        }
     },
     
     sendXML: function(xml) {
-        msg = $msg({to: this.room, type: 'groupchat'}).c('body').cnode($(xml)[0])
-        this.conn.send(msg.tree())
+        msg = $msg({to: this.room, type: 'groupchat'}).c('body').cnode($(xml)[0]);
+        this.conn.send(msg.tree());
     },
     
     sendText: function(text) {
-        msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(text)
-        this.conn.send(msg.tree())
+        msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(text);
+        this.conn.send(msg.tree());
     },
     
     sendJSON: function(json) {
-        if (typeof json == "string")
-            json_string = json
-        else
-            json_string = JSON.stringify(json)
+        if (typeof json == "string") {
+            json_string = json;
+        } else {
+            json_string = JSON.stringify(json);
+        }
         
-        msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(json_string)
-        this.conn.send(msg.tree())
+        msg = $msg({to: this.room, type: 'groupchat'}).c('body').t(json_string);
+        this.conn.send(msg.tree());
     },
     
     addEventHandler: function(handler, eventType, origin, payload, run) {
-        return this.addGroupchatStanzaHandler(Sail.generateSailEventHandler(handler, eventType, origin, payload, run))
+        return this.addGroupchatStanzaHandler(Sail.generateSailEventHandler(handler, eventType, origin, payload, run));
     },
     
     addOneoffEventHandler: function(handler, eventType, origin, payload, run) {
-        var handlerRef
-        var conn = this.conn
-        if (!conn) throw "Must connect before you can add handlers"
-        var selfDeletingHandler = function(sev) {
-            handler(sev)
-            conn.deleteHandler(handlerRef)
+        var handlerRef;
+        var conn = this.conn;
+        if (!conn) {
+            throw "Must connect before you can add handlers";
         }
-        var sailEventHandler = Sail.generateSailEventHandler(selfDeletingHandler, eventType, origin, payload, run)
-        handlerRef = this.addGroupchatStanzaHandler(sailEventHandler)
-        return handlerRef
+
+        var selfDeletingHandler = function(sev) {
+            handler(sev);
+            conn.deleteHandler(handlerRef);
+        };
+        
+        var sailEventHandler = Sail.generateSailEventHandler(selfDeletingHandler, eventType, origin, payload, run);
+        handlerRef = this.addGroupchatStanzaHandler(sailEventHandler);
+        return handlerRef;
     },
     
     addGroupchatStanzaHandler: function(handler, ns, name, id, from) {
-        if (!this.conn) throw "Must connect before you can add handlers"
-        return this.conn.addHandler(function(stanza){handler(stanza);return true}, ns, name, "groupchat", id, from)
+        if (!this.conn) throw "Must connect before you can add handlers";
+        return this.conn.addHandler(function(stanza){handler(stanza);return true;}, ns, name, "groupchat", id, from);
     },
     
     addOneoffGroupchatStanzaHandler: function(handler, ns, name, id, from) {
-        if (!this.conn) throw "Must connect before you can add handlers"
-        return this.conn.addHandler(function(stanza){handler(stanza);return false}, ns, name, "groupchat", id, from)
+        if (!this.conn) {
+            throw "Must connect before you can add handlers";
+        }
+        return this.conn.addHandler(function(stanza) {
+            handler(stanza);
+            return false;
+        }, ns, name, "groupchat", id, from);
     },
     
     addParticipantJoinedHandler: function(handler) {
         return this.conn.addHandler(function(stanza){
-                if ($(stanza).attr('type') != null)
-                    return true // doesn't seem to be a way to do this at addHandler's filter level
-                who = $(stanza).attr('from')
-                handler(who, stanza)
-                return true
-            }, null, "presence", null, null, this.room, {matchBare: true})
+                if ($(stanza).attr('type') != null) {
+                    return true; // doesn't seem to be a way to do this at addHandler's filter level
+                }
+                who = $(stanza).attr('from');
+                handler(who, stanza);
+                return true;
+            }, null, "presence", null, null, this.room, {matchBare: true});
     },
     
     addParticipantLeftHandler: function(handler) {
         return this.conn.addHandler(function(stanza){
-                who = $(stanza).attr('from')
-                handler(who, stanza)
-                return true
-            }, null, "presence", "unavailable", null, this.room, {matchBare: true})
+                who = $(stanza).attr('from');
+                handler(who, stanza);
+                return true;
+            }, null, "presence", "unavailable", null, this.room, {matchBare: true});
     },
     
     addSelfJoinedHandler: function(handler) {
         return this.conn.addHandler(function(stanza){
-                if ($(stanza).attr('type') != null)
-                    return true // doesn't seem to be a way to do this at addHandler's filter level
-                handler(stanza)
-                return true
-            }, null, "presence", null, null, this.jid())
+                if ($(stanza).attr('type') != null) {
+                    return true; // doesn't seem to be a way to do this at addHandler's filter level
+                }
+                handler(stanza);
+                return true;
+            }, null, "presence", null, null, this.jid());
     },
     
     addSelfLeftHandler: function(handler) {
         return this.conn.addHandler(function(stanza){
-                handler(stanza)
-                return true
-            }, null, "presence", "unavailable", null, this.jid())
+                handler(stanza);
+                return true;
+            }, null, "presence", "unavailable", null, this.jid());
     },
     
     addDefaultNicknameConflictHandler: function() {
-        chat = this
+        chat = this;
         
         chat.conn.addHandler(function(stanza, text) {
-            error = $(stanza).children('error').eq(0)
+            error = $(stanza).children('error').eq(0);
             
             // we're looking for errors of type 'cancel' with a 'conflict' element
-            if ($(error).attr('type') != 'cancel' || $(error).children('conflict').length == 0)
-                return true // not what we're looking for, ignore it
+            if ($(error).attr('type') != 'cancel' || $(error).children('conflict').length === 0) {
+                return true; // not what we're looking for, ignore it
+            }
             
-            newNick = chat.resource+'~'+Math.floor((Math.random()*1e7)).toString(25)
+            newNick = chat.resource+'~'+Math.floor((Math.random()*1e7)).toString(25);
             
-            console.warn("Nickname '"+chat.resource+"' is already taken in '"+chat.room+"'. Will try to join as '"+newNick+"'.")
+            console.warn("Nickname '"+chat.resource+"' is already taken in '"+chat.room+"'. Will try to join as '"+newNick+"'.");
             
-            chat.resource = newNick
-            chat.join()
+            chat.resource = newNick;
+            chat.join();
             
-            return true
-        }, null, null, 'error')
+            return true;
+        }, null, null, 'error');
     },
     
     addDefaultPresenceHandlers: function() {
-        chat = this
+        chat = this;
         
         this.addParticipantJoinedHandler(function(who, stanza) {
-            chat.participants[who] = who
-            console.log(who+" JOINED "+chat.room)
-        })
+            chat.participants[who] = who;
+            console.log(who+" JOINED "+chat.room);
+        });
         
         this.addParticipantLeftHandler(function(who, stanza) {
-            delete chat.participants[who]
-            console.log(who+" LEFT "+chat.room)
-        })
+            delete chat.participants[who];
+            console.log(who+" LEFT "+chat.room);
+        });
         
         this.addSelfJoinedHandler(function(who, stanza) {
-            chat.joined = true
-            console.log("JOINED "+chat.room)
-        })
+            chat.joined = true;
+            console.log("JOINED "+chat.room);
+        });
         
         this.addSelfLeftHandler(function(who, stanza) {
-            console.log("LEFT "+chat.room)
-        })
-    },
-}
+            console.log("LEFT "+chat.room);
+        });
+    }
+};
 
 
-Strophe.log = Sail.Strophe.log
+Strophe.log = Sail.Strophe.log;
