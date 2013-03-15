@@ -112,18 +112,6 @@ window.Sail = window.Sail || {};
                 cache: false,
                 success: function(data) {
                     app.config = data;
-
-                    var err;
-                    if (!data.xmpp || !data.xmpp.domain) {
-                        err = "Missing XMPP domain in config.json!";
-                        console.error(err);
-                        throw err;
-                    }
-
-                    app.xmppDomain = data.xmpp.domain;
-
-                    if (data.rollcall)
-                        app.rollcallURL = data.rollcall.url;
                 },
                 error: function(xhr, code, error) {
                     console.error("Couldn't load `config.json`: ", code, error, xhr);
