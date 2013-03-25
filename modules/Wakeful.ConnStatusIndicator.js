@@ -44,7 +44,7 @@ Wakeful.ConnStatusIndicator = (function() {
 
             // note that this is triggered for each wakeful object that loses Faye connection
             Wakeful.bind('transport:down', function (obj) {
-                showConnecting("CONNECTION LOST...");
+                showConnecting("CONNECTION LOST... RECONNECTING...");
             });
         },
         
