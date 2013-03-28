@@ -71,7 +71,7 @@ window.Sail = window.Sail || {};
         Sail.app = app;
         Sail.loader
             .thenRun(function() {
-                Sail.configure(Sail.app);
+                Sail.app.loadConfig();
                 Sail.app.init();
 
                 if (Sail.app.allowRunlessEvents === undefined)
@@ -94,31 +94,6 @@ window.Sail = window.Sail || {};
             });
         
         return true;
-    };
-
-    /**
-        Retrieves a JSON config file from "/config.json" and configures
-        the given Sail app accordingly.
-        
-        @param {object} app - The Sail app object to be configured.
-        @param {object} [options] - Additional options for configuration. Currently unused.
-    */
-    Sail.loadConfig = function(app, opts) {
-        jQuery.ajax(
-            {
-                url: '/config.json', 
-                dataType: 'json',
-                async: false,
-                cache: false,
-                success: function(data) {
-                    app.config = data;
-                },
-                error: function(xhr, code, error) {
-                    console.error("Couldn't load `config.json`: ", code, error, xhr);
-                    alert("Couldn't load `config.json` because:\n\n"+error+" ("+code+")");
-                }
-            }
-        );
     };
 
     /**
@@ -530,19 +505,44 @@ window.Sail = window.Sail || {};
     };
 
     Sail.App = function () {
-        this.on = function (event, callback) {
+        var app = this;
+
+        app.on = function (event, callback) {
             jQuery(this).on(event, callback);
             return this;
         };
-        this.bind = this.on;
-        this.off = function (event) {
+        app.bind = this.on;
+        app.off = function (event) {
             jQuery(this).unbind(event);
             return this;
         };
-        this.off = this.off;
-        this.trigger = function (event, args) {
+        app.off = this.off;
+        app.trigger = function (event, args) {
             jQuery(this).trigger.apply(jQuery(this), arguments);
             return this;
+        };
+
+        /**
+        Retrieves a JSON config file from "/config.json" and configures
+        the given Sail app accordingly.
+        */
+        app.loadConfig = function() {
+            var configUrl = '/config.json';
+            jQuery.ajax(
+                {
+                    url: configUrl, 
+                    dataType: 'json',
+                    async: false,
+                    cache: false,
+                    success: function(data) {
+                        app.config = data;
+                    },
+                    error: function(xhr, code, error) {
+                        console.error("Couldn't load `"+configUrl+"`: ", code, error, xhr);
+                        alert("Couldn't load `"+configUrl+"` because:\n\n"+error+" ("+code+")");
+                    }
+                }
+            );
         };
     };
 
