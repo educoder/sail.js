@@ -43,7 +43,7 @@ Strophe.AutoConnector = (function() {
     }
     
     function connectSuccess (ev) {
-        var groupchatRoom = Sail.app.groupchatRoom || Sail.app.run.name + '@conference.' + Sail.app.xmppDomain;
+        var groupchatRoom = Sail.app.groupchatRoom || Sail.app.run.name + '@conference.' + Sail.app.config.xmpp.domain;
         Sail.app.groupchat = new Sail.Strophe.Groupchat(groupchatRoom, Sail.app.nickname || null);
         
         var sailHandler = Sail.generateSailEventHandlerFromMap(Sail.app);
@@ -69,7 +69,7 @@ Strophe.AutoConnector = (function() {
         var info = Sail.Strophe.retrieveConnInfo();
         Sail.Strophe.jid = info.jid;
         
-        var groupchatRoom = Sail.app.groupchatRoom || Sail.app.run.name + '@conference.' + Sail.app.xmppDomain;
+        var groupchatRoom = Sail.app.groupchatRoom || Sail.app.run.name + '@conference.' + Sail.app.config.xmpp.domain;
         Sail.app.groupchat = new Sail.Strophe.Groupchat(groupchatRoom, Sail.app.nickname || null);
         
         var sailHandler = Sail.generateSailEventHandlerFromMap(Sail.app);
@@ -146,15 +146,15 @@ Strophe.AutoConnector = (function() {
         
         authenticated: function() {
             if (Sail.app.run)
-                Sail.app.groupchatRoom = Sail.app.run.name+'@conference.'+Sail.app.xmppDomain;
+                Sail.app.groupchatRoom = Sail.app.run.name+'@conference.'+Sail.app.config.xmpp.domain;
             
             if (self.options.mode === 'anon' || self.options.mode === 'pseudo-anon') {
                 
                 if (self.options.mode === 'pseudo-anon') {
-                    Sail.Strophe.jid = Sail.app.username + '@' + Sail.app.xmppDomain;
+                    Sail.Strophe.jid = Sail.app.username + '@' + Sail.app.config.xmpp.domain;
                     Sail.Strophe.password = Sail.app.password;
                 } else {
-                    Sail.Strophe.jid = Sail.app.xmppDomain;
+                    Sail.Strophe.jid = Sail.app.config.xmpp.domain;
                     Sail.Strophe.password = "";
                 }
 
@@ -180,7 +180,7 @@ Strophe.AutoConnector = (function() {
                 console.log("Authenticated as: ", session.account.login, session.account.encrypted_password);
                 
                 Sail.app.nickname = session.account.login;
-                Sail.Strophe.jid = session.account.login + '@' + Sail.app.xmppDomain;
+                Sail.Strophe.jid = session.account.login + '@' + Sail.app.config.xmpp.domain;
                 Sail.Strophe.password = session.account.encrypted_password;
 
                 Sail.app.token = Sail.app.rollcall.getCurrentToken();
