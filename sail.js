@@ -103,7 +103,7 @@ window.Sail = window.Sail || {};
         @param {object} app - The Sail app object to be configured.
         @param {object} [options] - Additional options for configuration. Currently unused.
     */
-    Sail.configure = function(app, opts) {
+    Sail.loadConfig = function(app, opts) {
         jQuery.ajax(
             {
                 url: '/config.json', 
