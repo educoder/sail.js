@@ -36,7 +36,7 @@ window.Sail = window.Sail || {};
     */
     Sail.load = function () {
         Sail.loader = 
-            load(Sail.JS_ROOT_PATH+'/deps.base.BUNDLE.js')
+            load(Sail.JS_ROOT_PATH+'/deps.base.Bundle.new.js')
             .then(Sail.JS_ROOT_PATH+'/sail.strophe.js',
                   Sail.JS_ROOT_PATH+'/sail.ui.js');
                     
@@ -112,18 +112,6 @@ window.Sail = window.Sail || {};
                 cache: false,
                 success: function(data) {
                     app.config = data;
-
-                    var err;
-                    if (!data.xmpp || !data.xmpp.domain) {
-                        err = "Missing XMPP domain in config.json!";
-                        console.error(err);
-                        throw err;
-                    }
-
-                    app.xmppDomain = data.xmpp.domain;
-
-                    if (data.rollcall)
-                        app.rollcallURL = data.rollcall.url;
                 },
                 error: function(xhr, code, error) {
                     console.error("Couldn't load `config.json`: ", code, error, xhr);
@@ -553,7 +541,7 @@ window.Sail = window.Sail || {};
         };
         this.off = this.off;
         this.trigger = function (event, args) {
-            jQuery(this).trigger.apply(jQuery(this), arguments)
+            jQuery(this).trigger.apply(jQuery(this), arguments);
             return this;
         };
     };
