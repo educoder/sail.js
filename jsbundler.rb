@@ -8,7 +8,7 @@ BUNDLES['deps.base'] = [
   'deps/jquery.cookie',
   'deps/jquery-ui-1.9.1',
   'deps/underscore-1.4.4',
-  'deps/backbone-0.9.10',
+  'deps/backbone-1.0.0',
   'deps/moment-1.1.0',
   'deps/strophe',
   'deps/strophe.ping',
