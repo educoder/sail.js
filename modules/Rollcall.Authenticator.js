@@ -42,7 +42,8 @@ Rollcall.Authenticator = {
             Sail.app.rollcall.unsetToken();
             Sail.app.run = null;
             $.cookie('run', null);
-            Sail.Strophe.clearConnInfo();
+            if (Sail.Strophe.conn) // FIXME: this doesn't belong here
+                Sail.Strophe.clearConnInfo(); 
             $(Sail.app).trigger('unauthenticated');
         }
 
