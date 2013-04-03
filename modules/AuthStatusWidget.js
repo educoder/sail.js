@@ -1,7 +1,7 @@
-/*globals browser: true, devel: true */
+/*jshint browser: true, devel: true */
 /*globals Sail, jQuery */
 
-var AuthStatusWidget = (function () {
+window.AuthStatusWidget = (function () {
     var mod = {};
 
     mod.options = {
@@ -10,15 +10,15 @@ var AuthStatusWidget = (function () {
     };
     
     mod.events = {
-        initialized: function(ev) {
+        initialized: function() {
             Sail.loadCSS(Sail.modules.PATH + 'AuthStatusWidget.css');
         },
         
-        authenticated: function(ev) {
+        authenticated: function() {
             mod.showIndicator(mod.options.indicatorContainer);
         },
         
-        unauthenticated: function(ev) {
+        unauthenticated: function() {
             jQuery('#auth-indicator').remove();
         }
     };
@@ -31,17 +31,23 @@ var AuthStatusWidget = (function () {
         indicator.append(authAs);
 
         if (mod.options.clickNameToLogout) {
-            authAs.append('<a href="#">'+Sail.app.nickname+'</a>');
+            authAs.append('<a class="nickname" href="#"></a>');
         } else {
-            authAs.text(Sail.app.nickname);
+            authAs.append('<span class="nickname"></span>');
             indicator.append('<div id="logout-button">[<a href="#">Logout</a>]</div>');
         }
-        
+
+        authAs.find('.nickname').text(Sail.app.nickname || Sail.app.session.account.login || "???");
+
         indicator.find('a').click(function() {
             jQuery(Sail.app).trigger('logout');
         });
         
         jQuery(inContainer || 'body').append(indicator);
+    };
+
+    mod.updateNickname = function(newNickname) {
+        jQuery('#auth-indicator .nickname').text(newNickname);
     };
 
     return mod;
