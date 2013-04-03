@@ -27,7 +27,7 @@ module.exports = function(grunt) {
     minified : {
       files: {
         src: [
-        'deps.base.Bundle.new.js'
+        
         ],
         dest: ''
       },
